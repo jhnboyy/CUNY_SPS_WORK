@@ -1,0 +1,182 @@
+---
+title: "Tidyverse Create"
+author: "Matthew Tillmawitz"
+date: "2024-11-03"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+## Dealing with nested data
+
+In this vignette we will explore the basics of the `unnest()` function from the `tidyr` package.
+
+
+First, a definition of nested data: simply put, it is when a cell of a dataframe contains multiple observations. This occurs most often when you have a list of elements contained in a cell. Nested data occurs frequently when interacting with APIs or producing models or forecasts and it is therefore important to learn how to handle it.
+
+### Making an example
+
+For ease of understanding, we will be constructing our own nested examples. We will be working with data from two weather stations in Colorado, one at Breckenridge and the other at Dillon. Both files have the same format, containing columns tracking date, minimum and maximum temperatures, precipitation, and snowfall.
+
+```{r read_data, message=FALSE, cache=TRUE}
+# You can read straight from URLs, no need to download files
+breck_data <- read_delim("https://raw.githubusercontent.com/Tillmawitz/data_607/refs/heads/main/project_data/breckenridge.csv", delim = ",")
+dillon_data <- read_delim("https://raw.githubusercontent.com/Tillmawitz/data_607/refs/heads/main/project_data/dillon.csv", delim = ",")
+
+# read_delim automatically detected the date column had dates and used the correct data type
+head(breck_data)
+```
+
+Building our toy example is simple, but pay attention to the datatype of `station_df`. The column itself contains objects of type `list`, but nested data can come in many forms and in this case we have stored entire dataframes in each cell.
+
+```{r construct_df}
+# Constructing our artificially nested dataframe
+nested_data <- tibble(
+  weather_station = c("Breckenridge", "Dillon"),
+  station_df = list(breck_data, dillon_data)
+)
+
+nested_data
+```
+
+### Unnesting the data
+
+Unnesting nicely formatted data like we have is very simple with the `unnest()` function. We can see the column data types were preserved, and all the dataframes in station_df were unpacked properly. Other row values are recycled as station_df is unnested, which we can see with the `weather_station` value for each of the nested dataframes.
+
+```{r simple_unnest}
+# Unnesting the data, only picking a few rows for visibility
+unnested_data <- nested_data |>
+  unnest(station_df) |>
+  # With lubridate you can use strings formatted as dates for comparison to date objects
+  filter(date > "2021-01-01" & date < "2021-01-08")
+
+unnested_data
+```
+
+Lets look at a more complicated example by splitting the weather data into two separate dataframes, one tracking the dates and temperatures and the other tracking dates and precipitation information. We will stick to a short window for this example, and note that we are tracking slightly different windows for Breckenridge and Dillon.
+
+```{r slice and dice}
+# Splitting our data by column using ranges and exclusions
+breck_temps <- breck_data |> select(date:min_temp) |> filter(date >= "2021-01-01" & date <= "2021-01-05")
+breck_precip <- breck_data |> select(-(max_temp:min_temp)) |> filter(date >= "2021-01-01" & date <= "2021-01-05")
+
+# Doing the same split but shifting dates
+dillon_temps <- dillon_data |> select(date:min_temp) |> filter(date >= "2020-12-31" & date <= "2021-01-04")
+dillon_precip <- dillon_data |> select(-(max_temp:min_temp)) |> filter(date >= "2020-12-31" & date <= "2021-01-04")
+
+# The station_temps and station_precipitation columns need to be lists to force everything to two lines
+multi_nest <- tibble(
+  weather_station = c("Breckenridge", "Dillon"), 
+  station_temps = list(breck_temps, dillon_temps),
+  station_precipitation = list(breck_precip, dillon_precip)
+)
+
+multi_nest
+```
+
+Simply calling unnest no longer works! We are getting an error because the dataframes in both station_temps and station_precipitation have a column called `date`. This results in a column name collision, and we need to specify how this should be handled.
+
+```{r this is supposed to fail, error=TRUE}
+multi_nest |>
+  unnest(c(station_temps, station_precipitation))
+```
+
+To fix the name collision we need to use the `names_repair` parameter. By selecting "unique" we require the column names to be, as you may guess, unique. The `unnest()` function renames the colliding columns for us and nicely unnests our data as before. Notice that each station has the proper date range and there are no extra empty values.
+
+```{r fix those names}
+# Columns with the same name need to be separated even if we know they will match
+proper_unnesting <- multi_nest |>
+  # Calling both columns in the same unnest function
+  unnest(c(station_temps, station_precipitation), names_repair = "unique")
+nrow(proper_unnesting)
+proper_unnesting
+```
+
+When we called `unnest()` above we only called it once and passed all the columns we wanted unnested at the same time. If we were to instead call `unnest()` for each column individually we end up with the Cartesian product of the columns. If you are unfamiliar with this term don't worry, all you need to know is that you most likely do not want this. Look at the `date...` columns if you want to better understand what the Cartesian product is.
+
+```{r cartesian product}
+# Unnesting step by step produces the cartesian product which can get very large very quickly, you likely want to avoid this
+cartesian_product <- multi_nest |>
+  unnest(station_temps) |>
+  unnest(station_precipitation, names_repair = "universal")
+nrow(cartesian_product)
+cartesian_product
+```
+
+### Next steps
+
+We only covered a few examples here, but there are many more possibilities for nested data. Imagine we sorted station_temps and station_precipitation in opposite orders (one ascending by date and the other descending) or instead of using different windows for the resorts we had different windows for the nested dataframes. Handling these scenarios would be a good extension of this example...
+
+
+### -------------------------------------Extension of Nested Vingette -------------------------------------
+Using the initial unnest example used in this vingette, we will explore some other inputs and features for the `unnest()` function. 
+
+### keep_empty 
+Using this input variable we can handle instance where there may not be a value available to unnest. As you know data is hardly ever perfect. In this instance lets say, that there is a Third Weather Station that does not have a nested df within the station_df column. However, even though we dont have data for this station we want to keep the station_name itself in t he data for future reference. For this we will use the "keep_empty" function.Lets set up this example. 
+
+```{r extension1}
+## Filtering the Breck and Dillon date by dates first because of how the example is structured
+
+dates_breck_data <- breck_data |> filter(date > "2021-01-01" & date < "2021-01-08")
+dates_dillon_data <- dillon_data |>filter(date > "2021-01-01" & date < "2021-01-08")
+
+#Recreating the Nested data 
+nested_data <- tibble(
+  weather_station = c("Breckenridge", "Dillon"),
+  station_df = list(dates_breck_data, dates_dillon_data)
+)
+
+## Adding a new row for our "keep_empty" example
+new_row <- tibble(
+  weather_station = c("Third Station"),
+  station_df = list(NULL))
+
+nested_empty_ex <- rbind(nested_data, new_row)
+  
+# Taking a look at the new nested data
+nested_empty_ex
+
+# Going ahead and unnesting this data (first with the default settings)
+unnested_data_ex <- nested_empty_ex |>
+    unnest(station_df)
+
+# Looking at the results we can see the "Third Station" is no longer in the data.
+unnested_data_ex
+
+#However, if we set the "keep_empty" input value to true. We then retain that datapoint. 
+
+# Going ahead and unnesting this data (Now using the "keep_empty" )
+thirdstation_unnested_data <- nested_empty_ex |>
+    unnest(station_df, keep_empty = TRUE)
+
+# Looking at results
+thirdstation_unnested_data
+```
+
+### names_sep
+
+Another means of handling the names of columns that users should know when workign with the unnest function is the "names_sep" input parameter. Lets say we already had a date column in the nested df. We want to handle this column name conflict by keeping the column name that we unested the data from. This will maintain unique column names for the new unnested df. With the "names_sep" input, we can specify a character we want to use to join the name of the original nested column and the nested df column names. 
+``` {r extension2}
+nested_data <- tibble(
+  date = c("2021-01-01","2021-01-01"),
+  weather_station = c("Breckenridge", "Dillon"),
+  station_df = list(breck_data, dillon_data)
+)
+#Taking a look at the data
+nested_data
+
+### lets try to simply unnest the data knowing that there is also a date in the nested dfs
+dates_unnested_data <- nested_data |>
+    unnest(station_df)
+
+# This gives us an error! We need to fix the columns. In addition to the way outlined above, we can use the names_sep parameter.
+unnested_with_sep <- nested_data %>%
+  unnest(station_df, names_sep = "_")
+
+#looking at results
+unnested_with_sep
+
+```

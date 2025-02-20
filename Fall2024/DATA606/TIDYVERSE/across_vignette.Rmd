@@ -1,0 +1,91 @@
+---
+title: "TidyVerse CREATE"
+author: "Kevin Havis"
+date: "2024-10-24"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Tidy operations across columns
+
+In this vignette we will walk through a useful function in the `dplyr` package for column-wise operations; `across()`.
+
+```{r}
+library(tidyverse)
+
+# Load initial data
+
+df <- as_tibble(trees)
+```
+
+`across()` is best paired with `mutate()`. Consider we would like to rank the respective `Girth`, `Height`, and `Volume` of the black cherry trees in the `trees` data.
+
+```{r}
+# Without across()
+df |> 
+  mutate(
+    girth_rank = rank(Girth),
+    height_rank = rank(Height),
+    vol_rank = rank(Volume)
+  )
+```
+
+This is easy enough but what if we had many columns? Or we did not know how many columns we are going to operate across?
+
+We can use `across()` in conjunction with `mutate()` to perform this operation.
+
+```{r}
+# With across()
+df |> 
+  mutate(
+    across(
+      .cols = everything(),    # Operate across all columns
+      .fns = rank,              # The function(s) to perform
+      .names = "{.col}_rank"   # How the new columns should be named
+    )
+  )
+```
+
+We can also specify what *type* of columns we would like to perform by replacing `everything()` with `starts_with()`. You could also use `is.character` or `is.numerical`, which is useful for things such as string normalization, rounding floats into integers, etc.
+
+```{r}
+# Using across for specific columns
+df |> 
+  mutate(
+    across(
+      .cols = starts_with(c("Height", "Volume")),    # Operate on subset of cols
+      .fns = rank,                       
+      .names = "{.col}_rank"            
+    )
+  )
+```
+```{r}
+# Operate on specific column type
+df |> 
+  mutate(
+    tree = "I'm not a tree..."
+  ) |> 
+  mutate(
+    across(
+      .cols = where(is.character),  # Select character columns only
+      .fns = ~ "I'm a tree!"               # Replace values with "tree"
+    )
+  )
+```
+
+```{r}
+# Round numeric columns to integers
+
+df |> 
+  mutate(
+    across(
+      .cols = where(is.numeric),  # Select all numeric columns
+      .fns = ~ round(.x),         # Apply round() to each column
+      .names = "{.col}_int"       # Create new columns with _int suffix
+    )
+  )
+```
+
