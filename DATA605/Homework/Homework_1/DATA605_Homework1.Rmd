@@ -1,0 +1,391 @@
+---
+title: "Matrix Transformations and Decompositions"
+author: "Your Name"
+date: "`r Sys.Date()`"
+output: pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(tidyverse)
+```
+
+
+
+```
+# Geometric Transformation of Shapes Using Matrix Multiplication
+
+## Context
+In computer graphics and data visualization, geometric transformations are fundamental. These transformations, such as translation, scaling, rotation, and reflection, can be applied to shapes to manipulate their appearance.
+
+## Task
+Create a simple shape (like a square or triangle) using point plots in R. Implement R code to apply different transformations (scaling, rotation, reflection) to the shape by left multiplying a transformation matrix by each of the point vectors. Demonstrate these transformations through animated plots.
+
+### Create a Shape
+Define a simple shape (e.g., a square) using a set of point coordinates.
+
+```{r create_shape}
+
+## I intiially created this matrix of a square shape with 4 points.
+square <- matrix(c(2,2,4,4,2,4,2,4), nrow=4)
+print(square)
+plot(square, asp=1)
+
+## Building out to have more than the corners, so a slightly longer matrix.
+square <- matrix(c(2,2,2,3,4,4,4,3,2,3,4,4,4,3,2,2), ncol = 2)
+print(square)
+plot(square, asp=1)
+
+### -------------------------------------------- THIS MAY NOT BE NEEDED. 
+## However, the matrix for this 2-D square is not a square one. It is 2x8. i would need to make it square in order to use eigenvectors. Which I was unsure of how to do. However, after some digging it seems i can use a "covariance" matrix in order to capture the information between the points in my original matrix. The corvariance matrix will then be square. THis is what i can use for eigenvalues and eigenvectors. 
+
+### Calculating the covariance matrix for my original shape. 
+### The formula for calculating the covariance matrix is: C = Mt * M
+
+## First we transpose the matrix:
+
+transposed_square = t(square)
+
+## Then we use matrix multiplication:
+
+covar_mtx <- transposed_square %*% square 
+print(covar_mtx) 
+
+## Using 2/17 slide the 
+
+covar_egval <- eigen(covar_mtx)
+covar_egval$values
+## Now we have a 2 x 2 matrix that is representative of the initial square shape matrix.
+### ------------------------------------------------------------------------------------------
+
+
+
+```
+
+
+### Apply Transformations
+
+- **Scaling:** Enlarge or shrink the shape.
+```{r shape_transform_scaled}
+### Scaling the Shape Using Matrix Multplication
+
+## Referencing the Slide from the 2/17 Class
+scaling_matrix = matrix(c(2,0,0,2),ncol=2)
+print(scaling_matrix)
+
+scaled_square <- square %*% scaling_matrix
+print(scaled_square)
+
+# Plot both matrices
+ggplot() +
+  geom_point(data=as.data.frame(square), aes(V1, V2), color="blue") +
+  geom_point(data=as.data.frame(scaled_square), aes(V1, V2), color="red")+
+  coord_fixed()
+  
+## The shape is 2x scaled, but also moved a bit to the right.
+```
+
+- **Rotation:** Rotate the shape by a given angle.
+
+``` {r shape_transform_rotate}
+### Using the original square shape matrix for rotation.
+
+## Referencing the slide from 2/17 the rotation matrix is cos and sin of theta. 
+## If we want to rotate the shape 45 degrees, we need to represent that via theta in radians first.
+## Formula for degress to radians is: radians = degrees*(pi/180)
+
+degrees <- 45 
+radians_theta <- degrees * (pi/180)
+print(radians_theta)
+
+rotation_matrix <- matrix(c(cos(radians_theta), sin(radians_theta), -sin(radians_theta), cos(radians_theta)), nrow = 2, byrow = TRUE)
+
+print(rotation_matrix)
+
+## Using Matric multiplication to rotate original square matrix
+rotated_square_45deg <- square%*%rotation_matrix
+
+# Plot both matrices
+ggplot() +
+  geom_point(data=as.data.frame(square), aes(V1, V2), color="blue") +
+  geom_point(data=as.data.frame(rotated_square_45deg), aes(V1, V2), color="red")+
+  coord_fixed()
+
+## The square was successfully rotated, but also seems to have shifted to the left a bit.
+
+```
+
+- **Reflection:** Reflect the shape across an axis.
+``` {r shape_transform_reflect}
+ 
+## This was not in the 2/17 slide so referenced the internet for a "how to". In order to reflect a shape over an axis, it is multiplied by a modified version of the identity matrix with one negative value depending on what axis is being reflected over. 
+# X Axis Reflection Matrix
+x_axis_reflect <- matrix(c(1,0,0,-1),ncol=2)
+print(x_axis_reflect)
+
+## Reflecting Rotated_sqare over the X axis
+x_reflect_sq <- square %*%  x_axis_reflect
+plot(x_reflect_sq, asp=1)
+
+# y Axis Reflection Matrix
+y_axis_reflect <- matrix(c(-1,0,0,1),ncol=2)
+print(y_axis_reflect)
+
+## Reflecting Rotated_sqare over the Y axis
+y_reflect_sq <- square %*%  y_axis_reflect
+plot(y_reflect_sq, asp=1)
+
+# Plot all matrices
+ggplot() +
+  geom_point(data=as.data.frame(square), aes(V1, V2), color="blue") +
+  geom_point(data=as.data.frame(x_reflect_sq), aes(V1, V2), color="red")+
+  geom_point(data=as.data.frame(y_reflect_sq), aes(V1, V2), color="green")+
+  coord_fixed()
+```
+
+
+### Animate Transformations
+Use a loop to incrementally change the transformation matrix and visualize the effect on the shape over time.
+``` {r animation_transoformation}
+## Making a vector to loop through transformation types 
+looping <- c("original","scale","rotate","reflect")
+
+<!--used this to help: https://www.youtube.com/watch?v=LpICOCbmxks -->
+
+### Presetting the axis ranges fro anumation
+lower <- -10
+upper <- 10
+
+
+for(l in looping){
+  if(l == "original"){
+    running_matrix <-square
+    print(plot(running_matrix, type='l',asp=1,xlim=c(lower,upper), ylim=c(lower,upper),main="Original Shape"))
+    Sys.sleep(1)
+  } else if(l =="scale"){
+    print("scaled plot")
+    for (scl in c(0.5,1.5,2)){
+      scaling_matrix = matrix(c(scl,0,0,scl),ncol=2)
+      running_matrix<- running_matrix %*% scaling_matrix
+      print(plot(running_matrix,type='l', asp=1,xlim=c(lower,upper), ylim=c(lower,upper),main=paste("Relatively Scaled",scl,"times")))
+      Sys.sleep(1)
+    }
+  } else if(l=="rotate"){
+    for (rot in c(45,90,135,180)){
+      radians_theta <- rot * (pi/180)
+      rotation_matrix <- matrix(c(cos(radians_theta), sin(radians_theta), -sin(radians_theta), cos(radians_theta)), nrow = 2, byrow = TRUE)
+      running_matrix <- running_matrix%*%rotation_matrix
+      print(plot(running_matrix,type='l', asp=1,xlim=c(lower,upper), ylim=c(lower,upper),main=paste("Relatively Rotated",rot,"degrees")))
+      Sys.sleep(1)
+      }
+  } else {
+    for (ref in c("x","y")){
+      if (ref == "x") {
+        x_axis_reflect <- matrix(c(1,0,0,-1),ncol=2)
+        running_matrix <- running_matrix%*%x_axis_reflect
+        print(plot(running_matrix, type='l',asp=1,xlim=c(lower,upper), ylim=c(lower,upper),main="Reflected over X axis"))
+        Sys.sleep(1)
+      }
+      else{
+        y_axis_reflect <- matrix(c(-1,0,0,1),ncol=2)
+        running_matrix <- running_matrix%*%y_axis_reflect
+        print(plot(running_matrix,type='l', asp=1, xlim=c(lower,upper), ylim=c(lower,upper),main="Reflected over Y axis"))
+        Sys.sleep(1)
+        }}
+  }
+}
+
+
+
+```
+
+### Plot
+Display the original shape and its transformations in your compiled PDF. Demonstrate the effect of the transformations with fixed images.
+
+# Matrix Properties and Decomposition
+
+## Proofs
+
+### Non-Commutativity of Matrix Multiplication
+Prove that \( AB \neq BA \) in general.
+
+``` {r proof1}
+## Need to prove order matters in matrix multiplication
+
+a <- matrix(c(1,2,3,4),ncol=2)
+print(a)
+
+b <- matrix(c(2,2,2,2),ncol=2)
+print(b)
+
+## A*B
+a_b <- a %*% b
+print(a_b)
+
+## B*A
+b_a <- b %*% a
+print(b_a)
+
+## You can see by the output from these two matrices being multiplied by each other that the products are different depending on the order.
+
+```
+
+### Symmetric Property
+Prove that \( A^T A \) is always symmetric.
+``` {r proof2}
+## Running a 1000 different simulations of randomly generating matrices of different sizes. 
+
+iterate <- seq(1, 1000, by=1)
+running_symmetry = c()
+for (i in iterate) {
+## For the sake of scaling computations limiting to 4 through 50 for vec limits
+  mat_dim <- sample(4:50, 1,replace=TRUE)
+  random_vec <- sample(1:50, mat_dim, replace=TRUE)
+## Det. the number of cols based on random vec length. (limit 2 through 5 for matrix size b/c computation time). Using that to determine rows.
+  n_col_input <- sample(2:5, 1, replace=TRUE)
+## Ensures an integer that is a multiple of the column number  
+  n_row_input <- ceiling(mat_dim / n_col_input) * n_col_input
+  temp_matrix <- matrix(random_vec,nrow=n_row_input, ncol=n_col_input)
+  trans_temp_matrix <- t(temp_matrix)
+  product_matrix <- trans_temp_matrix %*% temp_matrix
+  result <- isSymmetric(product_matrix)
+  running_symmetry <- c(running_symmetry,result)
+}
+
+print(unique(running_symmetry))
+
+### This loop generates 1000 different random matrices (within certain size boundries) and notes if the matrix and its transpose product is symmetrical. If there was an instance where this was false, it would be found in the print statement showing the distinct values found for the scenarios. However, only True is in the vector.
+
+
+```
+
+### Determinant Property
+Prove that the determinant of \( A^T A \) is non-negative.
+``` {r proof3}
+### I will be doing the same type of thing as i did for the symmetric "proof"
+
+## Running a 1000 different simulations of randomly generating matrices of different sizes. 
+iterate <- seq(1, 1000, by=1)
+running_det = c()
+for (i in iterate) {
+## For the sake of scaling computations limiting to 4 through 50 for vec limits
+  mat_dim <- sample(4:50, 1,replace=TRUE)
+  random_vec <- sample(1:50, mat_dim, replace=TRUE)
+## Det, the number of cols based on random vec length. (limit 2 through 5 for matrix size b/c computation time). Using that to determine rows.
+  n_col_input <- sample(2:5, 1, replace=TRUE)
+  n_row_input <- ceiling(mat_dim / n_col_input) * n_col_input
+  temp_matrix <- matrix(random_vec,nrow=n_row_input, ncol=n_col_input)
+  trans_temp_matrix <- t(temp_matrix)
+  product_matrix <- trans_temp_matrix %*% temp_matrix
+  result <- det(product_matrix)
+  running_det<- c(running_det,result>=0)
+}
+
+### Printing unique values
+print(unique(running_det))
+
+### This code runs 1000 different simulations, simlar to the code previous, but this time calculated the determinant of the product of transpose a * a. The values for the determinant are determined to be greater than or equal to zero. The boolean result is appened to a list. Once complete the unique values are printed, and should only show True to demonstrate the non-negative results. 
+
+
+```
+
+## Singular Value Decomposition (SVD) and Image Compression
+
+### Context
+SVD is a key technique used in image compression, allowing images to be stored efficiently while maintaining quality.
+
+### Instructions
+
+- **Read an Image:** Convert a grayscale image into a matrix.
+- **Perform SVD:** Factorize the image matrix \( A \) into \( U \Sigma V^T \) using Rs built-in `svd()` function.
+- **Compress the Image:** Reconstruct the image using only the top \( k \) singular values and vectors.
+- **Visualize the Result:** Plot the original image alongside the compressed versions for various values of \( k \) (e.g., \( k = 5, 20, 50 \)).
+
+``` {r proof4}
+
+<!-- install.packages("jpeg") -->
+
+library(jpeg)
+file.exists(".\\grayscale_dog.jpeg")
+
+image_matrix <- readJPEG(".\\grayscale_dog.jpeg")
+
+file.exists("C:\\Users\\johnf\\Documents\\Github\\MiscWork\\DATA605_Comp.MathWork\\Homeworks\\grayscale_dog.jpeg")
+
+gray_matrix <- image_matrix[,,1] # Convert to grayscale
+svd_result <- svd(gray_matrix)
+svd_result
+```
+
+# Matrix Rank, Properties, and Eigenspace
+
+## Rank of a Matrix
+
+### Determine the Rank of the Given Matrix
+Find the rank of the matrix \( A \). Explain what the rank tells us about the linear independence of the rows and columns of matrix \( A \). Identify if there are any linear dependencies among the rows or columns.
+
+\[
+A = \begin{bmatrix} 2 & 4 & 1 & 3 \\ -2 & -3 & 4 & 1 \\ 5 & 6 & 2 & 8 \\ -1 & -2 & 3 & 7 \end{bmatrix}
+\]
+
+### Matrix Rank Boundaries
+- Given an \( m \times n \) matrix where \( m > n \), determine the maximum and minimum possible rank, assuming that the matrix is non-zero.
+- Prove that the rank of a matrix equals the dimension of its row space (or column space). Provide an example to illustrate the concept.
+
+```{r}
+matrix_A <- matrix(c(2, 4, 1, 3, -2, -3, 4, 1, 5, 6, 2, 8, -1, -2, 3, 7), nrow=4, byrow=TRUE)
+rank_A <- qr(matrix_A)$rank
+print(rank_A)
+```
+
+### Rank and Row Reduction
+- Determine the rank of matrix \( B \). Perform a row reduction on matrix \( B \) and describe how it helps in finding the rank. Discuss any special properties of matrix \( B \) (e.g., is it a rank-deficient matrix?).
+
+\[
+B = \begin{bmatrix} 2 & 5 & 7 \\ 4 & 10 & 14 \\ 1 & 2.5 & 3.5 \end{bmatrix}
+\]
+
+## Compute the Eigenvalues and Eigenvectors
+- Find the eigenvalues and eigenvectors of the matrix \( A \). Write out the characteristic polynomial and show your solution step by step. After finding the eigenvalues and eigenvectors, verify that the eigenvectors are linearly independent. If they are not, explain why.
+
+\[
+A = \begin{bmatrix} 3 & 1 & 2 \\ 0 & 5 & 4 \\ 0 & 0 & 2 \end{bmatrix}
+\]
+
+## Diagonalization of Matrix
+- Determine if matrix \( A \) can be diagonalized. If it can, find the diagonal matrix and the matrix of eigenvectors that diagonalizes \( A \).
+- Discuss the geometric interpretation of the eigenvectors and eigenvalues in the context of transformations. For instance, how does matrix \( A \) stretch, shrink, or rotate vectors in \( \mathbb{R}^3 \)?
+
+# Project: Eigenfaces from the LFW Dataset
+
+## Context
+Eigenfaces are a popular application of PCA in computer vision for face recognition.
+
+## Task
+Using the LFW dataset, build and visualize eigenfaces that account for 80% of the variability in the dataset.
+
+### Steps
+1. Download the LFW Dataset.
+    - The dataset can be accessed and downloaded using the lfw module from the sklearn library in Python or by manually downloading it from the LFW website.
+    - In this case, well use the lfw module from Pythons sklearn library.
+2. Preprocess the images (convert to grayscale and resize).
+    - Convert the images to grayscale and resize them to a smaller size (e.g., 64x64) to reduce computational complexity.
+    - Flatten each image into a vector.
+3. Apply PCA and compute eigenfaces.
+    - Compute the PCA on the flattened images.
+    - Determine the number of principal components required to account for 80% of the variability.
+4. Visualize the top eigenfaces and reconstruct images.
+    - Visualize the first few eigenfaces (principal components) and discuss their significance.
+    - Reconstruct some images using the computed eigenfaces and compare them with the original images.
+
+```{r}
+library(Rdimtools)
+lfw_data <- matrix(runif(10000), nrow=100, ncol=100)  # Placeholder for LFW images
+pca_result <- do.pca(lfw_data, ndim=50)
+plot(pca_result$projection)
+```
+
+---
+
+This `.Rmd` file provides a structured format for completing the assignment. Fill in the proofs, explanations, and additional details as needed.
