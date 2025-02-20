@@ -1,0 +1,45 @@
+---
+title: "Group By Vingette"
+author: "John Ferrara"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Demonstrating the Group by (group_by) functionality in dplyr
+The group_by() function is used in order to get aggeegated metrics for a specific vairable in a dataframe, particularly when you want to get aggregate data for other columns or categories in the data.
+
+## Pulling in example data (Using NYC Parks Pools Data)
+
+```{r reding in data}
+library(tidyverse)
+
+pools_df <- read_csv("https://data.cityofnewyork.us/resource/y5rm-wagw.csv")
+head(pools_df)
+```
+## Grouping by a Single Category
+Looking at our example pool data, which outlines all of the public pool with NYC Parks, say we wanted to get a total number of pools by Commnity Board, or by borough. We need to combine the groupby function with the summarize() function to get our numbers. The summarize function dictates what type of aggregate function we want to derive from the base data when grouping.
+```{r single_cat}
+# Grouping by Community Board, getting the count of rows, or pools, for each Cmm. Board
+pool_by_cd <- pools_df %>% group_by(communityboard) %>% summarize(pool_count=n())
+head(pool_by_cd)
+
+## Grouping By Borough 
+pool_by_bro <- pools_df %>% group_by(borough) %>% summarize(pool_count=n())
+head(pool_by_bro)
+
+```
+
+## Grouping by multiple categories
+
+YOu can group by multiple columns as well. Lets say we wanted the total number of pools by borough, along with the type of pool that it is. 
+
+```{r multiple_cat}
+pool_by_bro_type <- pools_df %>% group_by(borough,pooltype) %>% summarize(pool_count=n())
+head(pool_by_bro_type)
+
+```
+

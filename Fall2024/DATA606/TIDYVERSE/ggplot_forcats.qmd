@@ -1,0 +1,144 @@
+---
+title: 'tidyverse: using forcats to improve your ggplots'
+author: "Andy Catlin"
+date: "8/30/2023"
+output:
+  pdf:
+    toc: true
+    number-sections: true
+    colorlinks: true  
+  html_document: default
+---
+
+Note that although forcats is part of the "tidyverse", it is not automatically loaded when you run `library(tidyverse)`
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(forcats)
+library(gt)
+```
+
+# Handy forcats functions for ggplot2
+
+## Comparing followers of world religions
+
+Source: https://en.wikipedia.org/wiki/List_of_religious_populations
+
+I was looking for a simple dataset with count data for many items to demonstrate some basic forcats functions that are useful when creating plots.
+
+```{r, warning=FALSE}
+religions = read_csv("https://raw.githubusercontent.com/acatlin/data/master/religions.csv", 
+                  show_col_types = FALSE, col_names = FALSE) %>% 
+    rename(religion = X1, followers = X2) %>% 
+    mutate(millions_of_followers = followers/1000000.0) %>% 
+  select(religion, millions_of_followers)
+
+religions
+```
+
+## 1A: basic ggplot
+
+Q: What are the most followed religions? A: Use ggplot to compare religious populations
+
+You can also embed plots, for example:
+
+```{r}
+religions %>% 
+  ggplot(aes(x = religion, y = millions_of_followers)) + 
+    geom_col(fill = "lightblue") + 
+    labs(x = "religion", y = "millions of followers", 
+           caption = "https://en.wikipedia.org/wiki/List_of_religious_populations") 
+```
+
+## 1B: How do I flip coordinates?
+
+```{r}
+religions %>% 
+  ggplot(aes(x = religion, y = millions_of_followers)) + 
+    geom_col(fill = "lightblue") + 
+    labs(x = "religion", y = "millions of followers", 
+           caption = "https://en.wikipedia.org/wiki/List_of_religious_populations") + coord_flip()
+```
+
+## 2A: How do I change sort order?
+
+Revised by: Andy Catlin
+
+Q: How do we change the chart to show the most followed religions first? A: Use forcats::fct_reorder()
+
+```{r}
+library(forcats) 
+
+ggplot(religions, aes(x = fct_reorder(religion, millions_of_followers), 
+                      y = millions_of_followers)) + 
+  geom_col(fill = "lightblue") + 
+  labs(x = "religion", y = "millions of followers", 
+      caption = "https://en.wikipedia.org/wiki/List_of_religious_populations") + 
+  coord_flip()
+```
+
+## 2B: How do I combine less frequently used categories?
+
+Q: How do we combine the less-followed religions into a single group? A: Use forcats::fct_other()
+
+```{r}
+top5 = unlist(select(head(arrange(religions, desc(millions_of_followers)), 5), religion))
+
+religions %>% 
+  mutate(religion = fct_other(religion, keep = top5, other_level = "Other religions")) %>%     
+  ggplot(aes(x = fct_reorder(religion, millions_of_followers), y = millions_of_followers)) +
+    geom_col(fill = "lightblue") + 
+    labs(x = "religion", y = "millions of followers", 
+        caption = "https://en.wikipedia.org/wiki/List_of_religious_populations") + 
+        coord_flip()
+```
+
+## 2C: Adding a title
+
+Reference: https://www.geeksforgeeks.org/ggplot2-title-and-subtitle-with-different-size-and-color-in-r/
+
+```{r}
+religions %>% 
+  mutate(religion = fct_other(religion, keep = top5, other_level = "Other religions")) %>%     
+  ggplot(aes(x = fct_reorder(religion, millions_of_followers), y = millions_of_followers)) +
+    geom_col(fill = "lightblue") + 
+    labs(x = "religion", y = "millions of followers", 
+         title = "Most Popular Religions",
+         subtitle = "[2021]",
+         caption = "https://en.wikipedia.org/wiki/List_of_religious_populations") +
+    theme(plot.title = element_text(size = 18, color = "blue"),
+        plot.subtitle = element_text(size = 14, color = "gold")) +
+          coord_flip()
+```
+
+# Tabular Data
+
+```{r}
+
+religions |> 
+  gt(rowname_col = "religion") |>
+  tab_header(
+              title = "Most popular religions",
+              subtitle = md("**2021**")) |>
+  tab_source_note(
+           source_note = md("https://en.wikipedia.org/wiki/List_of_religious_populations")) |>
+  opt_table_font(font = google_font("Montserrat"), weight = 500)
+```
+
+# Findings and Recommendations
+
+To use the terminology of descriptive analytics (vs. predictive analytics), there is a single measure (millions of followers) across a single level of a single dimension (religion). Suppose we were able to find counts of religion data every 10 years for the past 200 years, by continent.
+
+Two useful patterns of analysis in descriptive analytics are *relative contribution* and *changes over time*.
+
+Relative contribution: What is the percent of the total that each religion represents (overall? by continent?) Changes over time: How did the counts (and percentages) of different relgions change over time (overall? by continent?)
+
+What other measures might be interesting (e.g. by age group)
+
+How would you represent the information in a table or a chart?
+
+Would you be able to forecast religion counts (by continent) into the future?
+
+etc.
