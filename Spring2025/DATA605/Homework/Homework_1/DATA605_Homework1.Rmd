@@ -2,7 +2,9 @@
 title: "Matrix Transformations and Decompositions"
 author: "John Ferrara"
 date: "`r Sys.Date()`"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -11,7 +13,6 @@ knitr::opts_chunk$set(echo = TRUE)
 library(dplyr)
 library(tidyverse)
 ```
-
 
 
 ```
@@ -478,7 +479,7 @@ print(egn$vectors)
 ##     |0 ,  0 ,  2|        |0 , 0, 1|                  |0 ,  0 ,  2|   |0, 0, L |            |0 ,  0 ,  2-L|
      
 ## And because the diagonal product is the determinant we can then do: 
-(3-L)(5-L)(2-L)=0
+## (3-L)(5-L)(2-L)=0
 ## which allows us to conclude the eigenvalues are: 3, 5, 2 which was also shown to us with the r function. 
 
 ## Third the eigenvector calculations. With the equation: (A - LI)v = 0
@@ -563,8 +564,8 @@ Using the LFW dataset, build and visualize eigenfaces that account for 80% of th
     - Visualize the first few eigenfaces (principal components) and discuss their significance.
     - Reconstruct some images using the computed eigenfaces and compare them with the original images.
 
-```{r pca_code}
 
+```{r pca_code}
 
 ### Used r so manually downloading the data from this location found in the source code (https://github.com/scikit-learn/scikit-learn/blob/main/sklearn/datasets/_lfw.py) of sklearn.py 
 
@@ -574,9 +575,9 @@ Using the LFW dataset, build and visualize eigenfaces that account for 80% of th
 library(imager)
 
 
-## First download the data 
-download.file("https://ndownloader.figshare.com/files/5976018","lfw.tgz",mode = "wb")
-untar("lfw.tgz")
+## First download the data (NOTE: DURING KNITTING THIS DID NOT WORK SO COMMENTING OUT AND JUST READING LOCAL FILE FOR KNIT)
+##download.file("https://ndownloader.figshare.com/files/5976018","lfw.tgz",mode = "wb")
+##untar("lfw.tgz")
 
 ## Loop through the downloaded data and convert the images to grayscale, Resize the images to 64x64
 dir.create("processed_lfw") 
