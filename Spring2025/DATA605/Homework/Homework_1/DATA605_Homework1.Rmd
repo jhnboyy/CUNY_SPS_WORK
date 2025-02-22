@@ -309,26 +309,24 @@ SVD is a key technique used in image compression, allowing images to be stored e
 
 library(jpeg)
 
-## For reproducibility Downloading and saving image locally 
-
+## For reproducibility Downloading and saving image locally
 image_url <- "https://github.com/jhnboyy/CUNY_SPS_WORK/raw/main/Spring2025/DATA605/Homework/Homework_1/grayscale_dog.jpeg"
 file <- "grayscale_dog.jpeg"  
 download.file(image_url, destfile = file, mode = "wb") 
+image_array <- readJPEG("grayscale_dog.jpeg")
 
-image_matrix <- readJPEG(file)
 
-gray_matrix <- image_matrix[,,1] 
+gray_matrix <- image_array[,,1] 
 
 
 ## Convert to grayscale
 svd_result <- svd(gray_matrix)
 
 ## Firstly, i want to plot the original image. 
-image(t(image_matrix)[, nrow(image_matrix):1], col=gray.colors(256), main="Original Image")
+image(t(gray_matrix)[, nrow(gray_matrix):1], col=gray.colors(256), main="Original Image")
 
 
 ## Beginning of work to reconstruct image and visualize results via a function;
-
 image_processing <- function(k_value, svd_result) {
 ### Splitting the SVD component results into their different components
   U <- svd_result$u
