@@ -1,13 +1,12 @@
 ---
 title: "Matrix Transformations and Decompositions"
-author: "Your Name"
+author: "John Ferrara"
 date: "`r Sys.Date()`"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_knit$set(root.dir = getwd())
 
 library(dplyr)
 library(tidyverse)
