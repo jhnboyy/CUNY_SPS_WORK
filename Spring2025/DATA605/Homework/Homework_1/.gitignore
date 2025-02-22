@@ -1,0 +1,9 @@
+
+
+# Ignore lfw and processed_lfw folders and their contents
+lfw/
+processed_lfw/
+
+# Ignore R files and temp files
+.RData
+.Rhistory
