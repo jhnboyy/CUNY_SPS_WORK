@@ -2,11 +2,13 @@
 title: "Matrix Transformations and Decompositions"
 author: "Your Name"
 date: "`r Sys.Date()`"
-output: pdf_document: default
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = getwd())
+
 library(dplyr)
 library(tidyverse)
 ```
@@ -151,9 +153,9 @@ Use a loop to incrementally change the transformation matrix and visualize the e
 ## Making a vector to loop through transformation types 
 looping <- c("original","scale","rotate","reflect")
 
-<!--used this to help: https://www.youtube.com/watch?v=LpICOCbmxks -->
+## used this to help: https://www.youtube.com/watch?v=LpICOCbmxks 
 
-### Presetting the axis ranges fro anumation
+### Presetting the axis ranges for animation
 lower <- -10
 upper <- 10
 
@@ -303,19 +305,61 @@ SVD is a key technique used in image compression, allowing images to be stored e
 - **Visualize the Result:** Plot the original image alongside the compressed versions for various values of \( k \) (e.g., \( k = 5, 20, 50 \)).
 
 ``` {r proof4}
-
-<!-- install.packages("jpeg") -->
+## install.packages("jpeg")
 
 library(jpeg)
-file.exists(".\\grayscale_dog.jpeg")
 
-image_matrix <- readJPEG(".\\grayscale_dog.jpeg")
+## For reproducibility Downloading and saving image locally 
 
-file.exists("C:\\Users\\johnf\\Documents\\Github\\MiscWork\\DATA605_Comp.MathWork\\Homeworks\\grayscale_dog.jpeg")
+image_url <- "https://github.com/jhnboyy/CUNY_SPS_WORK/raw/main/Spring2025/DATA605/Homework/Homework_1/grayscale_dog.jpeg"
+file <- "grayscale_dog.jpeg"  
+download.file(image_url, destfile = file, mode = "wb") 
 
-gray_matrix <- image_matrix[,,1] # Convert to grayscale
+image_matrix <- readJPEG(file)
+
+gray_matrix <- image_matrix[,,1] 
+
+
+## Convert to grayscale
 svd_result <- svd(gray_matrix)
-svd_result
+
+## Firstly, i want to plot the original image. 
+image(t(image_matrix)[, nrow(image_matrix):1], col=gray.colors(256), main="Original Image")
+
+
+## Beginning of work to reconstruct image and visualize results via a function;
+
+image_processing <- function(k_value, svd_result) {
+### Splitting the SVD component results into their different components
+  U <- svd_result$u
+  d <- svd_result$d
+  V <- svd_result$v
+## Once the components are broken out we can work with compressing diag matrix in components;
+  comp_d <- diag(d)
+## Limiting by k for the components
+  lim_u <-U[, 1:k_value]
+  lim_d <- comp_d[1:k_value, 1:k_value]
+  lim_v <- V[, 1:k_value]
+  recomp_image <- lim_u %*% lim_d %*% t(lim_v)
+  return(recomp_image)
+}
+
+# looping throuhg each k value and printing result;
+k_vals<-c(5,10,20,50,100)
+for (k in k_vals){
+  recomp_image <- image_processing(k,svd_result)
+  if (k == 100){
+    title <- "Original Image"
+    }
+  else {
+    title <- paste("Recomp Image with K value",k)
+    }
+  image(t(recomp_image)[, nrow(recomp_image):1], col=gray.colors(256), main=title)
+  Sys.sleep(2)
+  }
+
+  
+## Note for this task, I asked AI to help walk me through this step by step to ensure i fully understood the process. I also didnt know how to display an image in r. The transformation within the image function is controlling for how R reads and stores the info.
 ```
 
 # Matrix Rank, Properties, and Eigenspace
@@ -333,10 +377,41 @@ A = \begin{bmatrix} 2 & 4 & 1 & 3 \\ -2 & -3 & 4 & 1 \\ 5 & 6 & 2 & 8 \\ -1 & -2
 - Given an \( m \times n \) matrix where \( m > n \), determine the maximum and minimum possible rank, assuming that the matrix is non-zero.
 - Prove that the rank of a matrix equals the dimension of its row space (or column space). Provide an example to illustrate the concept.
 
-```{r}
+```{r matrix_rank}
 matrix_A <- matrix(c(2, 4, 1, 3, -2, -3, 4, 1, 5, 6, 2, 8, -1, -2, 3, 7), nrow=4, byrow=TRUE)
+print(matrix_A)
 rank_A <- qr(matrix_A)$rank
 print(rank_A)
+
+## Prove that the rank is the row or column space. 
+## Matrix a
+##      [,1] [,2] [,3] [,4]
+## [1,]    2    4    1    3
+## [2,]   -2   -3    4    1
+## [3,]    5    6    2    8
+## [4,]   -1   -2    3    7
+
+## Manually row reducing in order to prove.
+## Getting the 1 in first 1,1 placement (divide first row by 2)
+##| 1, 2, 0.5, 1.5 |
+##|-2,-3, 4,  1    |
+##| 5, 6, 2, 8     |
+##|-1,-2, 3, 7     |
+
+## Using first row to deal with the other rows.Additional steps as well. 
+##| 1, 2, 0.5, 1.5 |                     | 1, 2, 0.5, 1.5 |                     | 1, 2, 0.5, 1.5 |             | 1, 2, 0.5, 1.5 |
+##|-2,-3, 4,  1    | + 2(1,2,0.5,1.5) => | 0, 1,  5,  4   |                     | 0, 1,  5,  4   |             | 0, 1,  5,  4   |
+##| 5, 6, 2, 8     | - 5(1,2,0.5,1.5) => | 0,-4,-0.5, 0.5 | + 4(0, 1, 5, 4) =>  | 0, 0, 19.5, 16.5| / (19.5) =>| 0, 0 , 1, 0.85 |  
+##|-1,-2, 3, 7     | + 1(1,2,0.5,1.5) => | 0, 0, 3.5, 8.5 |                     | 0, 0, 3.5, 8.5 |             | 0, 0, 3.5, 8.5 |
+
+## Continuing Row reduction
+##| 1, 2, 0.5, 1.5 |                      | 1, 2, 0.5, 1.5 |             | 1, 2, 0.5, 1.5 |
+##| 0, 1,  5,  4   |                      | 0, 1,  5,  4   |             | 0, 1,  5,  4   |
+##| 0, 0 , 1, 0.85 |                      | 0, 0 , 1, 0.85 |             | 0, 0 , 1, 0.85 |
+##| 0, 0, 3.5, 8.5 | - 3.5(0,0,1,0.85) => | 0, 0 , 0 ,5.52 | = / 5.52 => | 0, 0 , 0 , 1   |
+
+## Finally, this matrix has been row reduced, there are no zero columns, so the number of linearly independent columns is 4. This means that the rank is correct, in being the same number of columns. Additionally, assuming the matrizx is square (n), according to the text book: r(A)=n. 
+
 ```
 
 ### Rank and Row Reduction
@@ -346,6 +421,36 @@ print(rank_A)
 B = \begin{bmatrix} 2 & 5 & 7 \\ 4 & 10 & 14 \\ 1 & 2.5 & 3.5 \end{bmatrix}
 \]
 
+``` {r matrixb}
+
+## Firstly, finding the rank with r
+matrix_b <- matrix(c(2, 5, 7, 4, 10, 14,1, 2.5, 3.5), ncol = 3, byrow=TRUE)
+print(matrix_b)
+
+print(qr(matrix_b)$rank)
+## The rank function returns: 1
+
+
+##     [,1] [,2] [,3]
+##[1,]    2  5.0  7.0
+##[2,]    4 10.0 14.0
+##[3,]    1  2.5  3.5
+
+## Manually row reducing in order to prove.
+## Getting the 1 in first 1,1 placement.
+##| 2 , 5.0 , 7.0  | => | 1, 2.5 , 3.5|                       | 1, 2.5 ,3.5|
+##| 4 , 10.0 , 14.0| => | 4 , 10.0 , 14.0| - 4(1, 2.5, 3.5) =>| 0,  0  ,0  | 
+##| 1 , 2.5  , 3.5 | => | 1 , 2.5  , 3.5 | - (1, 2.5, 3.5) => | 0,  0  ,0  |
+
+## Final row reduced form: 
+##| 1, 2.5 ,3.5|
+##| 0,  0  ,0  |
+##| 0,  0  ,0  |
+
+## The rank returns one because there is only one non-zero row in the matrix. The rest of the rows are reduced to zero. The matrix is infact "rank deficient" because based on the size of the matrix the maximum rank would be 3. However, the rank is 1 because of the two zero rows, so its deficient. 
+
+
+```
 ## Compute the Eigenvalues and Eigenvectors
 - Find the eigenvalues and eigenvectors of the matrix \( A \). Write out the characteristic polynomial and show your solution step by step. After finding the eigenvalues and eigenvectors, verify that the eigenvectors are linearly independent. If they are not, explain why.
 
@@ -353,9 +458,91 @@ B = \begin{bmatrix} 2 & 5 & 7 \\ 4 & 10 & 14 \\ 1 & 2.5 & 3.5 \end{bmatrix}
 A = \begin{bmatrix} 3 & 1 & 2 \\ 0 & 5 & 4 \\ 0 & 0 & 2 \end{bmatrix}
 \]
 
+``` {r eigen}
+
+matrix_a <- matrix(c(3, 1, 2, 0, 5, 4, 0, 0, 2), ncol = 3, byrow=TRUE)
+print(matrix_a)
+
+## Firstly finding with the r function 
+egn <- eigen(matrix_a)
+print(egn$values)
+##[1] 5 3 2
+print(egn$vectors)
+##          [,1] [,2]       [,3]
+##[1,] 0.4472136    1 -0.3713907
+##[2,] 0.8944272    0 -0.7427814
+##[3,] 0.0000000    0  0.5570860
+
+### Second, beginning the manual proof for eigenvalues. 
+##det(matrix_a - Lambda * I) = 0 
+
+##     |3 ,  1 ,  2|        |1, 0, 0 |                  |3 ,  1 ,  2|   |L, 0, 0 |            |3-L ,  1 ,  2|
+##det( |0 ,  5 ,  4|  - L * |0, 1, 0 | ) = 0  ==> det(  |0 ,  5 ,  4| - |0, L, 0 | ) = 0  ==> |0 ,  5-L ,  4| 
+##     |0 ,  0 ,  2|        |0 , 0, 1|                  |0 ,  0 ,  2|   |0, 0, L |            |0 ,  0 ,  2-L|
+     
+## And because the diagonal product is the determinant we can then do: 
+(3-L)(5-L)(2-L)=0
+## which allows us to conclude the eigenvalues are: 3, 5, 2 which was also shown to us with the r function. 
+
+## Third the eigenvector calculations. With the equation: (A - LI)v = 0
+
+## For First eigenvalue 3
+## |3-3 ,  1 ,  2|    |0 , 1, 2|   |x1|        0x1 + 1x2 + 2x3 = 0    1x2 + 2x3 = 0    x2 = -(2*0) => 0
+## |0 ,  5-3 ,  4| => |0, 2, 4 | * |x2| = 0 => 0x1 + 2x2 + 4x3 = 0 => 2x2 + 4x3 = 0 => 2(-(2*0)) + 4*0 = 0 
+## |0 ,  0 ,  2-3|    |0, 0, -1|   |x3|        0x1 + 0x2 - 1x3 = 0    -1x3 = 0          x3 = 0 (so replacing above)
+
+## x2 and x3 are both zero, but because there is nothing in column 1, x1 is free var. So we assign 1
+## Eigenvector is [1,0,0]
+
+## For eigenvalue 5
+## |3-5 ,  1 ,  2|    |-2 , 1, 2|   |x1|        -2x1 + x2 + 2x3 = 0    -2x1 +x2 + 2(0) => -2x1 + x2 =0 => 2x1 = x2=>  -2x1 +2x1 => 0=0   free var
+## |0 ,  5-5 ,  4| => |0 , 0, 4 | * |x2| = 0 => 0x1 + 0x2 + 4x3 = 0 =>  0x1 + 0x2 + 4(0) = 0 => x2 is free var
+## |0 ,  0 ,  2-5|    |0 , 0, -3|   |x3|        0x1 + 0x2 + -3x3 = 0   x3 = 0 (replacing above)
+## eigenvector is [1,2,0]
+
+## For eigenvalue 2
+## |3-2 ,  1 ,  2|    |1 , 1, 2|   |x1|        x1 + x2 + 2x3 = 0 => x1 - 4x3/3 + 2x3 = 0 => -x1 = - 4/3 x3 + 2/1 x3 => -2/3 x3 = x1
+## |0 ,  5-2 ,  4| => |0 , 3, 4| * |x2| = 0 => 0x1 + 3x2 + 4x3 = 0 => 4x3 = -3x2 = 4/-3 x3 = x2 => 
+## |0 ,  0 ,  2-2|    |0 , 0, 0|   |x3|        0x1 + 0x2 + 0x3 = 0   x3 is free var x3, assigning 1
+
+## Eigenvector is [-2/3, -4/3, 1] => [-2,-4.3]
+
+### Each of these eigenvectors has a free variable, which is indicative of linear independence. Confirming with eigenspace matrix.
+
+## Making Eigenspace with the eigenvectors
+print(det(matrix(c(1,1,-2,0,2,-4,0,0,3), ncol = 3 , byrow=TRUE))==0)
+
+##  Determinant does not equal 0 so they are linearly independent. 
+
+```
+
 ## Diagonalization of Matrix
 - Determine if matrix \( A \) can be diagonalized. If it can, find the diagonal matrix and the matrix of eigenvectors that diagonalizes \( A \).
 - Discuss the geometric interpretation of the eigenvectors and eigenvalues in the context of transformations. For instance, how does matrix \( A \) stretch, shrink, or rotate vectors in \( \mathbb{R}^3 \)?
+
+``` {r diag}
+## Firstly, matrix A can be diagonalized because every eigenvector is linearly independent. Determinant of eigenspace is not 0, so diagonalization is possible. 
+
+## Second,semi-manual diagonalization 
+eigenspace <- matrix(c(1,1,-2,0,2,-4,0,0,3), ncol = 3 , byrow=TRUE)
+
+### eigenspace^-1 * matrix_a * eigenspace is how we would diagonalize.
+
+diag_matrx <- solve(eigenspace) %*% matrix_a %*% eigenspace
+print(diag_matrx)
+
+## For matrix a the eigenvalues are 3,5, and 2. This means that when matrix a is applied to a vector it will stretch the vector in different directions by 3x, 5x, and 2x. All of the eigenvalues are positive and over 1 so they stretch the vectors. Now, for the eigenvectors in relation to the eigenvalues:
+
+# val: 3 | vector: [1,0,0] -> This vector is only in the x-axis direction. So 3x in the x axis direction.
+# val: 5 | vector: [1,2,0] -> This vector is in the x, y axes directions. it is diagonal in x & y because they are not equal values. So 5x in the x & y axes directions. 
+# val: 2 | vector: [-2,-4.3] -> This vector is in all x,y, and z axes. So 2x in all three (x,y,z) directions, however the directions are diagonal becuase of different values in each axis. 
+
+### For R3, assuming 1,1,1, the application of matrix a would distort R3 in every axis over all. This would be a net total of a 4x stretch in the x axis (3x+5x-4x), a net total of 2x stretch in the y axis (0x + 10x - 8x), and then a 5x in the z- axis direction (0x + 0x + 6x).
+
+
+
+
+```
 
 # Project: Eigenfaces from the LFW Dataset
 
@@ -379,13 +566,112 @@ Using the LFW dataset, build and visualize eigenfaces that account for 80% of th
     - Visualize the first few eigenfaces (principal components) and discuss their significance.
     - Reconstruct some images using the computed eigenfaces and compare them with the original images.
 
-```{r}
-library(Rdimtools)
-lfw_data <- matrix(runif(10000), nrow=100, ncol=100)  # Placeholder for LFW images
-pca_result <- do.pca(lfw_data, ndim=50)
-plot(pca_result$projection)
+```{r pca_code}
+
+
+### Used r so manually downloading the data from this location found in the source code (https://github.com/scikit-learn/scikit-learn/blob/main/sklearn/datasets/_lfw.py) of sklearn.py 
+
+## Referenced soem of this: https://stackoverflow.com/questions/3053833/using-r-to-download-zipped-data-file-extract-and-import-data
+
+## install.packages("imager")
+library(imager)
+
+
+## First download the data 
+download.file("https://ndownloader.figshare.com/files/5976018","lfw.tgz",mode = "wb")
+untar("lfw.tgz")
+
+## Loop through the downloaded data and convert the images to grayscale, Resize the images to 64x64
+dir.create("processed_lfw") 
+img_files <- list.files('lfw',pattern="\\.jpg",recursive = TRUE, full.names = TRUE)
+for (i_f  in img_files) {
+  temp_image <-load.image(i_f)
+  img_gray <- grayscale(temp_image)
+  processed <- resize(img_gray, size_x = 64, size_y = 64)
+  new_filename <- file.path("processed_lfw", basename(i_f))
+  save.image(processed, new_filename)
+  }
+
+## Flatten each processed image into a vector, place into list and then matrix.
+
+image_vec_list <-list()
+proc_img <- list.files('processed_lfw',pattern="\\.jpg",recursive = TRUE, full.names = TRUE)
+for (i in seq_along(proc_img)){
+  image_matrix <- load.image(proc_img[i])
+  image_vec <- as.vector(image_matrix)
+  image_vec_list[[i]] <- image_vec
+  }
+ 
+ 
+## Putting list of flattened vectors into a matrix for PCA
+flattened_matrix <- do.call(rbind, image_vec_list) 
+
+## PCA on matrix of flattened images
+mypca=princomp(x = flattened_matrix, cor = T)
+
+## mypca has all of the computed Principle Components, getting the std deviation for the PC calculations and squaring in order to get total var. 
+
+variance <- mypca$sdev^2
+
+total_variance <- sum(variance)
+
+## We want 80 percent of variance explained, so normalizing proporitions
+pct_tot_var <-  variance/total_variance
+
+## Now using cumsum to see how many to get to 80% 
+## Visually looking and i think 68 PC are needed.
+cum_var <- cumsum(pct_tot_var)
+print(cum_var)
+
+
+## doublechecking with code
+print(which(cum_var>= 0.8)[1]) ##Also 68 
+
+
+## In order to account 80% of the variance 68 Principle Components are needed. 
+
+### Visualizing the first 3 Eigenfaces / PC.
+
+## First PC
+eigenface_image<- matrix(mypca$loadings[,1], nrow = 64, ncol = 64)
+eigenface_norm<- (eigenface_image - min(eigenface_image)) / (max(eigenface_image) - min(eigenface_image))
+plot(as.cimg(eigenface_norm))
+
+print(pct_tot_var[1]) 
+## 23 Percent of the total variance is explained by the first PC. THis can be seen in the plot, generally speaking you can tell its a portrait photo but the details are not present.
+
+## Second PC
+eigenface_image<- matrix(mypca$loadings[,2],nrow = 64, ncol = 64)
+eigenface_norm<- (eigenface_image - min(eigenface_image)) / (max(eigenface_image) - min(eigenface_image))
+plot(as.cimg(eigenface_norm))
+
+print(pct_tot_var[2])
+
+## This eigenface has acout 7% of the total variance. You can see that there is additonal detail here that was not captured in the first eigenface, but still a very crude level of composition.
+
+## Third PC
+eigenface_image<- matrix(mypca$loadings[,3],nrow = 64, ncol = 64)
+eigenface_norm<- (eigenface_image - min(eigenface_image)) / (max(eigenface_image) - min(eigenface_image))
+plot(as.cimg(eigenface_norm))
+
+## This eigenfaces captures about 5.5 percent of all of the variance.
+print(pct_tot_var[3])
+
+
+## Comparing these eigenfaces to the original photos
+
+## Taking an original processed (64x64 grayscale) photo from the original vector matrix.
+first_image_vec <- flattened_matrix[1,]
+first_image_mat <- matrix(first_image_vec, nrow = 64, ncol = 64)
+plot(as.cimg(first_image_mat))
+
+## Attempting to reconstruct with eigenface. Lets do 68 PC becuase that was the 80% threshold
+first_image_pc_product<- first_image_vec %*% mypca$loadings[, 1:68]
+first_image_pc_trans_product <- first_image_pc_product %*% t(mypca$loadings[, 1:68])
+recomp <- matrix(first_image_pc_trans_product, nrow = 64, ncol = 64)
+plot(as.cimg(recomp))
+
+## The recomposed photo you can see is similar to about 80% of the original photo, which tracks with the PC variance. 
+
 ```
 
----
-
-This `.Rmd` file provides a structured format for completing the assignment. Fill in the proofs, explanations, and additional details as needed.
