@@ -3,8 +3,8 @@ title: "Matrix Transformations and Decompositions"
 author: "John Ferrara"
 date: "`r Sys.Date()`"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -235,7 +235,7 @@ print(b_a)
 
 ### Symmetric Property
 Prove that \( A^T A \) is always symmetric.
-``` {r proof2}
+``` {r proof2, warning=FALSE}
 ## Running a 1000 different simulations of randomly generating matrices of different sizes. 
 
 iterate <- seq(1, 1000, by=1)
@@ -264,7 +264,7 @@ print(unique(running_symmetry))
 
 ### Determinant Property
 Prove that the determinant of \( A^T A \) is non-negative.
-``` {r proof3}
+``` {r proof3, warning=FALSE}
 ### I will be doing the same type of thing as i did for the symmetric "proof"
 
 ## Running a 1000 different simulations of randomly generating matrices of different sizes. 
@@ -304,7 +304,7 @@ SVD is a key technique used in image compression, allowing images to be stored e
 - **Compress the Image:** Reconstruct the image using only the top \( k \) singular values and vectors.
 - **Visualize the Result:** Plot the original image alongside the compressed versions for various values of \( k \) (e.g., \( k = 5, 20, 50 \)).
 
-``` {r proof4}
+``` {r proof4, warning=FALSE}
 ## install.packages("jpeg")
 
 library(jpeg)
@@ -565,7 +565,7 @@ Using the LFW dataset, build and visualize eigenfaces that account for 80% of th
     - Reconstruct some images using the computed eigenfaces and compare them with the original images.
 
 
-```{r pca_code}
+```{r pca_code, messages=FALSE, warning=FALSE}
 
 ### Used r so manually downloading the data from this location found in the source code (https://github.com/scikit-learn/scikit-learn/blob/main/sklearn/datasets/_lfw.py) of sklearn.py 
 
@@ -619,7 +619,7 @@ pct_tot_var <-  variance/total_variance
 ## Now using cumsum to see how many to get to 80% 
 ## Visually looking and i think 68 PC are needed.
 cum_var <- cumsum(pct_tot_var)
-print(cum_var)
+## print(cum_var)
 
 
 ## doublechecking with code
