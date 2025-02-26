@@ -1,0 +1,1402 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\documentclass[
+]{article}
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx}
+\makeatletter
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi%
+}
+% Set default figure placement to htbp
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={Matrix Transformations and Decompositions},
+  pdfauthor={John Ferrara},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Matrix Transformations and Decompositions}
+\author{John Ferrara}
+\date{2025-02-21}
+
+\begin{document}
+\maketitle
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\#\# Used r so manually downloading the data from this location found in the source code (https://github.com/scikit{-}learn/scikit{-}learn/blob/main/sklearn/datasets/\_lfw.py) of sklearn.py }
+
+\DocumentationTok{\#\# Referenced soem of this: https://stackoverflow.com/questions/3053833/using{-}r{-}to{-}download{-}zipped{-}data{-}file{-}extract{-}and{-}import{-}data}
+
+\DocumentationTok{\#\# install.packages("imager")}
+\FunctionTok{library}\NormalTok{(imager)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: package 'imager' was built under R version 4.4.2
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: magrittr
+\end{verbatim}
+
+\begin{verbatim}
+## 
+## Attaching package: 'magrittr'
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:purrr':
+## 
+##     set_names
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:tidyr':
+## 
+##     extract
+\end{verbatim}
+
+\begin{verbatim}
+## 
+## Attaching package: 'imager'
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:magrittr':
+## 
+##     add
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:stringr':
+## 
+##     boundary
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:tidyr':
+## 
+##     fill
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:dplyr':
+## 
+##     where
+\end{verbatim}
+
+\begin{verbatim}
+## The following objects are masked from 'package:stats':
+## 
+##     convolve, spectrum
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:graphics':
+## 
+##     frame
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:base':
+## 
+##     save.image
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# First download the data (}\AlertTok{NOTE}\DocumentationTok{: DURING KNITTING THIS DID NOT WORK SO COMMENTING OUT AND JUST READING LOCAL FILE FOR KNIT)}
+\DocumentationTok{\#\#download.file("https://ndownloader.figshare.com/files/5976018","lfw.tgz",mode = "wb")}
+\DocumentationTok{\#\#untar("lfw.tgz")}
+
+\DocumentationTok{\#\# Loop through the downloaded data and convert the images to grayscale, Resize the images to 64x64}
+\FunctionTok{dir.create}\NormalTok{(}\StringTok{"processed\_lfw"}\NormalTok{) }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning in dir.create("processed_lfw"): 'processed_lfw' already exists
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{img\_files }\OtherTok{\textless{}{-}} \FunctionTok{list.files}\NormalTok{(}\StringTok{\textquotesingle{}lfw\textquotesingle{}}\NormalTok{,}\AttributeTok{pattern=}\StringTok{"}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{.jpg"}\NormalTok{,}\AttributeTok{recursive =} \ConstantTok{TRUE}\NormalTok{, }\AttributeTok{full.names =} \ConstantTok{TRUE}\NormalTok{)}
+\ControlFlowTok{for}\NormalTok{ (i\_f  }\ControlFlowTok{in}\NormalTok{ img\_files) \{}
+\NormalTok{  temp\_image }\OtherTok{\textless{}{-}}\FunctionTok{load.image}\NormalTok{(i\_f)}
+\NormalTok{  img\_gray }\OtherTok{\textless{}{-}} \FunctionTok{grayscale}\NormalTok{(temp\_image)}
+\NormalTok{  processed }\OtherTok{\textless{}{-}} \FunctionTok{resize}\NormalTok{(img\_gray, }\AttributeTok{size\_x =} \DecValTok{64}\NormalTok{, }\AttributeTok{size\_y =} \DecValTok{64}\NormalTok{)}
+\NormalTok{  new\_filename }\OtherTok{\textless{}{-}} \FunctionTok{file.path}\NormalTok{(}\StringTok{"processed\_lfw"}\NormalTok{, }\FunctionTok{basename}\NormalTok{(i\_f))}
+  \FunctionTok{save.image}\NormalTok{(processed, new\_filename)}
+\NormalTok{  \}}
+
+\DocumentationTok{\#\# Flatten each processed image into a vector, place into list and then matrix.}
+
+\NormalTok{image\_vec\_list }\OtherTok{\textless{}{-}}\FunctionTok{list}\NormalTok{()}
+\NormalTok{proc\_img }\OtherTok{\textless{}{-}} \FunctionTok{list.files}\NormalTok{(}\StringTok{\textquotesingle{}processed\_lfw\textquotesingle{}}\NormalTok{,}\AttributeTok{pattern=}\StringTok{"}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{.jpg"}\NormalTok{,}\AttributeTok{recursive =} \ConstantTok{TRUE}\NormalTok{, }\AttributeTok{full.names =} \ConstantTok{TRUE}\NormalTok{)}
+\ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \FunctionTok{seq\_along}\NormalTok{(proc\_img))\{}
+\NormalTok{  image\_matrix }\OtherTok{\textless{}{-}} \FunctionTok{load.image}\NormalTok{(proc\_img[i])}
+\NormalTok{  image\_vec }\OtherTok{\textless{}{-}} \FunctionTok{as.vector}\NormalTok{(image\_matrix)}
+\NormalTok{  image\_vec\_list[[i]] }\OtherTok{\textless{}{-}}\NormalTok{ image\_vec}
+\NormalTok{  \}}
+ 
+ 
+\DocumentationTok{\#\# Putting list of flattened vectors into a matrix for PCA}
+\NormalTok{flattened\_matrix }\OtherTok{\textless{}{-}} \FunctionTok{do.call}\NormalTok{(rbind, image\_vec\_list) }
+
+\DocumentationTok{\#\# PCA on matrix of flattened images}
+\NormalTok{mypca}\OtherTok{=}\FunctionTok{princomp}\NormalTok{(}\AttributeTok{x =}\NormalTok{ flattened\_matrix, }\AttributeTok{cor =}\NormalTok{ T)}
+
+\DocumentationTok{\#\# mypca has all of the computed Principle Components, getting the std deviation for the PC calculations and squaring in order to get total var. }
+
+\NormalTok{variance }\OtherTok{\textless{}{-}}\NormalTok{ mypca}\SpecialCharTok{$}\NormalTok{sdev}\SpecialCharTok{\^{}}\DecValTok{2}
+
+\NormalTok{total\_variance }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(variance)}
+
+\DocumentationTok{\#\# We want 80 percent of variance explained, so normalizing proporitions}
+\NormalTok{pct\_tot\_var }\OtherTok{\textless{}{-}}\NormalTok{  variance}\SpecialCharTok{/}\NormalTok{total\_variance}
+
+\DocumentationTok{\#\# Now using cumsum to see how many to get to 80\% }
+\DocumentationTok{\#\# Visually looking and i think 68 PC are needed.}
+\NormalTok{cum\_var }\OtherTok{\textless{}{-}} \FunctionTok{cumsum}\NormalTok{(pct\_tot\_var)}
+\FunctionTok{print}\NormalTok{(cum\_var)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##    Comp.1    Comp.2    Comp.3    Comp.4    Comp.5    Comp.6    Comp.7    Comp.8 
+## 0.2300384 0.3031581 0.3581984 0.4008345 0.4430441 0.4770497 0.5062054 0.5255213 
+##    Comp.9   Comp.10   Comp.11   Comp.12   Comp.13   Comp.14   Comp.15   Comp.16 
+## 0.5440968 0.5612619 0.5763930 0.5908011 0.6025526 0.6133549 0.6235231 0.6332156 
+##   Comp.17   Comp.18   Comp.19   Comp.20   Comp.21   Comp.22   Comp.23   Comp.24 
+## 0.6419329 0.6493159 0.6564713 0.6630939 0.6692248 0.6750794 0.6803283 0.6854643 
+##   Comp.25   Comp.26   Comp.27   Comp.28   Comp.29   Comp.30   Comp.31   Comp.32 
+## 0.6904059 0.6952380 0.6999537 0.7042029 0.7083557 0.7122225 0.7160413 0.7196682 
+##   Comp.33   Comp.34   Comp.35   Comp.36   Comp.37   Comp.38   Comp.39   Comp.40 
+## 0.7231783 0.7265994 0.7299489 0.7332104 0.7364156 0.7395142 0.7425456 0.7454462 
+##   Comp.41   Comp.42   Comp.43   Comp.44   Comp.45   Comp.46   Comp.47   Comp.48 
+## 0.7482166 0.7507992 0.7533597 0.7558088 0.7582021 0.7604941 0.7627486 0.7649313 
+##   Comp.49   Comp.50   Comp.51   Comp.52   Comp.53   Comp.54   Comp.55   Comp.56 
+## 0.7670699 0.7692040 0.7712726 0.7732646 0.7752275 0.7771601 0.7790619 0.7809552 
+##   Comp.57   Comp.58   Comp.59   Comp.60   Comp.61   Comp.62   Comp.63   Comp.64 
+## 0.7827405 0.7845164 0.7862093 0.7878900 0.7895523 0.7911959 0.7928137 0.7943670 
+##   Comp.65   Comp.66   Comp.67   Comp.68   Comp.69   Comp.70   Comp.71   Comp.72 
+## 0.7958968 0.7973918 0.7988364 0.8002318 0.8016097 0.8029545 0.8042759 0.8055913 
+##   Comp.73   Comp.74   Comp.75   Comp.76   Comp.77   Comp.78   Comp.79   Comp.80 
+## 0.8068924 0.8081628 0.8094171 0.8106530 0.8118562 0.8130537 0.8142344 0.8153694 
+##   Comp.81   Comp.82   Comp.83   Comp.84   Comp.85   Comp.86   Comp.87   Comp.88 
+## 0.8164938 0.8176079 0.8186897 0.8197670 0.8208181 0.8218616 0.8228893 0.8239099 
+##   Comp.89   Comp.90   Comp.91   Comp.92   Comp.93   Comp.94   Comp.95   Comp.96 
+## 0.8249128 0.8258960 0.8268586 0.8278066 0.8287400 0.8296699 0.8305847 0.8314913 
+##   Comp.97   Comp.98   Comp.99  Comp.100  Comp.101  Comp.102  Comp.103  Comp.104 
+## 0.8323848 0.8332721 0.8341280 0.8349731 0.8358145 0.8366395 0.8374600 0.8382732 
+##  Comp.105  Comp.106  Comp.107  Comp.108  Comp.109  Comp.110  Comp.111  Comp.112 
+## 0.8390835 0.8398728 0.8406588 0.8414392 0.8422144 0.8429868 0.8437397 0.8444811 
+##  Comp.113  Comp.114  Comp.115  Comp.116  Comp.117  Comp.118  Comp.119  Comp.120 
+## 0.8452087 0.8459314 0.8466494 0.8473570 0.8480596 0.8487480 0.8494309 0.8501098 
+##  Comp.121  Comp.122  Comp.123  Comp.124  Comp.125  Comp.126  Comp.127  Comp.128 
+## 0.8507828 0.8514501 0.8521125 0.8527717 0.8534253 0.8540732 0.8547138 0.8553389 
+##  Comp.129  Comp.130  Comp.131  Comp.132  Comp.133  Comp.134  Comp.135  Comp.136 
+## 0.8559605 0.8565724 0.8571807 0.8577832 0.8583742 0.8589608 0.8595441 0.8601168 
+##  Comp.137  Comp.138  Comp.139  Comp.140  Comp.141  Comp.142  Comp.143  Comp.144 
+## 0.8606861 0.8612484 0.8618042 0.8623554 0.8629047 0.8634520 0.8639944 0.8645329 
+##  Comp.145  Comp.146  Comp.147  Comp.148  Comp.149  Comp.150  Comp.151  Comp.152 
+## 0.8650695 0.8655972 0.8661236 0.8666447 0.8671637 0.8676762 0.8681860 0.8686889 
+##  Comp.153  Comp.154  Comp.155  Comp.156  Comp.157  Comp.158  Comp.159  Comp.160 
+## 0.8691893 0.8696866 0.8701774 0.8706641 0.8711488 0.8716235 0.8720972 0.8725662 
+##  Comp.161  Comp.162  Comp.163  Comp.164  Comp.165  Comp.166  Comp.167  Comp.168 
+## 0.8730311 0.8734899 0.8739467 0.8743995 0.8748505 0.8752971 0.8757379 0.8761732 
+##  Comp.169  Comp.170  Comp.171  Comp.172  Comp.173  Comp.174  Comp.175  Comp.176 
+## 0.8766053 0.8770350 0.8774632 0.8778894 0.8783132 0.8787348 0.8791492 0.8795598 
+##  Comp.177  Comp.178  Comp.179  Comp.180  Comp.181  Comp.182  Comp.183  Comp.184 
+## 0.8799692 0.8803747 0.8807757 0.8811738 0.8815683 0.8819602 0.8823515 0.8827395 
+##  Comp.185  Comp.186  Comp.187  Comp.188  Comp.189  Comp.190  Comp.191  Comp.192 
+## 0.8831228 0.8835052 0.8838859 0.8842628 0.8846375 0.8850080 0.8853772 0.8857455 
+##  Comp.193  Comp.194  Comp.195  Comp.196  Comp.197  Comp.198  Comp.199  Comp.200 
+## 0.8861129 0.8864742 0.8868336 0.8871897 0.8875442 0.8878959 0.8882448 0.8885908 
+##  Comp.201  Comp.202  Comp.203  Comp.204  Comp.205  Comp.206  Comp.207  Comp.208 
+## 0.8889355 0.8892766 0.8896158 0.8899513 0.8902860 0.8906166 0.8909460 0.8912723 
+##  Comp.209  Comp.210  Comp.211  Comp.212  Comp.213  Comp.214  Comp.215  Comp.216 
+## 0.8915972 0.8919186 0.8922386 0.8925575 0.8928741 0.8931872 0.8934991 0.8938108 
+##  Comp.217  Comp.218  Comp.219  Comp.220  Comp.221  Comp.222  Comp.223  Comp.224 
+## 0.8941187 0.8944250 0.8947297 0.8950332 0.8953338 0.8956335 0.8959301 0.8962234 
+##  Comp.225  Comp.226  Comp.227  Comp.228  Comp.229  Comp.230  Comp.231  Comp.232 
+## 0.8965142 0.8968037 0.8970921 0.8973789 0.8976648 0.8979491 0.8982324 0.8985147 
+##  Comp.233  Comp.234  Comp.235  Comp.236  Comp.237  Comp.238  Comp.239  Comp.240 
+## 0.8987960 0.8990749 0.8993529 0.8996276 0.8999007 0.9001726 0.9004428 0.9007115 
+##  Comp.241  Comp.242  Comp.243  Comp.244  Comp.245  Comp.246  Comp.247  Comp.248 
+## 0.9009764 0.9012406 0.9015029 0.9017643 0.9020238 0.9022821 0.9025391 0.9027952 
+##  Comp.249  Comp.250  Comp.251  Comp.252  Comp.253  Comp.254  Comp.255  Comp.256 
+## 0.9030500 0.9033030 0.9035547 0.9038060 0.9040563 0.9043035 0.9045494 0.9047929 
+##  Comp.257  Comp.258  Comp.259  Comp.260  Comp.261  Comp.262  Comp.263  Comp.264 
+## 0.9050355 0.9052765 0.9055160 0.9057525 0.9059887 0.9062234 0.9064572 0.9066905 
+##  Comp.265  Comp.266  Comp.267  Comp.268  Comp.269  Comp.270  Comp.271  Comp.272 
+## 0.9069232 0.9071554 0.9073859 0.9076155 0.9078434 0.9080709 0.9082972 0.9085213 
+##  Comp.273  Comp.274  Comp.275  Comp.276  Comp.277  Comp.278  Comp.279  Comp.280 
+## 0.9087449 0.9089661 0.9091870 0.9094067 0.9096257 0.9098437 0.9100606 0.9102767 
+##  Comp.281  Comp.282  Comp.283  Comp.284  Comp.285  Comp.286  Comp.287  Comp.288 
+## 0.9104914 0.9107050 0.9109176 0.9111299 0.9113401 0.9115497 0.9117584 0.9119668 
+##  Comp.289  Comp.290  Comp.291  Comp.292  Comp.293  Comp.294  Comp.295  Comp.296 
+## 0.9121732 0.9123789 0.9125840 0.9127879 0.9129911 0.9131927 0.9133932 0.9135927 
+##  Comp.297  Comp.298  Comp.299  Comp.300  Comp.301  Comp.302  Comp.303  Comp.304 
+## 0.9137919 0.9139896 0.9141868 0.9143836 0.9145791 0.9147732 0.9149673 0.9151608 
+##  Comp.305  Comp.306  Comp.307  Comp.308  Comp.309  Comp.310  Comp.311  Comp.312 
+## 0.9153530 0.9155447 0.9157349 0.9159240 0.9161126 0.9163006 0.9164861 0.9166714 
+##  Comp.313  Comp.314  Comp.315  Comp.316  Comp.317  Comp.318  Comp.319  Comp.320 
+## 0.9168554 0.9170394 0.9172225 0.9174048 0.9175857 0.9177663 0.9179459 0.9181246 
+##  Comp.321  Comp.322  Comp.323  Comp.324  Comp.325  Comp.326  Comp.327  Comp.328 
+## 0.9183030 0.9184794 0.9186550 0.9188305 0.9190059 0.9191795 0.9193526 0.9195253 
+##  Comp.329  Comp.330  Comp.331  Comp.332  Comp.333  Comp.334  Comp.335  Comp.336 
+## 0.9196976 0.9198691 0.9200398 0.9202095 0.9203789 0.9205474 0.9207154 0.9208824 
+##  Comp.337  Comp.338  Comp.339  Comp.340  Comp.341  Comp.342  Comp.343  Comp.344 
+## 0.9210488 0.9212149 0.9213803 0.9215451 0.9217094 0.9218733 0.9220363 0.9221985 
+##  Comp.345  Comp.346  Comp.347  Comp.348  Comp.349  Comp.350  Comp.351  Comp.352 
+## 0.9223603 0.9225213 0.9226817 0.9228419 0.9230009 0.9231596 0.9233167 0.9234737 
+##  Comp.353  Comp.354  Comp.355  Comp.356  Comp.357  Comp.358  Comp.359  Comp.360 
+## 0.9236304 0.9237865 0.9239418 0.9240970 0.9242512 0.9244048 0.9245578 0.9247103 
+##  Comp.361  Comp.362  Comp.363  Comp.364  Comp.365  Comp.366  Comp.367  Comp.368 
+## 0.9248620 0.9250132 0.9251633 0.9253133 0.9254626 0.9256116 0.9257601 0.9259082 
+##  Comp.369  Comp.370  Comp.371  Comp.372  Comp.373  Comp.374  Comp.375  Comp.376 
+## 0.9260559 0.9262026 0.9263491 0.9264950 0.9266407 0.9267848 0.9269283 0.9270716 
+##  Comp.377  Comp.378  Comp.379  Comp.380  Comp.381  Comp.382  Comp.383  Comp.384 
+## 0.9272144 0.9273565 0.9274980 0.9276390 0.9277796 0.9279195 0.9280594 0.9281981 
+##  Comp.385  Comp.386  Comp.387  Comp.388  Comp.389  Comp.390  Comp.391  Comp.392 
+## 0.9283361 0.9284735 0.9286104 0.9287471 0.9288837 0.9290195 0.9291548 0.9292894 
+##  Comp.393  Comp.394  Comp.395  Comp.396  Comp.397  Comp.398  Comp.399  Comp.400 
+## 0.9294239 0.9295578 0.9296912 0.9298236 0.9299558 0.9300878 0.9302193 0.9303501 
+##  Comp.401  Comp.402  Comp.403  Comp.404  Comp.405  Comp.406  Comp.407  Comp.408 
+## 0.9304807 0.9306106 0.9307402 0.9308695 0.9309980 0.9311260 0.9312538 0.9313808 
+##  Comp.409  Comp.410  Comp.411  Comp.412  Comp.413  Comp.414  Comp.415  Comp.416 
+## 0.9315077 0.9316341 0.9317603 0.9318862 0.9320118 0.9321371 0.9322619 0.9323857 
+##  Comp.417  Comp.418  Comp.419  Comp.420  Comp.421  Comp.422  Comp.423  Comp.424 
+## 0.9325093 0.9326326 0.9327556 0.9328784 0.9330007 0.9331226 0.9332439 0.9333648 
+##  Comp.425  Comp.426  Comp.427  Comp.428  Comp.429  Comp.430  Comp.431  Comp.432 
+## 0.9334854 0.9336052 0.9337249 0.9338443 0.9339635 0.9340820 0.9342002 0.9343178 
+##  Comp.433  Comp.434  Comp.435  Comp.436  Comp.437  Comp.438  Comp.439  Comp.440 
+## 0.9344353 0.9345521 0.9346688 0.9347849 0.9349007 0.9350160 0.9351309 0.9352454 
+##  Comp.441  Comp.442  Comp.443  Comp.444  Comp.445  Comp.446  Comp.447  Comp.448 
+## 0.9353596 0.9354737 0.9355873 0.9357004 0.9358130 0.9359254 0.9360372 0.9361487 
+##  Comp.449  Comp.450  Comp.451  Comp.452  Comp.453  Comp.454  Comp.455  Comp.456 
+## 0.9362600 0.9363708 0.9364815 0.9365918 0.9367016 0.9368113 0.9369206 0.9370297 
+##  Comp.457  Comp.458  Comp.459  Comp.460  Comp.461  Comp.462  Comp.463  Comp.464 
+## 0.9371386 0.9372470 0.9373549 0.9374622 0.9375692 0.9376758 0.9377824 0.9378886 
+##  Comp.465  Comp.466  Comp.467  Comp.468  Comp.469  Comp.470  Comp.471  Comp.472 
+## 0.9379943 0.9380997 0.9382050 0.9383097 0.9384141 0.9385182 0.9386220 0.9387255 
+##  Comp.473  Comp.474  Comp.475  Comp.476  Comp.477  Comp.478  Comp.479  Comp.480 
+## 0.9388286 0.9389316 0.9390344 0.9391368 0.9392389 0.9393408 0.9394423 0.9395434 
+##  Comp.481  Comp.482  Comp.483  Comp.484  Comp.485  Comp.486  Comp.487  Comp.488 
+## 0.9396442 0.9397447 0.9398451 0.9399455 0.9400451 0.9401445 0.9402439 0.9403425 
+##  Comp.489  Comp.490  Comp.491  Comp.492  Comp.493  Comp.494  Comp.495  Comp.496 
+## 0.9404408 0.9405390 0.9406368 0.9407346 0.9408320 0.9409290 0.9410258 0.9411224 
+##  Comp.497  Comp.498  Comp.499  Comp.500  Comp.501  Comp.502  Comp.503  Comp.504 
+## 0.9412189 0.9413150 0.9414105 0.9415060 0.9416011 0.9416961 0.9417910 0.9418856 
+##  Comp.505  Comp.506  Comp.507  Comp.508  Comp.509  Comp.510  Comp.511  Comp.512 
+## 0.9419795 0.9420731 0.9421666 0.9422599 0.9423528 0.9424456 0.9425379 0.9426301 
+##  Comp.513  Comp.514  Comp.515  Comp.516  Comp.517  Comp.518  Comp.519  Comp.520 
+## 0.9427220 0.9428137 0.9429050 0.9429961 0.9430870 0.9431776 0.9432680 0.9433581 
+##  Comp.521  Comp.522  Comp.523  Comp.524  Comp.525  Comp.526  Comp.527  Comp.528 
+## 0.9434479 0.9435377 0.9436272 0.9437166 0.9438058 0.9438947 0.9439834 0.9440714 
+##  Comp.529  Comp.530  Comp.531  Comp.532  Comp.533  Comp.534  Comp.535  Comp.536 
+## 0.9441593 0.9442470 0.9443346 0.9444221 0.9445092 0.9445960 0.9446827 0.9447691 
+##  Comp.537  Comp.538  Comp.539  Comp.540  Comp.541  Comp.542  Comp.543  Comp.544 
+## 0.9448553 0.9449413 0.9450270 0.9451123 0.9451974 0.9452825 0.9453672 0.9454518 
+##  Comp.545  Comp.546  Comp.547  Comp.548  Comp.549  Comp.550  Comp.551  Comp.552 
+## 0.9455363 0.9456206 0.9457044 0.9457881 0.9458716 0.9459548 0.9460378 0.9461205 
+##  Comp.553  Comp.554  Comp.555  Comp.556  Comp.557  Comp.558  Comp.559  Comp.560 
+## 0.9462031 0.9462856 0.9463674 0.9464491 0.9465307 0.9466119 0.9466928 0.9467737 
+##  Comp.561  Comp.562  Comp.563  Comp.564  Comp.565  Comp.566  Comp.567  Comp.568 
+## 0.9468544 0.9469348 0.9470151 0.9470953 0.9471754 0.9472554 0.9473351 0.9474145 
+##  Comp.569  Comp.570  Comp.571  Comp.572  Comp.573  Comp.574  Comp.575  Comp.576 
+## 0.9474938 0.9475729 0.9476518 0.9477305 0.9478090 0.9478872 0.9479652 0.9480430 
+##  Comp.577  Comp.578  Comp.579  Comp.580  Comp.581  Comp.582  Comp.583  Comp.584 
+## 0.9481206 0.9481980 0.9482751 0.9483521 0.9484290 0.9485059 0.9485825 0.9486587 
+##  Comp.585  Comp.586  Comp.587  Comp.588  Comp.589  Comp.590  Comp.591  Comp.592 
+## 0.9487347 0.9488107 0.9488863 0.9489619 0.9490373 0.9491124 0.9491875 0.9492624 
+##  Comp.593  Comp.594  Comp.595  Comp.596  Comp.597  Comp.598  Comp.599  Comp.600 
+## 0.9493371 0.9494118 0.9494862 0.9495606 0.9496348 0.9497088 0.9497827 0.9498565 
+##  Comp.601  Comp.602  Comp.603  Comp.604  Comp.605  Comp.606  Comp.607  Comp.608 
+## 0.9499301 0.9500036 0.9500769 0.9501500 0.9502230 0.9502957 0.9503683 0.9504406 
+##  Comp.609  Comp.610  Comp.611  Comp.612  Comp.613  Comp.614  Comp.615  Comp.616 
+## 0.9505129 0.9505849 0.9506568 0.9507286 0.9508003 0.9508717 0.9509430 0.9510139 
+##  Comp.617  Comp.618  Comp.619  Comp.620  Comp.621  Comp.622  Comp.623  Comp.624 
+## 0.9510847 0.9511553 0.9512258 0.9512962 0.9513665 0.9514365 0.9515065 0.9515764 
+##  Comp.625  Comp.626  Comp.627  Comp.628  Comp.629  Comp.630  Comp.631  Comp.632 
+## 0.9516460 0.9517154 0.9517846 0.9518536 0.9519224 0.9519911 0.9520597 0.9521282 
+##  Comp.633  Comp.634  Comp.635  Comp.636  Comp.637  Comp.638  Comp.639  Comp.640 
+## 0.9521964 0.9522645 0.9523324 0.9524002 0.9524678 0.9525353 0.9526026 0.9526696 
+##  Comp.641  Comp.642  Comp.643  Comp.644  Comp.645  Comp.646  Comp.647  Comp.648 
+## 0.9527366 0.9528034 0.9528702 0.9529368 0.9530034 0.9530697 0.9531359 0.9532018 
+##  Comp.649  Comp.650  Comp.651  Comp.652  Comp.653  Comp.654  Comp.655  Comp.656 
+## 0.9532677 0.9533333 0.9533989 0.9534643 0.9535295 0.9535946 0.9536595 0.9537244 
+##  Comp.657  Comp.658  Comp.659  Comp.660  Comp.661  Comp.662  Comp.663  Comp.664 
+## 0.9537892 0.9538540 0.9539185 0.9539828 0.9540471 0.9541112 0.9541750 0.9542386 
+##  Comp.665  Comp.666  Comp.667  Comp.668  Comp.669  Comp.670  Comp.671  Comp.672 
+## 0.9543022 0.9543657 0.9544290 0.9544923 0.9545555 0.9546186 0.9546815 0.9547443 
+##  Comp.673  Comp.674  Comp.675  Comp.676  Comp.677  Comp.678  Comp.679  Comp.680 
+## 0.9548070 0.9548695 0.9549319 0.9549941 0.9550560 0.9551179 0.9551797 0.9552413 
+##  Comp.681  Comp.682  Comp.683  Comp.684  Comp.685  Comp.686  Comp.687  Comp.688 
+## 0.9553028 0.9553640 0.9554253 0.9554864 0.9555474 0.9556083 0.9556691 0.9557298 
+##  Comp.689  Comp.690  Comp.691  Comp.692  Comp.693  Comp.694  Comp.695  Comp.696 
+## 0.9557904 0.9558510 0.9559115 0.9559719 0.9560320 0.9560920 0.9561518 0.9562115 
+##  Comp.697  Comp.698  Comp.699  Comp.700  Comp.701  Comp.702  Comp.703  Comp.704 
+## 0.9562712 0.9563306 0.9563900 0.9564492 0.9565083 0.9565674 0.9566264 0.9566853 
+##  Comp.705  Comp.706  Comp.707  Comp.708  Comp.709  Comp.710  Comp.711  Comp.712 
+## 0.9567440 0.9568027 0.9568613 0.9569197 0.9569780 0.9570363 0.9570944 0.9571523 
+##  Comp.713  Comp.714  Comp.715  Comp.716  Comp.717  Comp.718  Comp.719  Comp.720 
+## 0.9572101 0.9572678 0.9573254 0.9573829 0.9574401 0.9574974 0.9575545 0.9576115 
+##  Comp.721  Comp.722  Comp.723  Comp.724  Comp.725  Comp.726  Comp.727  Comp.728 
+## 0.9576685 0.9577253 0.9577820 0.9578385 0.9578950 0.9579513 0.9580074 0.9580635 
+##  Comp.729  Comp.730  Comp.731  Comp.732  Comp.733  Comp.734  Comp.735  Comp.736 
+## 0.9581194 0.9581753 0.9582311 0.9582867 0.9583423 0.9583977 0.9584531 0.9585084 
+##  Comp.737  Comp.738  Comp.739  Comp.740  Comp.741  Comp.742  Comp.743  Comp.744 
+## 0.9585636 0.9586187 0.9586736 0.9587285 0.9587834 0.9588381 0.9588927 0.9589472 
+##  Comp.745  Comp.746  Comp.747  Comp.748  Comp.749  Comp.750  Comp.751  Comp.752 
+## 0.9590017 0.9590561 0.9591104 0.9591645 0.9592186 0.9592726 0.9593265 0.9593803 
+##  Comp.753  Comp.754  Comp.755  Comp.756  Comp.757  Comp.758  Comp.759  Comp.760 
+## 0.9594341 0.9594878 0.9595413 0.9595946 0.9596479 0.9597010 0.9597540 0.9598068 
+##  Comp.761  Comp.762  Comp.763  Comp.764  Comp.765  Comp.766  Comp.767  Comp.768 
+## 0.9598597 0.9599124 0.9599650 0.9600176 0.9600700 0.9601223 0.9601746 0.9602266 
+##  Comp.769  Comp.770  Comp.771  Comp.772  Comp.773  Comp.774  Comp.775  Comp.776 
+## 0.9602785 0.9603304 0.9603821 0.9604338 0.9604853 0.9605368 0.9605882 0.9606396 
+##  Comp.777  Comp.778  Comp.779  Comp.780  Comp.781  Comp.782  Comp.783  Comp.784 
+## 0.9606908 0.9607420 0.9607930 0.9608440 0.9608948 0.9609456 0.9609962 0.9610468 
+##  Comp.785  Comp.786  Comp.787  Comp.788  Comp.789  Comp.790  Comp.791  Comp.792 
+## 0.9610973 0.9611476 0.9611979 0.9612481 0.9612980 0.9613478 0.9613976 0.9614472 
+##  Comp.793  Comp.794  Comp.795  Comp.796  Comp.797  Comp.798  Comp.799  Comp.800 
+## 0.9614968 0.9615463 0.9615957 0.9616452 0.9616945 0.9617438 0.9617930 0.9618421 
+##  Comp.801  Comp.802  Comp.803  Comp.804  Comp.805  Comp.806  Comp.807  Comp.808 
+## 0.9618910 0.9619399 0.9619887 0.9620374 0.9620860 0.9621345 0.9621830 0.9622314 
+##  Comp.809  Comp.810  Comp.811  Comp.812  Comp.813  Comp.814  Comp.815  Comp.816 
+## 0.9622797 0.9623280 0.9623762 0.9624243 0.9624723 0.9625202 0.9625680 0.9626157 
+##  Comp.817  Comp.818  Comp.819  Comp.820  Comp.821  Comp.822  Comp.823  Comp.824 
+## 0.9626634 0.9627109 0.9627584 0.9628058 0.9628532 0.9629005 0.9629477 0.9629949 
+##  Comp.825  Comp.826  Comp.827  Comp.828  Comp.829  Comp.830  Comp.831  Comp.832 
+## 0.9630419 0.9630890 0.9631359 0.9631828 0.9632296 0.9632762 0.9633228 0.9633693 
+##  Comp.833  Comp.834  Comp.835  Comp.836  Comp.837  Comp.838  Comp.839  Comp.840 
+## 0.9634158 0.9634623 0.9635086 0.9635548 0.9636008 0.9636468 0.9636928 0.9637386 
+##  Comp.841  Comp.842  Comp.843  Comp.844  Comp.845  Comp.846  Comp.847  Comp.848 
+## 0.9637844 0.9638301 0.9638758 0.9639213 0.9639668 0.9640122 0.9640576 0.9641029 
+##  Comp.849  Comp.850  Comp.851  Comp.852  Comp.853  Comp.854  Comp.855  Comp.856 
+## 0.9641481 0.9641932 0.9642382 0.9642832 0.9643281 0.9643729 0.9644176 0.9644623 
+##  Comp.857  Comp.858  Comp.859  Comp.860  Comp.861  Comp.862  Comp.863  Comp.864 
+## 0.9645069 0.9645514 0.9645960 0.9646403 0.9646846 0.9647289 0.9647731 0.9648172 
+##  Comp.865  Comp.866  Comp.867  Comp.868  Comp.869  Comp.870  Comp.871  Comp.872 
+## 0.9648612 0.9649052 0.9649490 0.9649929 0.9650367 0.9650804 0.9651240 0.9651674 
+##  Comp.873  Comp.874  Comp.875  Comp.876  Comp.877  Comp.878  Comp.879  Comp.880 
+## 0.9652108 0.9652542 0.9652975 0.9653407 0.9653838 0.9654269 0.9654700 0.9655129 
+##  Comp.881  Comp.882  Comp.883  Comp.884  Comp.885  Comp.886  Comp.887  Comp.888 
+## 0.9655558 0.9655986 0.9656414 0.9656841 0.9657267 0.9657693 0.9658118 0.9658542 
+##  Comp.889  Comp.890  Comp.891  Comp.892  Comp.893  Comp.894  Comp.895  Comp.896 
+## 0.9658965 0.9659389 0.9659811 0.9660233 0.9660655 0.9661076 0.9661496 0.9661915 
+##  Comp.897  Comp.898  Comp.899  Comp.900  Comp.901  Comp.902  Comp.903  Comp.904 
+## 0.9662333 0.9662751 0.9663168 0.9663585 0.9664001 0.9664415 0.9664829 0.9665242 
+##  Comp.905  Comp.906  Comp.907  Comp.908  Comp.909  Comp.910  Comp.911  Comp.912 
+## 0.9665655 0.9666067 0.9666479 0.9666890 0.9667300 0.9667709 0.9668119 0.9668527 
+##  Comp.913  Comp.914  Comp.915  Comp.916  Comp.917  Comp.918  Comp.919  Comp.920 
+## 0.9668936 0.9669344 0.9669751 0.9670157 0.9670563 0.9670967 0.9671372 0.9671775 
+##  Comp.921  Comp.922  Comp.923  Comp.924  Comp.925  Comp.926  Comp.927  Comp.928 
+## 0.9672178 0.9672580 0.9672982 0.9673383 0.9673783 0.9674183 0.9674582 0.9674980 
+##  Comp.929  Comp.930  Comp.931  Comp.932  Comp.933  Comp.934  Comp.935  Comp.936 
+## 0.9675378 0.9675776 0.9676173 0.9676569 0.9676965 0.9677361 0.9677755 0.9678149 
+##  Comp.937  Comp.938  Comp.939  Comp.940  Comp.941  Comp.942  Comp.943  Comp.944 
+## 0.9678543 0.9678936 0.9679328 0.9679720 0.9680111 0.9680502 0.9680891 0.9681280 
+##  Comp.945  Comp.946  Comp.947  Comp.948  Comp.949  Comp.950  Comp.951  Comp.952 
+## 0.9681669 0.9682057 0.9682445 0.9682832 0.9683219 0.9683606 0.9683992 0.9684377 
+##  Comp.953  Comp.954  Comp.955  Comp.956  Comp.957  Comp.958  Comp.959  Comp.960 
+## 0.9684761 0.9685145 0.9685528 0.9685910 0.9686292 0.9686673 0.9687054 0.9687435 
+##  Comp.961  Comp.962  Comp.963  Comp.964  Comp.965  Comp.966  Comp.967  Comp.968 
+## 0.9687814 0.9688193 0.9688571 0.9688949 0.9689326 0.9689703 0.9690079 0.9690454 
+##  Comp.969  Comp.970  Comp.971  Comp.972  Comp.973  Comp.974  Comp.975  Comp.976 
+## 0.9690829 0.9691204 0.9691578 0.9691951 0.9692324 0.9692696 0.9693068 0.9693438 
+##  Comp.977  Comp.978  Comp.979  Comp.980  Comp.981  Comp.982  Comp.983  Comp.984 
+## 0.9693809 0.9694179 0.9694548 0.9694917 0.9695285 0.9695653 0.9696021 0.9696387 
+##  Comp.985  Comp.986  Comp.987  Comp.988  Comp.989  Comp.990  Comp.991  Comp.992 
+## 0.9696753 0.9697119 0.9697484 0.9697848 0.9698211 0.9698575 0.9698937 0.9699299 
+##  Comp.993  Comp.994  Comp.995  Comp.996  Comp.997  Comp.998  Comp.999 Comp.1000 
+## 0.9699661 0.9700022 0.9700383 0.9700743 0.9701102 0.9701461 0.9701820 0.9702179 
+## Comp.1001 Comp.1002 Comp.1003 Comp.1004 Comp.1005 Comp.1006 Comp.1007 Comp.1008 
+## 0.9702536 0.9702893 0.9703250 0.9703606 0.9703962 0.9704317 0.9704672 0.9705026 
+## Comp.1009 Comp.1010 Comp.1011 Comp.1012 Comp.1013 Comp.1014 Comp.1015 Comp.1016 
+## 0.9705380 0.9705733 0.9706086 0.9706438 0.9706790 0.9707142 0.9707493 0.9707844 
+## Comp.1017 Comp.1018 Comp.1019 Comp.1020 Comp.1021 Comp.1022 Comp.1023 Comp.1024 
+## 0.9708194 0.9708543 0.9708892 0.9709241 0.9709589 0.9709936 0.9710282 0.9710628 
+## Comp.1025 Comp.1026 Comp.1027 Comp.1028 Comp.1029 Comp.1030 Comp.1031 Comp.1032 
+## 0.9710974 0.9711319 0.9711663 0.9712008 0.9712351 0.9712694 0.9713037 0.9713379 
+## Comp.1033 Comp.1034 Comp.1035 Comp.1036 Comp.1037 Comp.1038 Comp.1039 Comp.1040 
+## 0.9713721 0.9714062 0.9714403 0.9714743 0.9715083 0.9715422 0.9715761 0.9716099 
+## Comp.1041 Comp.1042 Comp.1043 Comp.1044 Comp.1045 Comp.1046 Comp.1047 Comp.1048 
+## 0.9716437 0.9716774 0.9717111 0.9717447 0.9717782 0.9718118 0.9718453 0.9718787 
+## Comp.1049 Comp.1050 Comp.1051 Comp.1052 Comp.1053 Comp.1054 Comp.1055 Comp.1056 
+## 0.9719121 0.9719455 0.9719788 0.9720122 0.9720454 0.9720786 0.9721118 0.9721449 
+## Comp.1057 Comp.1058 Comp.1059 Comp.1060 Comp.1061 Comp.1062 Comp.1063 Comp.1064 
+## 0.9721780 0.9722110 0.9722439 0.9722767 0.9723096 0.9723424 0.9723752 0.9724080 
+## Comp.1065 Comp.1066 Comp.1067 Comp.1068 Comp.1069 Comp.1070 Comp.1071 Comp.1072 
+## 0.9724407 0.9724734 0.9725060 0.9725386 0.9725712 0.9726036 0.9726361 0.9726684 
+## Comp.1073 Comp.1074 Comp.1075 Comp.1076 Comp.1077 Comp.1078 Comp.1079 Comp.1080 
+## 0.9727008 0.9727331 0.9727653 0.9727975 0.9728297 0.9728617 0.9728938 0.9729258 
+## Comp.1081 Comp.1082 Comp.1083 Comp.1084 Comp.1085 Comp.1086 Comp.1087 Comp.1088 
+## 0.9729577 0.9729896 0.9730215 0.9730533 0.9730851 0.9731169 0.9731486 0.9731803 
+## Comp.1089 Comp.1090 Comp.1091 Comp.1092 Comp.1093 Comp.1094 Comp.1095 Comp.1096 
+## 0.9732120 0.9732437 0.9732753 0.9733068 0.9733384 0.9733698 0.9734013 0.9734327 
+## Comp.1097 Comp.1098 Comp.1099 Comp.1100 Comp.1101 Comp.1102 Comp.1103 Comp.1104 
+## 0.9734640 0.9734954 0.9735267 0.9735579 0.9735891 0.9736202 0.9736513 0.9736824 
+## Comp.1105 Comp.1106 Comp.1107 Comp.1108 Comp.1109 Comp.1110 Comp.1111 Comp.1112 
+## 0.9737134 0.9737444 0.9737753 0.9738062 0.9738370 0.9738678 0.9738985 0.9739292 
+## Comp.1113 Comp.1114 Comp.1115 Comp.1116 Comp.1117 Comp.1118 Comp.1119 Comp.1120 
+## 0.9739599 0.9739905 0.9740211 0.9740516 0.9740822 0.9741126 0.9741431 0.9741735 
+## Comp.1121 Comp.1122 Comp.1123 Comp.1124 Comp.1125 Comp.1126 Comp.1127 Comp.1128 
+## 0.9742039 0.9742342 0.9742645 0.9742948 0.9743250 0.9743552 0.9743853 0.9744154 
+## Comp.1129 Comp.1130 Comp.1131 Comp.1132 Comp.1133 Comp.1134 Comp.1135 Comp.1136 
+## 0.9744455 0.9744755 0.9745054 0.9745354 0.9745653 0.9745951 0.9746249 0.9746547 
+## Comp.1137 Comp.1138 Comp.1139 Comp.1140 Comp.1141 Comp.1142 Comp.1143 Comp.1144 
+## 0.9746845 0.9747142 0.9747439 0.9747735 0.9748031 0.9748327 0.9748623 0.9748918 
+## Comp.1145 Comp.1146 Comp.1147 Comp.1148 Comp.1149 Comp.1150 Comp.1151 Comp.1152 
+## 0.9749212 0.9749507 0.9749801 0.9750094 0.9750387 0.9750680 0.9750972 0.9751264 
+## Comp.1153 Comp.1154 Comp.1155 Comp.1156 Comp.1157 Comp.1158 Comp.1159 Comp.1160 
+## 0.9751556 0.9751847 0.9752138 0.9752429 0.9752719 0.9753009 0.9753298 0.9753588 
+## Comp.1161 Comp.1162 Comp.1163 Comp.1164 Comp.1165 Comp.1166 Comp.1167 Comp.1168 
+## 0.9753876 0.9754165 0.9754453 0.9754740 0.9755028 0.9755315 0.9755601 0.9755887 
+## Comp.1169 Comp.1170 Comp.1171 Comp.1172 Comp.1173 Comp.1174 Comp.1175 Comp.1176 
+## 0.9756172 0.9756458 0.9756742 0.9757027 0.9757311 0.9757595 0.9757878 0.9758161 
+## Comp.1177 Comp.1178 Comp.1179 Comp.1180 Comp.1181 Comp.1182 Comp.1183 Comp.1184 
+## 0.9758444 0.9758726 0.9759008 0.9759290 0.9759571 0.9759852 0.9760133 0.9760414 
+## Comp.1185 Comp.1186 Comp.1187 Comp.1188 Comp.1189 Comp.1190 Comp.1191 Comp.1192 
+## 0.9760694 0.9760973 0.9761252 0.9761530 0.9761808 0.9762086 0.9762363 0.9762640 
+## Comp.1193 Comp.1194 Comp.1195 Comp.1196 Comp.1197 Comp.1198 Comp.1199 Comp.1200 
+## 0.9762917 0.9763193 0.9763469 0.9763745 0.9764021 0.9764296 0.9764571 0.9764845 
+## Comp.1201 Comp.1202 Comp.1203 Comp.1204 Comp.1205 Comp.1206 Comp.1207 Comp.1208 
+## 0.9765120 0.9765394 0.9765668 0.9765941 0.9766214 0.9766487 0.9766760 0.9767032 
+## Comp.1209 Comp.1210 Comp.1211 Comp.1212 Comp.1213 Comp.1214 Comp.1215 Comp.1216 
+## 0.9767303 0.9767574 0.9767845 0.9768116 0.9768386 0.9768656 0.9768926 0.9769195 
+## Comp.1217 Comp.1218 Comp.1219 Comp.1220 Comp.1221 Comp.1222 Comp.1223 Comp.1224 
+## 0.9769465 0.9769733 0.9770002 0.9770270 0.9770538 0.9770806 0.9771073 0.9771340 
+## Comp.1225 Comp.1226 Comp.1227 Comp.1228 Comp.1229 Comp.1230 Comp.1231 Comp.1232 
+## 0.9771607 0.9771874 0.9772140 0.9772406 0.9772671 0.9772936 0.9773201 0.9773466 
+## Comp.1233 Comp.1234 Comp.1235 Comp.1236 Comp.1237 Comp.1238 Comp.1239 Comp.1240 
+## 0.9773730 0.9773993 0.9774257 0.9774520 0.9774783 0.9775045 0.9775307 0.9775568 
+## Comp.1241 Comp.1242 Comp.1243 Comp.1244 Comp.1245 Comp.1246 Comp.1247 Comp.1248 
+## 0.9775830 0.9776091 0.9776352 0.9776612 0.9776872 0.9777132 0.9777391 0.9777650 
+## Comp.1249 Comp.1250 Comp.1251 Comp.1252 Comp.1253 Comp.1254 Comp.1255 Comp.1256 
+## 0.9777908 0.9778166 0.9778424 0.9778682 0.9778939 0.9779196 0.9779453 0.9779709 
+## Comp.1257 Comp.1258 Comp.1259 Comp.1260 Comp.1261 Comp.1262 Comp.1263 Comp.1264 
+## 0.9779965 0.9780221 0.9780477 0.9780732 0.9780986 0.9781241 0.9781495 0.9781749 
+## Comp.1265 Comp.1266 Comp.1267 Comp.1268 Comp.1269 Comp.1270 Comp.1271 Comp.1272 
+## 0.9782002 0.9782256 0.9782509 0.9782761 0.9783013 0.9783265 0.9783517 0.9783768 
+## Comp.1273 Comp.1274 Comp.1275 Comp.1276 Comp.1277 Comp.1278 Comp.1279 Comp.1280 
+## 0.9784020 0.9784271 0.9784521 0.9784771 0.9785021 0.9785271 0.9785521 0.9785770 
+## Comp.1281 Comp.1282 Comp.1283 Comp.1284 Comp.1285 Comp.1286 Comp.1287 Comp.1288 
+## 0.9786019 0.9786268 0.9786516 0.9786764 0.9787012 0.9787260 0.9787507 0.9787753 
+## Comp.1289 Comp.1290 Comp.1291 Comp.1292 Comp.1293 Comp.1294 Comp.1295 Comp.1296 
+## 0.9788000 0.9788246 0.9788491 0.9788737 0.9788982 0.9789227 0.9789471 0.9789715 
+## Comp.1297 Comp.1298 Comp.1299 Comp.1300 Comp.1301 Comp.1302 Comp.1303 Comp.1304 
+## 0.9789959 0.9790202 0.9790445 0.9790688 0.9790931 0.9791173 0.9791415 0.9791657 
+## Comp.1305 Comp.1306 Comp.1307 Comp.1308 Comp.1309 Comp.1310 Comp.1311 Comp.1312 
+## 0.9791899 0.9792140 0.9792382 0.9792623 0.9792863 0.9793103 0.9793343 0.9793583 
+## Comp.1313 Comp.1314 Comp.1315 Comp.1316 Comp.1317 Comp.1318 Comp.1319 Comp.1320 
+## 0.9793822 0.9794061 0.9794300 0.9794539 0.9794777 0.9795015 0.9795253 0.9795491 
+## Comp.1321 Comp.1322 Comp.1323 Comp.1324 Comp.1325 Comp.1326 Comp.1327 Comp.1328 
+## 0.9795728 0.9795965 0.9796202 0.9796438 0.9796675 0.9796911 0.9797146 0.9797382 
+## Comp.1329 Comp.1330 Comp.1331 Comp.1332 Comp.1333 Comp.1334 Comp.1335 Comp.1336 
+## 0.9797617 0.9797852 0.9798086 0.9798320 0.9798554 0.9798788 0.9799021 0.9799255 
+## Comp.1337 Comp.1338 Comp.1339 Comp.1340 Comp.1341 Comp.1342 Comp.1343 Comp.1344 
+## 0.9799488 0.9799720 0.9799952 0.9800184 0.9800416 0.9800647 0.9800879 0.9801110 
+## Comp.1345 Comp.1346 Comp.1347 Comp.1348 Comp.1349 Comp.1350 Comp.1351 Comp.1352 
+## 0.9801341 0.9801571 0.9801801 0.9802031 0.9802261 0.9802491 0.9802720 0.9802949 
+## Comp.1353 Comp.1354 Comp.1355 Comp.1356 Comp.1357 Comp.1358 Comp.1359 Comp.1360 
+## 0.9803178 0.9803406 0.9803634 0.9803862 0.9804090 0.9804317 0.9804544 0.9804771 
+## Comp.1361 Comp.1362 Comp.1363 Comp.1364 Comp.1365 Comp.1366 Comp.1367 Comp.1368 
+## 0.9804998 0.9805224 0.9805450 0.9805677 0.9805902 0.9806128 0.9806353 0.9806578 
+## Comp.1369 Comp.1370 Comp.1371 Comp.1372 Comp.1373 Comp.1374 Comp.1375 Comp.1376 
+## 0.9806803 0.9807027 0.9807251 0.9807475 0.9807699 0.9807922 0.9808144 0.9808367 
+## Comp.1377 Comp.1378 Comp.1379 Comp.1380 Comp.1381 Comp.1382 Comp.1383 Comp.1384 
+## 0.9808589 0.9808812 0.9809033 0.9809255 0.9809476 0.9809698 0.9809919 0.9810139 
+## Comp.1385 Comp.1386 Comp.1387 Comp.1388 Comp.1389 Comp.1390 Comp.1391 Comp.1392 
+## 0.9810360 0.9810580 0.9810800 0.9811019 0.9811239 0.9811458 0.9811677 0.9811895 
+## Comp.1393 Comp.1394 Comp.1395 Comp.1396 Comp.1397 Comp.1398 Comp.1399 Comp.1400 
+## 0.9812114 0.9812332 0.9812550 0.9812768 0.9812985 0.9813203 0.9813420 0.9813636 
+## Comp.1401 Comp.1402 Comp.1403 Comp.1404 Comp.1405 Comp.1406 Comp.1407 Comp.1408 
+## 0.9813853 0.9814069 0.9814285 0.9814501 0.9814716 0.9814931 0.9815146 0.9815360 
+## Comp.1409 Comp.1410 Comp.1411 Comp.1412 Comp.1413 Comp.1414 Comp.1415 Comp.1416 
+## 0.9815575 0.9815789 0.9816003 0.9816217 0.9816430 0.9816643 0.9816856 0.9817069 
+## Comp.1417 Comp.1418 Comp.1419 Comp.1420 Comp.1421 Comp.1422 Comp.1423 Comp.1424 
+## 0.9817282 0.9817494 0.9817706 0.9817918 0.9818129 0.9818341 0.9818552 0.9818763 
+## Comp.1425 Comp.1426 Comp.1427 Comp.1428 Comp.1429 Comp.1430 Comp.1431 Comp.1432 
+## 0.9818974 0.9819184 0.9819395 0.9819605 0.9819814 0.9820024 0.9820233 0.9820442 
+## Comp.1433 Comp.1434 Comp.1435 Comp.1436 Comp.1437 Comp.1438 Comp.1439 Comp.1440 
+## 0.9820650 0.9820859 0.9821067 0.9821275 0.9821483 0.9821690 0.9821897 0.9822104 
+## Comp.1441 Comp.1442 Comp.1443 Comp.1444 Comp.1445 Comp.1446 Comp.1447 Comp.1448 
+## 0.9822311 0.9822517 0.9822723 0.9822930 0.9823135 0.9823341 0.9823546 0.9823752 
+## Comp.1449 Comp.1450 Comp.1451 Comp.1452 Comp.1453 Comp.1454 Comp.1455 Comp.1456 
+## 0.9823957 0.9824162 0.9824366 0.9824571 0.9824775 0.9824979 0.9825182 0.9825386 
+## Comp.1457 Comp.1458 Comp.1459 Comp.1460 Comp.1461 Comp.1462 Comp.1463 Comp.1464 
+## 0.9825589 0.9825792 0.9825995 0.9826197 0.9826400 0.9826602 0.9826804 0.9827005 
+## Comp.1465 Comp.1466 Comp.1467 Comp.1468 Comp.1469 Comp.1470 Comp.1471 Comp.1472 
+## 0.9827207 0.9827408 0.9827609 0.9827809 0.9828010 0.9828210 0.9828410 0.9828610 
+## Comp.1473 Comp.1474 Comp.1475 Comp.1476 Comp.1477 Comp.1478 Comp.1479 Comp.1480 
+## 0.9828810 0.9829009 0.9829209 0.9829408 0.9829607 0.9829805 0.9830004 0.9830202 
+## Comp.1481 Comp.1482 Comp.1483 Comp.1484 Comp.1485 Comp.1486 Comp.1487 Comp.1488 
+## 0.9830400 0.9830598 0.9830796 0.9830993 0.9831190 0.9831387 0.9831584 0.9831780 
+## Comp.1489 Comp.1490 Comp.1491 Comp.1492 Comp.1493 Comp.1494 Comp.1495 Comp.1496 
+## 0.9831976 0.9832172 0.9832368 0.9832564 0.9832759 0.9832954 0.9833149 0.9833344 
+## Comp.1497 Comp.1498 Comp.1499 Comp.1500 Comp.1501 Comp.1502 Comp.1503 Comp.1504 
+## 0.9833538 0.9833733 0.9833927 0.9834120 0.9834314 0.9834507 0.9834700 0.9834892 
+## Comp.1505 Comp.1506 Comp.1507 Comp.1508 Comp.1509 Comp.1510 Comp.1511 Comp.1512 
+## 0.9835085 0.9835278 0.9835470 0.9835662 0.9835854 0.9836046 0.9836237 0.9836428 
+## Comp.1513 Comp.1514 Comp.1515 Comp.1516 Comp.1517 Comp.1518 Comp.1519 Comp.1520 
+## 0.9836620 0.9836811 0.9837001 0.9837192 0.9837382 0.9837572 0.9837762 0.9837951 
+## Comp.1521 Comp.1522 Comp.1523 Comp.1524 Comp.1525 Comp.1526 Comp.1527 Comp.1528 
+## 0.9838141 0.9838330 0.9838518 0.9838707 0.9838896 0.9839084 0.9839272 0.9839460 
+## Comp.1529 Comp.1530 Comp.1531 Comp.1532 Comp.1533 Comp.1534 Comp.1535 Comp.1536 
+## 0.9839648 0.9839835 0.9840023 0.9840210 0.9840397 0.9840584 0.9840770 0.9840957 
+## Comp.1537 Comp.1538 Comp.1539 Comp.1540 Comp.1541 Comp.1542 Comp.1543 Comp.1544 
+## 0.9841143 0.9841328 0.9841514 0.9841700 0.9841885 0.9842070 0.9842254 0.9842439 
+## Comp.1545 Comp.1546 Comp.1547 Comp.1548 Comp.1549 Comp.1550 Comp.1551 Comp.1552 
+## 0.9842623 0.9842807 0.9842991 0.9843175 0.9843359 0.9843542 0.9843725 0.9843908 
+## Comp.1553 Comp.1554 Comp.1555 Comp.1556 Comp.1557 Comp.1558 Comp.1559 Comp.1560 
+## 0.9844091 0.9844273 0.9844456 0.9844638 0.9844820 0.9845002 0.9845183 0.9845364 
+## Comp.1561 Comp.1562 Comp.1563 Comp.1564 Comp.1565 Comp.1566 Comp.1567 Comp.1568 
+## 0.9845545 0.9845726 0.9845907 0.9846087 0.9846267 0.9846447 0.9846627 0.9846807 
+## Comp.1569 Comp.1570 Comp.1571 Comp.1572 Comp.1573 Comp.1574 Comp.1575 Comp.1576 
+## 0.9846987 0.9847166 0.9847345 0.9847524 0.9847703 0.9847881 0.9848059 0.9848238 
+## Comp.1577 Comp.1578 Comp.1579 Comp.1580 Comp.1581 Comp.1582 Comp.1583 Comp.1584 
+## 0.9848415 0.9848593 0.9848771 0.9848948 0.9849125 0.9849302 0.9849479 0.9849656 
+## Comp.1585 Comp.1586 Comp.1587 Comp.1588 Comp.1589 Comp.1590 Comp.1591 Comp.1592 
+## 0.9849832 0.9850009 0.9850185 0.9850361 0.9850536 0.9850712 0.9850887 0.9851063 
+## Comp.1593 Comp.1594 Comp.1595 Comp.1596 Comp.1597 Comp.1598 Comp.1599 Comp.1600 
+## 0.9851238 0.9851413 0.9851587 0.9851762 0.9851936 0.9852110 0.9852284 0.9852458 
+## Comp.1601 Comp.1602 Comp.1603 Comp.1604 Comp.1605 Comp.1606 Comp.1607 Comp.1608 
+## 0.9852631 0.9852805 0.9852978 0.9853151 0.9853324 0.9853497 0.9853669 0.9853842 
+## Comp.1609 Comp.1610 Comp.1611 Comp.1612 Comp.1613 Comp.1614 Comp.1615 Comp.1616 
+## 0.9854014 0.9854186 0.9854357 0.9854529 0.9854700 0.9854871 0.9855042 0.9855213 
+## Comp.1617 Comp.1618 Comp.1619 Comp.1620 Comp.1621 Comp.1622 Comp.1623 Comp.1624 
+## 0.9855383 0.9855554 0.9855724 0.9855894 0.9856064 0.9856234 0.9856403 0.9856573 
+## Comp.1625 Comp.1626 Comp.1627 Comp.1628 Comp.1629 Comp.1630 Comp.1631 Comp.1632 
+## 0.9856742 0.9856911 0.9857080 0.9857248 0.9857417 0.9857585 0.9857753 0.9857921 
+## Comp.1633 Comp.1634 Comp.1635 Comp.1636 Comp.1637 Comp.1638 Comp.1639 Comp.1640 
+## 0.9858088 0.9858256 0.9858423 0.9858591 0.9858758 0.9858924 0.9859091 0.9859257 
+## Comp.1641 Comp.1642 Comp.1643 Comp.1644 Comp.1645 Comp.1646 Comp.1647 Comp.1648 
+## 0.9859423 0.9859589 0.9859755 0.9859921 0.9860086 0.9860252 0.9860417 0.9860582 
+## Comp.1649 Comp.1650 Comp.1651 Comp.1652 Comp.1653 Comp.1654 Comp.1655 Comp.1656 
+## 0.9860747 0.9860911 0.9861076 0.9861240 0.9861404 0.9861568 0.9861732 0.9861895 
+## Comp.1657 Comp.1658 Comp.1659 Comp.1660 Comp.1661 Comp.1662 Comp.1663 Comp.1664 
+## 0.9862058 0.9862222 0.9862385 0.9862548 0.9862710 0.9862873 0.9863035 0.9863198 
+## Comp.1665 Comp.1666 Comp.1667 Comp.1668 Comp.1669 Comp.1670 Comp.1671 Comp.1672 
+## 0.9863360 0.9863521 0.9863683 0.9863845 0.9864006 0.9864168 0.9864329 0.9864490 
+## Comp.1673 Comp.1674 Comp.1675 Comp.1676 Comp.1677 Comp.1678 Comp.1679 Comp.1680 
+## 0.9864651 0.9864811 0.9864972 0.9865132 0.9865292 0.9865452 0.9865611 0.9865771 
+## Comp.1681 Comp.1682 Comp.1683 Comp.1684 Comp.1685 Comp.1686 Comp.1687 Comp.1688 
+## 0.9865930 0.9866090 0.9866248 0.9866407 0.9866566 0.9866724 0.9866882 0.9867040 
+## Comp.1689 Comp.1690 Comp.1691 Comp.1692 Comp.1693 Comp.1694 Comp.1695 Comp.1696 
+## 0.9867198 0.9867356 0.9867513 0.9867670 0.9867827 0.9867984 0.9868141 0.9868298 
+## Comp.1697 Comp.1698 Comp.1699 Comp.1700 Comp.1701 Comp.1702 Comp.1703 Comp.1704 
+## 0.9868454 0.9868610 0.9868767 0.9868923 0.9869079 0.9869234 0.9869390 0.9869545 
+## Comp.1705 Comp.1706 Comp.1707 Comp.1708 Comp.1709 Comp.1710 Comp.1711 Comp.1712 
+## 0.9869700 0.9869855 0.9870010 0.9870164 0.9870319 0.9870473 0.9870627 0.9870781 
+## Comp.1713 Comp.1714 Comp.1715 Comp.1716 Comp.1717 Comp.1718 Comp.1719 Comp.1720 
+## 0.9870935 0.9871088 0.9871242 0.9871395 0.9871548 0.9871701 0.9871854 0.9872007 
+## Comp.1721 Comp.1722 Comp.1723 Comp.1724 Comp.1725 Comp.1726 Comp.1727 Comp.1728 
+## 0.9872159 0.9872312 0.9872464 0.9872616 0.9872768 0.9872920 0.9873071 0.9873223 
+## Comp.1729 Comp.1730 Comp.1731 Comp.1732 Comp.1733 Comp.1734 Comp.1735 Comp.1736 
+## 0.9873374 0.9873525 0.9873676 0.9873827 0.9873977 0.9874127 0.9874278 0.9874428 
+## Comp.1737 Comp.1738 Comp.1739 Comp.1740 Comp.1741 Comp.1742 Comp.1743 Comp.1744 
+## 0.9874577 0.9874727 0.9874877 0.9875026 0.9875175 0.9875324 0.9875473 0.9875622 
+## Comp.1745 Comp.1746 Comp.1747 Comp.1748 Comp.1749 Comp.1750 Comp.1751 Comp.1752 
+## 0.9875770 0.9875919 0.9876067 0.9876215 0.9876363 0.9876511 0.9876658 0.9876806 
+## Comp.1753 Comp.1754 Comp.1755 Comp.1756 Comp.1757 Comp.1758 Comp.1759 Comp.1760 
+## 0.9876953 0.9877101 0.9877247 0.9877394 0.9877541 0.9877687 0.9877834 0.9877980 
+## Comp.1761 Comp.1762 Comp.1763 Comp.1764 Comp.1765 Comp.1766 Comp.1767 Comp.1768 
+## 0.9878126 0.9878272 0.9878418 0.9878564 0.9878709 0.9878855 0.9879000 0.9879145 
+## Comp.1769 Comp.1770 Comp.1771 Comp.1772 Comp.1773 Comp.1774 Comp.1775 Comp.1776 
+## 0.9879290 0.9879435 0.9879579 0.9879724 0.9879868 0.9880012 0.9880156 0.9880300 
+## Comp.1777 Comp.1778 Comp.1779 Comp.1780 Comp.1781 Comp.1782 Comp.1783 Comp.1784 
+## 0.9880443 0.9880587 0.9880730 0.9880873 0.9881016 0.9881159 0.9881302 0.9881444 
+## Comp.1785 Comp.1786 Comp.1787 Comp.1788 Comp.1789 Comp.1790 Comp.1791 Comp.1792 
+## 0.9881587 0.9881729 0.9881871 0.9882013 0.9882155 0.9882297 0.9882439 0.9882581 
+## Comp.1793 Comp.1794 Comp.1795 Comp.1796 Comp.1797 Comp.1798 Comp.1799 Comp.1800 
+## 0.9882722 0.9882863 0.9883004 0.9883145 0.9883286 0.9883426 0.9883567 0.9883707 
+## Comp.1801 Comp.1802 Comp.1803 Comp.1804 Comp.1805 Comp.1806 Comp.1807 Comp.1808 
+## 0.9883848 0.9883988 0.9884128 0.9884268 0.9884407 0.9884546 0.9884686 0.9884825 
+## Comp.1809 Comp.1810 Comp.1811 Comp.1812 Comp.1813 Comp.1814 Comp.1815 Comp.1816 
+## 0.9884964 0.9885103 0.9885241 0.9885380 0.9885518 0.9885656 0.9885794 0.9885932 
+## Comp.1817 Comp.1818 Comp.1819 Comp.1820 Comp.1821 Comp.1822 Comp.1823 Comp.1824 
+## 0.9886070 0.9886207 0.9886345 0.9886482 0.9886619 0.9886756 0.9886893 0.9887030 
+## Comp.1825 Comp.1826 Comp.1827 Comp.1828 Comp.1829 Comp.1830 Comp.1831 Comp.1832 
+## 0.9887166 0.9887302 0.9887439 0.9887575 0.9887711 0.9887847 0.9887982 0.9888118 
+## Comp.1833 Comp.1834 Comp.1835 Comp.1836 Comp.1837 Comp.1838 Comp.1839 Comp.1840 
+## 0.9888253 0.9888389 0.9888524 0.9888659 0.9888794 0.9888929 0.9889064 0.9889198 
+## Comp.1841 Comp.1842 Comp.1843 Comp.1844 Comp.1845 Comp.1846 Comp.1847 Comp.1848 
+## 0.9889332 0.9889467 0.9889600 0.9889734 0.9889868 0.9890001 0.9890135 0.9890268 
+## Comp.1849 Comp.1850 Comp.1851 Comp.1852 Comp.1853 Comp.1854 Comp.1855 Comp.1856 
+## 0.9890401 0.9890534 0.9890667 0.9890800 0.9890933 0.9891065 0.9891198 0.9891330 
+## Comp.1857 Comp.1858 Comp.1859 Comp.1860 Comp.1861 Comp.1862 Comp.1863 Comp.1864 
+## 0.9891462 0.9891594 0.9891726 0.9891858 0.9891989 0.9892121 0.9892252 0.9892384 
+## Comp.1865 Comp.1866 Comp.1867 Comp.1868 Comp.1869 Comp.1870 Comp.1871 Comp.1872 
+## 0.9892515 0.9892645 0.9892776 0.9892907 0.9893037 0.9893168 0.9893298 0.9893428 
+## Comp.1873 Comp.1874 Comp.1875 Comp.1876 Comp.1877 Comp.1878 Comp.1879 Comp.1880 
+## 0.9893558 0.9893688 0.9893818 0.9893947 0.9894077 0.9894206 0.9894336 0.9894465 
+## Comp.1881 Comp.1882 Comp.1883 Comp.1884 Comp.1885 Comp.1886 Comp.1887 Comp.1888 
+## 0.9894594 0.9894722 0.9894851 0.9894980 0.9895108 0.9895236 0.9895364 0.9895493 
+## Comp.1889 Comp.1890 Comp.1891 Comp.1892 Comp.1893 Comp.1894 Comp.1895 Comp.1896 
+## 0.9895621 0.9895748 0.9895876 0.9896003 0.9896131 0.9896258 0.9896385 0.9896512 
+## Comp.1897 Comp.1898 Comp.1899 Comp.1900 Comp.1901 Comp.1902 Comp.1903 Comp.1904 
+## 0.9896639 0.9896765 0.9896892 0.9897019 0.9897145 0.9897271 0.9897397 0.9897523 
+## Comp.1905 Comp.1906 Comp.1907 Comp.1908 Comp.1909 Comp.1910 Comp.1911 Comp.1912 
+## 0.9897649 0.9897775 0.9897900 0.9898026 0.9898151 0.9898276 0.9898401 0.9898526 
+## Comp.1913 Comp.1914 Comp.1915 Comp.1916 Comp.1917 Comp.1918 Comp.1919 Comp.1920 
+## 0.9898651 0.9898775 0.9898900 0.9899024 0.9899148 0.9899272 0.9899396 0.9899520 
+## Comp.1921 Comp.1922 Comp.1923 Comp.1924 Comp.1925 Comp.1926 Comp.1927 Comp.1928 
+## 0.9899643 0.9899767 0.9899890 0.9900013 0.9900137 0.9900260 0.9900383 0.9900505 
+## Comp.1929 Comp.1930 Comp.1931 Comp.1932 Comp.1933 Comp.1934 Comp.1935 Comp.1936 
+## 0.9900628 0.9900751 0.9900873 0.9900996 0.9901118 0.9901240 0.9901362 0.9901484 
+## Comp.1937 Comp.1938 Comp.1939 Comp.1940 Comp.1941 Comp.1942 Comp.1943 Comp.1944 
+## 0.9901606 0.9901727 0.9901849 0.9901970 0.9902091 0.9902213 0.9902334 0.9902455 
+## Comp.1945 Comp.1946 Comp.1947 Comp.1948 Comp.1949 Comp.1950 Comp.1951 Comp.1952 
+## 0.9902575 0.9902696 0.9902816 0.9902937 0.9903057 0.9903177 0.9903297 0.9903417 
+## Comp.1953 Comp.1954 Comp.1955 Comp.1956 Comp.1957 Comp.1958 Comp.1959 Comp.1960 
+## 0.9903536 0.9903656 0.9903776 0.9903895 0.9904014 0.9904133 0.9904252 0.9904371 
+## Comp.1961 Comp.1962 Comp.1963 Comp.1964 Comp.1965 Comp.1966 Comp.1967 Comp.1968 
+## 0.9904490 0.9904609 0.9904728 0.9904846 0.9904965 0.9905083 0.9905201 0.9905319 
+## Comp.1969 Comp.1970 Comp.1971 Comp.1972 Comp.1973 Comp.1974 Comp.1975 Comp.1976 
+## 0.9905437 0.9905555 0.9905672 0.9905790 0.9905907 0.9906024 0.9906142 0.9906259 
+## Comp.1977 Comp.1978 Comp.1979 Comp.1980 Comp.1981 Comp.1982 Comp.1983 Comp.1984 
+## 0.9906375 0.9906492 0.9906609 0.9906725 0.9906842 0.9906958 0.9907074 0.9907190 
+## Comp.1985 Comp.1986 Comp.1987 Comp.1988 Comp.1989 Comp.1990 Comp.1991 Comp.1992 
+## 0.9907306 0.9907422 0.9907538 0.9907654 0.9907769 0.9907884 0.9908000 0.9908115 
+## Comp.1993 Comp.1994 Comp.1995 Comp.1996 Comp.1997 Comp.1998 Comp.1999 Comp.2000 
+## 0.9908229 0.9908344 0.9908459 0.9908574 0.9908688 0.9908802 0.9908917 0.9909031 
+## Comp.2001 Comp.2002 Comp.2003 Comp.2004 Comp.2005 Comp.2006 Comp.2007 Comp.2008 
+## 0.9909145 0.9909259 0.9909373 0.9909486 0.9909600 0.9909713 0.9909827 0.9909940 
+## Comp.2009 Comp.2010 Comp.2011 Comp.2012 Comp.2013 Comp.2014 Comp.2015 Comp.2016 
+## 0.9910053 0.9910166 0.9910278 0.9910391 0.9910504 0.9910616 0.9910729 0.9910841 
+## Comp.2017 Comp.2018 Comp.2019 Comp.2020 Comp.2021 Comp.2022 Comp.2023 Comp.2024 
+## 0.9910953 0.9911065 0.9911177 0.9911289 0.9911401 0.9911512 0.9911624 0.9911736 
+## Comp.2025 Comp.2026 Comp.2027 Comp.2028 Comp.2029 Comp.2030 Comp.2031 Comp.2032 
+## 0.9911847 0.9911958 0.9912069 0.9912180 0.9912291 0.9912401 0.9912512 0.9912622 
+## Comp.2033 Comp.2034 Comp.2035 Comp.2036 Comp.2037 Comp.2038 Comp.2039 Comp.2040 
+## 0.9912733 0.9912843 0.9912953 0.9913063 0.9913173 0.9913282 0.9913392 0.9913502 
+## Comp.2041 Comp.2042 Comp.2043 Comp.2044 Comp.2045 Comp.2046 Comp.2047 Comp.2048 
+## 0.9913611 0.9913720 0.9913829 0.9913938 0.9914047 0.9914156 0.9914265 0.9914373 
+## Comp.2049 Comp.2050 Comp.2051 Comp.2052 Comp.2053 Comp.2054 Comp.2055 Comp.2056 
+## 0.9914482 0.9914590 0.9914699 0.9914807 0.9914915 0.9915023 0.9915131 0.9915238 
+## Comp.2057 Comp.2058 Comp.2059 Comp.2060 Comp.2061 Comp.2062 Comp.2063 Comp.2064 
+## 0.9915346 0.9915454 0.9915561 0.9915668 0.9915776 0.9915883 0.9915990 0.9916097 
+## Comp.2065 Comp.2066 Comp.2067 Comp.2068 Comp.2069 Comp.2070 Comp.2071 Comp.2072 
+## 0.9916204 0.9916310 0.9916417 0.9916523 0.9916630 0.9916736 0.9916842 0.9916948 
+## Comp.2073 Comp.2074 Comp.2075 Comp.2076 Comp.2077 Comp.2078 Comp.2079 Comp.2080 
+## 0.9917054 0.9917160 0.9917266 0.9917372 0.9917477 0.9917583 0.9917688 0.9917793 
+## Comp.2081 Comp.2082 Comp.2083 Comp.2084 Comp.2085 Comp.2086 Comp.2087 Comp.2088 
+## 0.9917899 0.9918004 0.9918108 0.9918213 0.9918318 0.9918423 0.9918527 0.9918632 
+## Comp.2089 Comp.2090 Comp.2091 Comp.2092 Comp.2093 Comp.2094 Comp.2095 Comp.2096 
+## 0.9918736 0.9918840 0.9918944 0.9919048 0.9919152 0.9919255 0.9919359 0.9919462 
+## Comp.2097 Comp.2098 Comp.2099 Comp.2100 Comp.2101 Comp.2102 Comp.2103 Comp.2104 
+## 0.9919566 0.9919669 0.9919772 0.9919875 0.9919978 0.9920081 0.9920183 0.9920286 
+## Comp.2105 Comp.2106 Comp.2107 Comp.2108 Comp.2109 Comp.2110 Comp.2111 Comp.2112 
+## 0.9920388 0.9920491 0.9920593 0.9920695 0.9920797 0.9920899 0.9921001 0.9921103 
+## Comp.2113 Comp.2114 Comp.2115 Comp.2116 Comp.2117 Comp.2118 Comp.2119 Comp.2120 
+## 0.9921205 0.9921306 0.9921408 0.9921509 0.9921611 0.9921712 0.9921813 0.9921914 
+## Comp.2121 Comp.2122 Comp.2123 Comp.2124 Comp.2125 Comp.2126 Comp.2127 Comp.2128 
+## 0.9922015 0.9922116 0.9922216 0.9922317 0.9922417 0.9922518 0.9922618 0.9922718 
+## Comp.2129 Comp.2130 Comp.2131 Comp.2132 Comp.2133 Comp.2134 Comp.2135 Comp.2136 
+## 0.9922818 0.9922918 0.9923018 0.9923117 0.9923217 0.9923317 0.9923416 0.9923515 
+## Comp.2137 Comp.2138 Comp.2139 Comp.2140 Comp.2141 Comp.2142 Comp.2143 Comp.2144 
+## 0.9923615 0.9923714 0.9923813 0.9923912 0.9924011 0.9924109 0.9924208 0.9924306 
+## Comp.2145 Comp.2146 Comp.2147 Comp.2148 Comp.2149 Comp.2150 Comp.2151 Comp.2152 
+## 0.9924405 0.9924503 0.9924601 0.9924699 0.9924798 0.9924895 0.9924993 0.9925091 
+## Comp.2153 Comp.2154 Comp.2155 Comp.2156 Comp.2157 Comp.2158 Comp.2159 Comp.2160 
+## 0.9925189 0.9925286 0.9925384 0.9925481 0.9925578 0.9925675 0.9925772 0.9925869 
+## Comp.2161 Comp.2162 Comp.2163 Comp.2164 Comp.2165 Comp.2166 Comp.2167 Comp.2168 
+## 0.9925966 0.9926063 0.9926159 0.9926256 0.9926352 0.9926448 0.9926544 0.9926641 
+## Comp.2169 Comp.2170 Comp.2171 Comp.2172 Comp.2173 Comp.2174 Comp.2175 Comp.2176 
+## 0.9926737 0.9926832 0.9926928 0.9927024 0.9927120 0.9927215 0.9927311 0.9927406 
+## Comp.2177 Comp.2178 Comp.2179 Comp.2180 Comp.2181 Comp.2182 Comp.2183 Comp.2184 
+## 0.9927502 0.9927597 0.9927692 0.9927787 0.9927882 0.9927977 0.9928072 0.9928166 
+## Comp.2185 Comp.2186 Comp.2187 Comp.2188 Comp.2189 Comp.2190 Comp.2191 Comp.2192 
+## 0.9928261 0.9928355 0.9928450 0.9928544 0.9928638 0.9928732 0.9928826 0.9928920 
+## Comp.2193 Comp.2194 Comp.2195 Comp.2196 Comp.2197 Comp.2198 Comp.2199 Comp.2200 
+## 0.9929014 0.9929107 0.9929201 0.9929295 0.9929388 0.9929482 0.9929575 0.9929668 
+## Comp.2201 Comp.2202 Comp.2203 Comp.2204 Comp.2205 Comp.2206 Comp.2207 Comp.2208 
+## 0.9929761 0.9929854 0.9929947 0.9930040 0.9930133 0.9930225 0.9930318 0.9930410 
+## Comp.2209 Comp.2210 Comp.2211 Comp.2212 Comp.2213 Comp.2214 Comp.2215 Comp.2216 
+## 0.9930503 0.9930595 0.9930687 0.9930779 0.9930871 0.9930963 0.9931055 0.9931146 
+## Comp.2217 Comp.2218 Comp.2219 Comp.2220 Comp.2221 Comp.2222 Comp.2223 Comp.2224 
+## 0.9931238 0.9931329 0.9931421 0.9931512 0.9931603 0.9931694 0.9931785 0.9931876 
+## Comp.2225 Comp.2226 Comp.2227 Comp.2228 Comp.2229 Comp.2230 Comp.2231 Comp.2232 
+## 0.9931967 0.9932057 0.9932148 0.9932239 0.9932329 0.9932419 0.9932510 0.9932600 
+## Comp.2233 Comp.2234 Comp.2235 Comp.2236 Comp.2237 Comp.2238 Comp.2239 Comp.2240 
+## 0.9932690 0.9932780 0.9932870 0.9932959 0.9933049 0.9933139 0.9933228 0.9933318 
+## Comp.2241 Comp.2242 Comp.2243 Comp.2244 Comp.2245 Comp.2246 Comp.2247 Comp.2248 
+## 0.9933407 0.9933496 0.9933585 0.9933674 0.9933763 0.9933852 0.9933940 0.9934029 
+## Comp.2249 Comp.2250 Comp.2251 Comp.2252 Comp.2253 Comp.2254 Comp.2255 Comp.2256 
+## 0.9934117 0.9934206 0.9934294 0.9934382 0.9934471 0.9934559 0.9934647 0.9934735 
+## Comp.2257 Comp.2258 Comp.2259 Comp.2260 Comp.2261 Comp.2262 Comp.2263 Comp.2264 
+## 0.9934822 0.9934910 0.9934998 0.9935085 0.9935172 0.9935260 0.9935347 0.9935434 
+## Comp.2265 Comp.2266 Comp.2267 Comp.2268 Comp.2269 Comp.2270 Comp.2271 Comp.2272 
+## 0.9935521 0.9935608 0.9935695 0.9935782 0.9935868 0.9935955 0.9936042 0.9936128 
+## Comp.2273 Comp.2274 Comp.2275 Comp.2276 Comp.2277 Comp.2278 Comp.2279 Comp.2280 
+## 0.9936214 0.9936301 0.9936387 0.9936473 0.9936559 0.9936645 0.9936730 0.9936816 
+## Comp.2281 Comp.2282 Comp.2283 Comp.2284 Comp.2285 Comp.2286 Comp.2287 Comp.2288 
+## 0.9936902 0.9936988 0.9937073 0.9937159 0.9937244 0.9937329 0.9937415 0.9937500 
+## Comp.2289 Comp.2290 Comp.2291 Comp.2292 Comp.2293 Comp.2294 Comp.2295 Comp.2296 
+## 0.9937585 0.9937670 0.9937755 0.9937839 0.9937924 0.9938008 0.9938093 0.9938177 
+## Comp.2297 Comp.2298 Comp.2299 Comp.2300 Comp.2301 Comp.2302 Comp.2303 Comp.2304 
+## 0.9938261 0.9938345 0.9938429 0.9938513 0.9938597 0.9938681 0.9938765 0.9938848 
+## Comp.2305 Comp.2306 Comp.2307 Comp.2308 Comp.2309 Comp.2310 Comp.2311 Comp.2312 
+## 0.9938932 0.9939015 0.9939098 0.9939181 0.9939265 0.9939348 0.9939431 0.9939514 
+## Comp.2313 Comp.2314 Comp.2315 Comp.2316 Comp.2317 Comp.2318 Comp.2319 Comp.2320 
+## 0.9939597 0.9939679 0.9939762 0.9939845 0.9939927 0.9940010 0.9940092 0.9940174 
+## Comp.2321 Comp.2322 Comp.2323 Comp.2324 Comp.2325 Comp.2326 Comp.2327 Comp.2328 
+## 0.9940257 0.9940339 0.9940421 0.9940503 0.9940585 0.9940666 0.9940748 0.9940830 
+## Comp.2329 Comp.2330 Comp.2331 Comp.2332 Comp.2333 Comp.2334 Comp.2335 Comp.2336 
+## 0.9940911 0.9940992 0.9941074 0.9941155 0.9941236 0.9941317 0.9941398 0.9941479 
+## Comp.2337 Comp.2338 Comp.2339 Comp.2340 Comp.2341 Comp.2342 Comp.2343 Comp.2344 
+## 0.9941560 0.9941641 0.9941721 0.9941802 0.9941883 0.9941963 0.9942044 0.9942124 
+## Comp.2345 Comp.2346 Comp.2347 Comp.2348 Comp.2349 Comp.2350 Comp.2351 Comp.2352 
+## 0.9942204 0.9942284 0.9942364 0.9942444 0.9942524 0.9942603 0.9942683 0.9942763 
+## Comp.2353 Comp.2354 Comp.2355 Comp.2356 Comp.2357 Comp.2358 Comp.2359 Comp.2360 
+## 0.9942842 0.9942922 0.9943001 0.9943080 0.9943160 0.9943239 0.9943318 0.9943397 
+## Comp.2361 Comp.2362 Comp.2363 Comp.2364 Comp.2365 Comp.2366 Comp.2367 Comp.2368 
+## 0.9943476 0.9943554 0.9943633 0.9943712 0.9943790 0.9943869 0.9943947 0.9944025 
+## Comp.2369 Comp.2370 Comp.2371 Comp.2372 Comp.2373 Comp.2374 Comp.2375 Comp.2376 
+## 0.9944103 0.9944182 0.9944260 0.9944338 0.9944416 0.9944493 0.9944571 0.9944649 
+## Comp.2377 Comp.2378 Comp.2379 Comp.2380 Comp.2381 Comp.2382 Comp.2383 Comp.2384 
+## 0.9944726 0.9944804 0.9944881 0.9944959 0.9945036 0.9945113 0.9945190 0.9945267 
+## Comp.2385 Comp.2386 Comp.2387 Comp.2388 Comp.2389 Comp.2390 Comp.2391 Comp.2392 
+## 0.9945344 0.9945421 0.9945498 0.9945575 0.9945652 0.9945728 0.9945805 0.9945881 
+## Comp.2393 Comp.2394 Comp.2395 Comp.2396 Comp.2397 Comp.2398 Comp.2399 Comp.2400 
+## 0.9945957 0.9946034 0.9946110 0.9946186 0.9946262 0.9946338 0.9946414 0.9946489 
+## Comp.2401 Comp.2402 Comp.2403 Comp.2404 Comp.2405 Comp.2406 Comp.2407 Comp.2408 
+## 0.9946565 0.9946641 0.9946716 0.9946792 0.9946867 0.9946942 0.9947018 0.9947093 
+## Comp.2409 Comp.2410 Comp.2411 Comp.2412 Comp.2413 Comp.2414 Comp.2415 Comp.2416 
+## 0.9947168 0.9947243 0.9947318 0.9947392 0.9947467 0.9947542 0.9947617 0.9947691 
+## Comp.2417 Comp.2418 Comp.2419 Comp.2420 Comp.2421 Comp.2422 Comp.2423 Comp.2424 
+## 0.9947766 0.9947840 0.9947914 0.9947989 0.9948063 0.9948137 0.9948211 0.9948285 
+## Comp.2425 Comp.2426 Comp.2427 Comp.2428 Comp.2429 Comp.2430 Comp.2431 Comp.2432 
+## 0.9948359 0.9948433 0.9948506 0.9948580 0.9948653 0.9948727 0.9948800 0.9948874 
+## Comp.2433 Comp.2434 Comp.2435 Comp.2436 Comp.2437 Comp.2438 Comp.2439 Comp.2440 
+## 0.9948947 0.9949020 0.9949093 0.9949166 0.9949239 0.9949311 0.9949384 0.9949457 
+## Comp.2441 Comp.2442 Comp.2443 Comp.2444 Comp.2445 Comp.2446 Comp.2447 Comp.2448 
+## 0.9949529 0.9949602 0.9949674 0.9949746 0.9949819 0.9949891 0.9949963 0.9950035 
+## Comp.2449 Comp.2450 Comp.2451 Comp.2452 Comp.2453 Comp.2454 Comp.2455 Comp.2456 
+## 0.9950107 0.9950179 0.9950250 0.9950322 0.9950394 0.9950465 0.9950537 0.9950608 
+## Comp.2457 Comp.2458 Comp.2459 Comp.2460 Comp.2461 Comp.2462 Comp.2463 Comp.2464 
+## 0.9950680 0.9950751 0.9950822 0.9950893 0.9950964 0.9951035 0.9951106 0.9951177 
+## Comp.2465 Comp.2466 Comp.2467 Comp.2468 Comp.2469 Comp.2470 Comp.2471 Comp.2472 
+## 0.9951248 0.9951318 0.9951389 0.9951459 0.9951530 0.9951600 0.9951670 0.9951740 
+## Comp.2473 Comp.2474 Comp.2475 Comp.2476 Comp.2477 Comp.2478 Comp.2479 Comp.2480 
+## 0.9951811 0.9951881 0.9951951 0.9952021 0.9952091 0.9952160 0.9952230 0.9952300 
+## Comp.2481 Comp.2482 Comp.2483 Comp.2484 Comp.2485 Comp.2486 Comp.2487 Comp.2488 
+## 0.9952369 0.9952439 0.9952508 0.9952577 0.9952647 0.9952716 0.9952785 0.9952854 
+## Comp.2489 Comp.2490 Comp.2491 Comp.2492 Comp.2493 Comp.2494 Comp.2495 Comp.2496 
+## 0.9952923 0.9952992 0.9953060 0.9953129 0.9953198 0.9953266 0.9953335 0.9953403 
+## Comp.2497 Comp.2498 Comp.2499 Comp.2500 Comp.2501 Comp.2502 Comp.2503 Comp.2504 
+## 0.9953472 0.9953540 0.9953608 0.9953676 0.9953744 0.9953812 0.9953880 0.9953948 
+## Comp.2505 Comp.2506 Comp.2507 Comp.2508 Comp.2509 Comp.2510 Comp.2511 Comp.2512 
+## 0.9954016 0.9954084 0.9954152 0.9954219 0.9954287 0.9954355 0.9954422 0.9954489 
+## Comp.2513 Comp.2514 Comp.2515 Comp.2516 Comp.2517 Comp.2518 Comp.2519 Comp.2520 
+## 0.9954557 0.9954624 0.9954691 0.9954758 0.9954825 0.9954892 0.9954959 0.9955026 
+## Comp.2521 Comp.2522 Comp.2523 Comp.2524 Comp.2525 Comp.2526 Comp.2527 Comp.2528 
+## 0.9955092 0.9955159 0.9955225 0.9955292 0.9955358 0.9955425 0.9955491 0.9955557 
+## Comp.2529 Comp.2530 Comp.2531 Comp.2532 Comp.2533 Comp.2534 Comp.2535 Comp.2536 
+## 0.9955623 0.9955689 0.9955755 0.9955821 0.9955887 0.9955953 0.9956019 0.9956084 
+## Comp.2537 Comp.2538 Comp.2539 Comp.2540 Comp.2541 Comp.2542 Comp.2543 Comp.2544 
+## 0.9956150 0.9956215 0.9956281 0.9956346 0.9956411 0.9956477 0.9956542 0.9956607 
+## Comp.2545 Comp.2546 Comp.2547 Comp.2548 Comp.2549 Comp.2550 Comp.2551 Comp.2552 
+## 0.9956672 0.9956737 0.9956802 0.9956867 0.9956931 0.9956996 0.9957061 0.9957125 
+## Comp.2553 Comp.2554 Comp.2555 Comp.2556 Comp.2557 Comp.2558 Comp.2559 Comp.2560 
+## 0.9957190 0.9957254 0.9957319 0.9957383 0.9957447 0.9957511 0.9957575 0.9957639 
+## Comp.2561 Comp.2562 Comp.2563 Comp.2564 Comp.2565 Comp.2566 Comp.2567 Comp.2568 
+## 0.9957703 0.9957767 0.9957831 0.9957894 0.9957958 0.9958022 0.9958085 0.9958149 
+## Comp.2569 Comp.2570 Comp.2571 Comp.2572 Comp.2573 Comp.2574 Comp.2575 Comp.2576 
+## 0.9958212 0.9958275 0.9958338 0.9958401 0.9958465 0.9958528 0.9958590 0.9958653 
+## Comp.2577 Comp.2578 Comp.2579 Comp.2580 Comp.2581 Comp.2582 Comp.2583 Comp.2584 
+## 0.9958716 0.9958779 0.9958841 0.9958904 0.9958967 0.9959029 0.9959091 0.9959154 
+## Comp.2585 Comp.2586 Comp.2587 Comp.2588 Comp.2589 Comp.2590 Comp.2591 Comp.2592 
+## 0.9959216 0.9959278 0.9959340 0.9959402 0.9959464 0.9959526 0.9959588 0.9959650 
+## Comp.2593 Comp.2594 Comp.2595 Comp.2596 Comp.2597 Comp.2598 Comp.2599 Comp.2600 
+## 0.9959712 0.9959774 0.9959835 0.9959897 0.9959958 0.9960020 0.9960081 0.9960142 
+## Comp.2601 Comp.2602 Comp.2603 Comp.2604 Comp.2605 Comp.2606 Comp.2607 Comp.2608 
+## 0.9960203 0.9960265 0.9960326 0.9960387 0.9960448 0.9960508 0.9960569 0.9960630 
+## Comp.2609 Comp.2610 Comp.2611 Comp.2612 Comp.2613 Comp.2614 Comp.2615 Comp.2616 
+## 0.9960691 0.9960751 0.9960812 0.9960872 0.9960933 0.9960993 0.9961053 0.9961113 
+## Comp.2617 Comp.2618 Comp.2619 Comp.2620 Comp.2621 Comp.2622 Comp.2623 Comp.2624 
+## 0.9961174 0.9961234 0.9961294 0.9961354 0.9961413 0.9961473 0.9961533 0.9961593 
+## Comp.2625 Comp.2626 Comp.2627 Comp.2628 Comp.2629 Comp.2630 Comp.2631 Comp.2632 
+## 0.9961652 0.9961712 0.9961771 0.9961830 0.9961890 0.9961949 0.9962008 0.9962067 
+## Comp.2633 Comp.2634 Comp.2635 Comp.2636 Comp.2637 Comp.2638 Comp.2639 Comp.2640 
+## 0.9962126 0.9962185 0.9962244 0.9962303 0.9962362 0.9962421 0.9962479 0.9962538 
+## Comp.2641 Comp.2642 Comp.2643 Comp.2644 Comp.2645 Comp.2646 Comp.2647 Comp.2648 
+## 0.9962596 0.9962655 0.9962713 0.9962772 0.9962830 0.9962888 0.9962947 0.9963005 
+## Comp.2649 Comp.2650 Comp.2651 Comp.2652 Comp.2653 Comp.2654 Comp.2655 Comp.2656 
+## 0.9963063 0.9963121 0.9963179 0.9963237 0.9963294 0.9963352 0.9963410 0.9963468 
+## Comp.2657 Comp.2658 Comp.2659 Comp.2660 Comp.2661 Comp.2662 Comp.2663 Comp.2664 
+## 0.9963525 0.9963583 0.9963640 0.9963697 0.9963755 0.9963812 0.9963869 0.9963926 
+## Comp.2665 Comp.2666 Comp.2667 Comp.2668 Comp.2669 Comp.2670 Comp.2671 Comp.2672 
+## 0.9963984 0.9964041 0.9964098 0.9964154 0.9964211 0.9964268 0.9964325 0.9964381 
+## Comp.2673 Comp.2674 Comp.2675 Comp.2676 Comp.2677 Comp.2678 Comp.2679 Comp.2680 
+## 0.9964438 0.9964494 0.9964551 0.9964607 0.9964663 0.9964719 0.9964776 0.9964832 
+## Comp.2681 Comp.2682 Comp.2683 Comp.2684 Comp.2685 Comp.2686 Comp.2687 Comp.2688 
+## 0.9964888 0.9964944 0.9965000 0.9965055 0.9965111 0.9965167 0.9965223 0.9965278 
+## Comp.2689 Comp.2690 Comp.2691 Comp.2692 Comp.2693 Comp.2694 Comp.2695 Comp.2696 
+## 0.9965334 0.9965389 0.9965445 0.9965500 0.9965555 0.9965610 0.9965666 0.9965721 
+## Comp.2697 Comp.2698 Comp.2699 Comp.2700 Comp.2701 Comp.2702 Comp.2703 Comp.2704 
+## 0.9965776 0.9965831 0.9965886 0.9965941 0.9965995 0.9966050 0.9966105 0.9966159 
+## Comp.2705 Comp.2706 Comp.2707 Comp.2708 Comp.2709 Comp.2710 Comp.2711 Comp.2712 
+## 0.9966214 0.9966269 0.9966323 0.9966377 0.9966432 0.9966486 0.9966540 0.9966594 
+## Comp.2713 Comp.2714 Comp.2715 Comp.2716 Comp.2717 Comp.2718 Comp.2719 Comp.2720 
+## 0.9966649 0.9966703 0.9966757 0.9966811 0.9966864 0.9966918 0.9966972 0.9967026 
+## Comp.2721 Comp.2722 Comp.2723 Comp.2724 Comp.2725 Comp.2726 Comp.2727 Comp.2728 
+## 0.9967079 0.9967133 0.9967186 0.9967240 0.9967293 0.9967347 0.9967400 0.9967453 
+## Comp.2729 Comp.2730 Comp.2731 Comp.2732 Comp.2733 Comp.2734 Comp.2735 Comp.2736 
+## 0.9967506 0.9967559 0.9967612 0.9967665 0.9967718 0.9967771 0.9967824 0.9967877 
+## Comp.2737 Comp.2738 Comp.2739 Comp.2740 Comp.2741 Comp.2742 Comp.2743 Comp.2744 
+## 0.9967929 0.9967982 0.9968034 0.9968087 0.9968139 0.9968192 0.9968244 0.9968296 
+## Comp.2745 Comp.2746 Comp.2747 Comp.2748 Comp.2749 Comp.2750 Comp.2751 Comp.2752 
+## 0.9968349 0.9968401 0.9968453 0.9968505 0.9968557 0.9968609 0.9968661 0.9968712 
+## Comp.2753 Comp.2754 Comp.2755 Comp.2756 Comp.2757 Comp.2758 Comp.2759 Comp.2760 
+## 0.9968764 0.9968816 0.9968868 0.9968919 0.9968971 0.9969022 0.9969074 0.9969125 
+## Comp.2761 Comp.2762 Comp.2763 Comp.2764 Comp.2765 Comp.2766 Comp.2767 Comp.2768 
+## 0.9969176 0.9969227 0.9969279 0.9969330 0.9969381 0.9969432 0.9969483 0.9969534 
+## Comp.2769 Comp.2770 Comp.2771 Comp.2772 Comp.2773 Comp.2774 Comp.2775 Comp.2776 
+## 0.9969585 0.9969635 0.9969686 0.9969737 0.9969788 0.9969838 0.9969889 0.9969939 
+## Comp.2777 Comp.2778 Comp.2779 Comp.2780 Comp.2781 Comp.2782 Comp.2783 Comp.2784 
+## 0.9969989 0.9970040 0.9970090 0.9970140 0.9970190 0.9970240 0.9970290 0.9970340 
+## Comp.2785 Comp.2786 Comp.2787 Comp.2788 Comp.2789 Comp.2790 Comp.2791 Comp.2792 
+## 0.9970390 0.9970440 0.9970490 0.9970540 0.9970589 0.9970639 0.9970689 0.9970738 
+## Comp.2793 Comp.2794 Comp.2795 Comp.2796 Comp.2797 Comp.2798 Comp.2799 Comp.2800 
+## 0.9970787 0.9970837 0.9970886 0.9970935 0.9970985 0.9971034 0.9971083 0.9971132 
+## Comp.2801 Comp.2802 Comp.2803 Comp.2804 Comp.2805 Comp.2806 Comp.2807 Comp.2808 
+## 0.9971181 0.9971230 0.9971279 0.9971328 0.9971377 0.9971425 0.9971474 0.9971523 
+## Comp.2809 Comp.2810 Comp.2811 Comp.2812 Comp.2813 Comp.2814 Comp.2815 Comp.2816 
+## 0.9971571 0.9971620 0.9971668 0.9971717 0.9971765 0.9971813 0.9971861 0.9971910 
+## Comp.2817 Comp.2818 Comp.2819 Comp.2820 Comp.2821 Comp.2822 Comp.2823 Comp.2824 
+## 0.9971958 0.9972006 0.9972054 0.9972102 0.9972149 0.9972197 0.9972245 0.9972293 
+## Comp.2825 Comp.2826 Comp.2827 Comp.2828 Comp.2829 Comp.2830 Comp.2831 Comp.2832 
+## 0.9972341 0.9972388 0.9972436 0.9972483 0.9972531 0.9972578 0.9972626 0.9972673 
+## Comp.2833 Comp.2834 Comp.2835 Comp.2836 Comp.2837 Comp.2838 Comp.2839 Comp.2840 
+## 0.9972720 0.9972768 0.9972815 0.9972862 0.9972909 0.9972956 0.9973003 0.9973049 
+## Comp.2841 Comp.2842 Comp.2843 Comp.2844 Comp.2845 Comp.2846 Comp.2847 Comp.2848 
+## 0.9973096 0.9973143 0.9973190 0.9973236 0.9973283 0.9973329 0.9973376 0.9973422 
+## Comp.2849 Comp.2850 Comp.2851 Comp.2852 Comp.2853 Comp.2854 Comp.2855 Comp.2856 
+## 0.9973469 0.9973515 0.9973561 0.9973607 0.9973653 0.9973699 0.9973745 0.9973791 
+## Comp.2857 Comp.2858 Comp.2859 Comp.2860 Comp.2861 Comp.2862 Comp.2863 Comp.2864 
+## 0.9973837 0.9973883 0.9973929 0.9973975 0.9974020 0.9974066 0.9974112 0.9974157 
+## Comp.2865 Comp.2866 Comp.2867 Comp.2868 Comp.2869 Comp.2870 Comp.2871 Comp.2872 
+## 0.9974203 0.9974248 0.9974293 0.9974339 0.9974384 0.9974429 0.9974474 0.9974520 
+## Comp.2873 Comp.2874 Comp.2875 Comp.2876 Comp.2877 Comp.2878 Comp.2879 Comp.2880 
+## 0.9974565 0.9974610 0.9974655 0.9974700 0.9974744 0.9974789 0.9974834 0.9974879 
+## Comp.2881 Comp.2882 Comp.2883 Comp.2884 Comp.2885 Comp.2886 Comp.2887 Comp.2888 
+## 0.9974924 0.9974968 0.9975013 0.9975057 0.9975102 0.9975146 0.9975191 0.9975235 
+## Comp.2889 Comp.2890 Comp.2891 Comp.2892 Comp.2893 Comp.2894 Comp.2895 Comp.2896 
+## 0.9975279 0.9975323 0.9975367 0.9975412 0.9975456 0.9975500 0.9975544 0.9975587 
+## Comp.2897 Comp.2898 Comp.2899 Comp.2900 Comp.2901 Comp.2902 Comp.2903 Comp.2904 
+## 0.9975631 0.9975675 0.9975719 0.9975762 0.9975806 0.9975850 0.9975893 0.9975937 
+## Comp.2905 Comp.2906 Comp.2907 Comp.2908 Comp.2909 Comp.2910 Comp.2911 Comp.2912 
+## 0.9975980 0.9976023 0.9976067 0.9976110 0.9976153 0.9976196 0.9976239 0.9976282 
+## Comp.2913 Comp.2914 Comp.2915 Comp.2916 Comp.2917 Comp.2918 Comp.2919 Comp.2920 
+## 0.9976325 0.9976368 0.9976411 0.9976454 0.9976497 0.9976540 0.9976582 0.9976625 
+## Comp.2921 Comp.2922 Comp.2923 Comp.2924 Comp.2925 Comp.2926 Comp.2927 Comp.2928 
+## 0.9976667 0.9976710 0.9976752 0.9976795 0.9976837 0.9976880 0.9976922 0.9976964 
+## Comp.2929 Comp.2930 Comp.2931 Comp.2932 Comp.2933 Comp.2934 Comp.2935 Comp.2936 
+## 0.9977006 0.9977048 0.9977090 0.9977132 0.9977174 0.9977216 0.9977258 0.9977300 
+## Comp.2937 Comp.2938 Comp.2939 Comp.2940 Comp.2941 Comp.2942 Comp.2943 Comp.2944 
+## 0.9977342 0.9977383 0.9977425 0.9977467 0.9977508 0.9977550 0.9977591 0.9977633 
+## Comp.2945 Comp.2946 Comp.2947 Comp.2948 Comp.2949 Comp.2950 Comp.2951 Comp.2952 
+## 0.9977674 0.9977716 0.9977757 0.9977798 0.9977839 0.9977880 0.9977922 0.9977963 
+## Comp.2953 Comp.2954 Comp.2955 Comp.2956 Comp.2957 Comp.2958 Comp.2959 Comp.2960 
+## 0.9978004 0.9978045 0.9978085 0.9978126 0.9978167 0.9978208 0.9978249 0.9978289 
+## Comp.2961 Comp.2962 Comp.2963 Comp.2964 Comp.2965 Comp.2966 Comp.2967 Comp.2968 
+## 0.9978330 0.9978370 0.9978411 0.9978452 0.9978492 0.9978532 0.9978573 0.9978613 
+## Comp.2969 Comp.2970 Comp.2971 Comp.2972 Comp.2973 Comp.2974 Comp.2975 Comp.2976 
+## 0.9978653 0.9978693 0.9978733 0.9978773 0.9978813 0.9978853 0.9978893 0.9978933 
+## Comp.2977 Comp.2978 Comp.2979 Comp.2980 Comp.2981 Comp.2982 Comp.2983 Comp.2984 
+## 0.9978973 0.9979013 0.9979053 0.9979092 0.9979132 0.9979171 0.9979211 0.9979250 
+## Comp.2985 Comp.2986 Comp.2987 Comp.2988 Comp.2989 Comp.2990 Comp.2991 Comp.2992 
+## 0.9979290 0.9979329 0.9979369 0.9979408 0.9979447 0.9979486 0.9979525 0.9979565 
+## Comp.2993 Comp.2994 Comp.2995 Comp.2996 Comp.2997 Comp.2998 Comp.2999 Comp.3000 
+## 0.9979604 0.9979643 0.9979682 0.9979720 0.9979759 0.9979798 0.9979837 0.9979876 
+## Comp.3001 Comp.3002 Comp.3003 Comp.3004 Comp.3005 Comp.3006 Comp.3007 Comp.3008 
+## 0.9979914 0.9979953 0.9979991 0.9980030 0.9980068 0.9980107 0.9980145 0.9980184 
+## Comp.3009 Comp.3010 Comp.3011 Comp.3012 Comp.3013 Comp.3014 Comp.3015 Comp.3016 
+## 0.9980222 0.9980260 0.9980298 0.9980336 0.9980375 0.9980413 0.9980451 0.9980489 
+## Comp.3017 Comp.3018 Comp.3019 Comp.3020 Comp.3021 Comp.3022 Comp.3023 Comp.3024 
+## 0.9980527 0.9980564 0.9980602 0.9980640 0.9980678 0.9980715 0.9980753 0.9980791 
+## Comp.3025 Comp.3026 Comp.3027 Comp.3028 Comp.3029 Comp.3030 Comp.3031 Comp.3032 
+## 0.9980828 0.9980866 0.9980903 0.9980940 0.9980978 0.9981015 0.9981052 0.9981089 
+## Comp.3033 Comp.3034 Comp.3035 Comp.3036 Comp.3037 Comp.3038 Comp.3039 Comp.3040 
+## 0.9981127 0.9981164 0.9981201 0.9981238 0.9981275 0.9981312 0.9981348 0.9981385 
+## Comp.3041 Comp.3042 Comp.3043 Comp.3044 Comp.3045 Comp.3046 Comp.3047 Comp.3048 
+## 0.9981422 0.9981459 0.9981495 0.9981532 0.9981569 0.9981605 0.9981642 0.9981678 
+## Comp.3049 Comp.3050 Comp.3051 Comp.3052 Comp.3053 Comp.3054 Comp.3055 Comp.3056 
+## 0.9981715 0.9981751 0.9981787 0.9981824 0.9981860 0.9981896 0.9981932 0.9981968 
+## Comp.3057 Comp.3058 Comp.3059 Comp.3060 Comp.3061 Comp.3062 Comp.3063 Comp.3064 
+## 0.9982004 0.9982040 0.9982076 0.9982112 0.9982148 0.9982184 0.9982220 0.9982256 
+## Comp.3065 Comp.3066 Comp.3067 Comp.3068 Comp.3069 Comp.3070 Comp.3071 Comp.3072 
+## 0.9982291 0.9982327 0.9982363 0.9982398 0.9982434 0.9982469 0.9982505 0.9982540 
+## Comp.3073 Comp.3074 Comp.3075 Comp.3076 Comp.3077 Comp.3078 Comp.3079 Comp.3080 
+## 0.9982575 0.9982611 0.9982646 0.9982681 0.9982716 0.9982751 0.9982786 0.9982821 
+## Comp.3081 Comp.3082 Comp.3083 Comp.3084 Comp.3085 Comp.3086 Comp.3087 Comp.3088 
+## 0.9982856 0.9982891 0.9982926 0.9982961 0.9982996 0.9983030 0.9983065 0.9983100 
+## Comp.3089 Comp.3090 Comp.3091 Comp.3092 Comp.3093 Comp.3094 Comp.3095 Comp.3096 
+## 0.9983134 0.9983169 0.9983203 0.9983238 0.9983272 0.9983307 0.9983341 0.9983375 
+## Comp.3097 Comp.3098 Comp.3099 Comp.3100 Comp.3101 Comp.3102 Comp.3103 Comp.3104 
+## 0.9983410 0.9983444 0.9983478 0.9983512 0.9983546 0.9983580 0.9983614 0.9983648 
+## Comp.3105 Comp.3106 Comp.3107 Comp.3108 Comp.3109 Comp.3110 Comp.3111 Comp.3112 
+## 0.9983682 0.9983716 0.9983750 0.9983783 0.9983817 0.9983851 0.9983884 0.9983918 
+## Comp.3113 Comp.3114 Comp.3115 Comp.3116 Comp.3117 Comp.3118 Comp.3119 Comp.3120 
+## 0.9983951 0.9983985 0.9984018 0.9984052 0.9984085 0.9984118 0.9984152 0.9984185 
+## Comp.3121 Comp.3122 Comp.3123 Comp.3124 Comp.3125 Comp.3126 Comp.3127 Comp.3128 
+## 0.9984218 0.9984251 0.9984284 0.9984317 0.9984350 0.9984383 0.9984416 0.9984449 
+## Comp.3129 Comp.3130 Comp.3131 Comp.3132 Comp.3133 Comp.3134 Comp.3135 Comp.3136 
+## 0.9984482 0.9984514 0.9984547 0.9984580 0.9984613 0.9984645 0.9984678 0.9984710 
+## Comp.3137 Comp.3138 Comp.3139 Comp.3140 Comp.3141 Comp.3142 Comp.3143 Comp.3144 
+## 0.9984743 0.9984775 0.9984808 0.9984840 0.9984872 0.9984905 0.9984937 0.9984969 
+## Comp.3145 Comp.3146 Comp.3147 Comp.3148 Comp.3149 Comp.3150 Comp.3151 Comp.3152 
+## 0.9985001 0.9985034 0.9985066 0.9985098 0.9985130 0.9985162 0.9985194 0.9985226 
+## Comp.3153 Comp.3154 Comp.3155 Comp.3156 Comp.3157 Comp.3158 Comp.3159 Comp.3160 
+## 0.9985257 0.9985289 0.9985321 0.9985353 0.9985384 0.9985416 0.9985448 0.9985479 
+## Comp.3161 Comp.3162 Comp.3163 Comp.3164 Comp.3165 Comp.3166 Comp.3167 Comp.3168 
+## 0.9985511 0.9985542 0.9985574 0.9985605 0.9985636 0.9985668 0.9985699 0.9985730 
+## Comp.3169 Comp.3170 Comp.3171 Comp.3172 Comp.3173 Comp.3174 Comp.3175 Comp.3176 
+## 0.9985761 0.9985792 0.9985823 0.9985855 0.9985886 0.9985917 0.9985947 0.9985978 
+## Comp.3177 Comp.3178 Comp.3179 Comp.3180 Comp.3181 Comp.3182 Comp.3183 Comp.3184 
+## 0.9986009 0.9986040 0.9986071 0.9986102 0.9986132 0.9986163 0.9986194 0.9986224 
+## Comp.3185 Comp.3186 Comp.3187 Comp.3188 Comp.3189 Comp.3190 Comp.3191 Comp.3192 
+## 0.9986255 0.9986285 0.9986316 0.9986346 0.9986377 0.9986407 0.9986437 0.9986468 
+## Comp.3193 Comp.3194 Comp.3195 Comp.3196 Comp.3197 Comp.3198 Comp.3199 Comp.3200 
+## 0.9986498 0.9986528 0.9986558 0.9986588 0.9986618 0.9986648 0.9986678 0.9986708 
+## Comp.3201 Comp.3202 Comp.3203 Comp.3204 Comp.3205 Comp.3206 Comp.3207 Comp.3208 
+## 0.9986738 0.9986768 0.9986798 0.9986827 0.9986857 0.9986887 0.9986916 0.9986946 
+## Comp.3209 Comp.3210 Comp.3211 Comp.3212 Comp.3213 Comp.3214 Comp.3215 Comp.3216 
+## 0.9986975 0.9987005 0.9987034 0.9987064 0.9987093 0.9987123 0.9987152 0.9987181 
+## Comp.3217 Comp.3218 Comp.3219 Comp.3220 Comp.3221 Comp.3222 Comp.3223 Comp.3224 
+## 0.9987210 0.9987240 0.9987269 0.9987298 0.9987327 0.9987356 0.9987385 0.9987414 
+## Comp.3225 Comp.3226 Comp.3227 Comp.3228 Comp.3229 Comp.3230 Comp.3231 Comp.3232 
+## 0.9987443 0.9987472 0.9987501 0.9987530 0.9987559 0.9987587 0.9987616 0.9987645 
+## Comp.3233 Comp.3234 Comp.3235 Comp.3236 Comp.3237 Comp.3238 Comp.3239 Comp.3240 
+## 0.9987673 0.9987702 0.9987730 0.9987759 0.9987787 0.9987816 0.9987844 0.9987872 
+## Comp.3241 Comp.3242 Comp.3243 Comp.3244 Comp.3245 Comp.3246 Comp.3247 Comp.3248 
+## 0.9987901 0.9987929 0.9987957 0.9987985 0.9988013 0.9988041 0.9988069 0.9988097 
+## Comp.3249 Comp.3250 Comp.3251 Comp.3252 Comp.3253 Comp.3254 Comp.3255 Comp.3256 
+## 0.9988125 0.9988153 0.9988181 0.9988209 0.9988237 0.9988265 0.9988293 0.9988320 
+## Comp.3257 Comp.3258 Comp.3259 Comp.3260 Comp.3261 Comp.3262 Comp.3263 Comp.3264 
+## 0.9988348 0.9988376 0.9988403 0.9988431 0.9988458 0.9988486 0.9988513 0.9988540 
+## Comp.3265 Comp.3266 Comp.3267 Comp.3268 Comp.3269 Comp.3270 Comp.3271 Comp.3272 
+## 0.9988568 0.9988595 0.9988622 0.9988649 0.9988677 0.9988704 0.9988731 0.9988758 
+## Comp.3273 Comp.3274 Comp.3275 Comp.3276 Comp.3277 Comp.3278 Comp.3279 Comp.3280 
+## 0.9988785 0.9988812 0.9988839 0.9988866 0.9988893 0.9988920 0.9988947 0.9988973 
+## Comp.3281 Comp.3282 Comp.3283 Comp.3284 Comp.3285 Comp.3286 Comp.3287 Comp.3288 
+## 0.9989000 0.9989027 0.9989054 0.9989080 0.9989107 0.9989133 0.9989160 0.9989186 
+## Comp.3289 Comp.3290 Comp.3291 Comp.3292 Comp.3293 Comp.3294 Comp.3295 Comp.3296 
+## 0.9989213 0.9989239 0.9989265 0.9989292 0.9989318 0.9989344 0.9989370 0.9989397 
+## Comp.3297 Comp.3298 Comp.3299 Comp.3300 Comp.3301 Comp.3302 Comp.3303 Comp.3304 
+## 0.9989423 0.9989449 0.9989475 0.9989501 0.9989527 0.9989553 0.9989579 0.9989604 
+## Comp.3305 Comp.3306 Comp.3307 Comp.3308 Comp.3309 Comp.3310 Comp.3311 Comp.3312 
+## 0.9989630 0.9989656 0.9989682 0.9989708 0.9989733 0.9989759 0.9989784 0.9989810 
+## Comp.3313 Comp.3314 Comp.3315 Comp.3316 Comp.3317 Comp.3318 Comp.3319 Comp.3320 
+## 0.9989836 0.9989861 0.9989886 0.9989912 0.9989937 0.9989963 0.9989988 0.9990013 
+## Comp.3321 Comp.3322 Comp.3323 Comp.3324 Comp.3325 Comp.3326 Comp.3327 Comp.3328 
+## 0.9990038 0.9990064 0.9990089 0.9990114 0.9990139 0.9990164 0.9990189 0.9990214 
+## Comp.3329 Comp.3330 Comp.3331 Comp.3332 Comp.3333 Comp.3334 Comp.3335 Comp.3336 
+## 0.9990239 0.9990264 0.9990288 0.9990313 0.9990338 0.9990363 0.9990387 0.9990412 
+## Comp.3337 Comp.3338 Comp.3339 Comp.3340 Comp.3341 Comp.3342 Comp.3343 Comp.3344 
+## 0.9990437 0.9990461 0.9990486 0.9990510 0.9990535 0.9990559 0.9990584 0.9990608 
+## Comp.3345 Comp.3346 Comp.3347 Comp.3348 Comp.3349 Comp.3350 Comp.3351 Comp.3352 
+## 0.9990632 0.9990657 0.9990681 0.9990705 0.9990729 0.9990753 0.9990777 0.9990801 
+## Comp.3353 Comp.3354 Comp.3355 Comp.3356 Comp.3357 Comp.3358 Comp.3359 Comp.3360 
+## 0.9990825 0.9990849 0.9990873 0.9990897 0.9990921 0.9990945 0.9990969 0.9990993 
+## Comp.3361 Comp.3362 Comp.3363 Comp.3364 Comp.3365 Comp.3366 Comp.3367 Comp.3368 
+## 0.9991016 0.9991040 0.9991064 0.9991087 0.9991111 0.9991135 0.9991158 0.9991182 
+## Comp.3369 Comp.3370 Comp.3371 Comp.3372 Comp.3373 Comp.3374 Comp.3375 Comp.3376 
+## 0.9991205 0.9991228 0.9991252 0.9991275 0.9991298 0.9991322 0.9991345 0.9991368 
+## Comp.3377 Comp.3378 Comp.3379 Comp.3380 Comp.3381 Comp.3382 Comp.3383 Comp.3384 
+## 0.9991391 0.9991414 0.9991437 0.9991460 0.9991483 0.9991506 0.9991529 0.9991552 
+## Comp.3385 Comp.3386 Comp.3387 Comp.3388 Comp.3389 Comp.3390 Comp.3391 Comp.3392 
+## 0.9991575 0.9991598 0.9991621 0.9991643 0.9991666 0.9991689 0.9991711 0.9991734 
+## Comp.3393 Comp.3394 Comp.3395 Comp.3396 Comp.3397 Comp.3398 Comp.3399 Comp.3400 
+## 0.9991757 0.9991779 0.9991802 0.9991824 0.9991847 0.9991869 0.9991891 0.9991914 
+## Comp.3401 Comp.3402 Comp.3403 Comp.3404 Comp.3405 Comp.3406 Comp.3407 Comp.3408 
+## 0.9991936 0.9991958 0.9991980 0.9992003 0.9992025 0.9992047 0.9992069 0.9992091 
+## Comp.3409 Comp.3410 Comp.3411 Comp.3412 Comp.3413 Comp.3414 Comp.3415 Comp.3416 
+## 0.9992113 0.9992135 0.9992157 0.9992179 0.9992201 0.9992223 0.9992245 0.9992266 
+## Comp.3417 Comp.3418 Comp.3419 Comp.3420 Comp.3421 Comp.3422 Comp.3423 Comp.3424 
+## 0.9992288 0.9992310 0.9992332 0.9992353 0.9992375 0.9992396 0.9992418 0.9992439 
+## Comp.3425 Comp.3426 Comp.3427 Comp.3428 Comp.3429 Comp.3430 Comp.3431 Comp.3432 
+## 0.9992461 0.9992482 0.9992504 0.9992525 0.9992547 0.9992568 0.9992589 0.9992611 
+## Comp.3433 Comp.3434 Comp.3435 Comp.3436 Comp.3437 Comp.3438 Comp.3439 Comp.3440 
+## 0.9992632 0.9992653 0.9992674 0.9992695 0.9992717 0.9992738 0.9992759 0.9992780 
+## Comp.3441 Comp.3442 Comp.3443 Comp.3444 Comp.3445 Comp.3446 Comp.3447 Comp.3448 
+## 0.9992801 0.9992821 0.9992842 0.9992863 0.9992884 0.9992905 0.9992926 0.9992946 
+## Comp.3449 Comp.3450 Comp.3451 Comp.3452 Comp.3453 Comp.3454 Comp.3455 Comp.3456 
+## 0.9992967 0.9992988 0.9993008 0.9993029 0.9993050 0.9993070 0.9993091 0.9993111 
+## Comp.3457 Comp.3458 Comp.3459 Comp.3460 Comp.3461 Comp.3462 Comp.3463 Comp.3464 
+## 0.9993131 0.9993152 0.9993172 0.9993192 0.9993213 0.9993233 0.9993253 0.9993273 
+## Comp.3465 Comp.3466 Comp.3467 Comp.3468 Comp.3469 Comp.3470 Comp.3471 Comp.3472 
+## 0.9993294 0.9993314 0.9993334 0.9993354 0.9993374 0.9993394 0.9993414 0.9993434 
+## Comp.3473 Comp.3474 Comp.3475 Comp.3476 Comp.3477 Comp.3478 Comp.3479 Comp.3480 
+## 0.9993454 0.9993474 0.9993493 0.9993513 0.9993533 0.9993553 0.9993572 0.9993592 
+## Comp.3481 Comp.3482 Comp.3483 Comp.3484 Comp.3485 Comp.3486 Comp.3487 Comp.3488 
+## 0.9993612 0.9993631 0.9993651 0.9993670 0.9993690 0.9993709 0.9993729 0.9993748 
+## Comp.3489 Comp.3490 Comp.3491 Comp.3492 Comp.3493 Comp.3494 Comp.3495 Comp.3496 
+## 0.9993768 0.9993787 0.9993806 0.9993826 0.9993845 0.9993864 0.9993883 0.9993902 
+## Comp.3497 Comp.3498 Comp.3499 Comp.3500 Comp.3501 Comp.3502 Comp.3503 Comp.3504 
+## 0.9993921 0.9993940 0.9993960 0.9993978 0.9993997 0.9994016 0.9994035 0.9994054 
+## Comp.3505 Comp.3506 Comp.3507 Comp.3508 Comp.3509 Comp.3510 Comp.3511 Comp.3512 
+## 0.9994073 0.9994092 0.9994110 0.9994129 0.9994148 0.9994166 0.9994185 0.9994204 
+## Comp.3513 Comp.3514 Comp.3515 Comp.3516 Comp.3517 Comp.3518 Comp.3519 Comp.3520 
+## 0.9994222 0.9994241 0.9994259 0.9994277 0.9994296 0.9994314 0.9994333 0.9994351 
+## Comp.3521 Comp.3522 Comp.3523 Comp.3524 Comp.3525 Comp.3526 Comp.3527 Comp.3528 
+## 0.9994369 0.9994387 0.9994406 0.9994424 0.9994442 0.9994460 0.9994478 0.9994496 
+## Comp.3529 Comp.3530 Comp.3531 Comp.3532 Comp.3533 Comp.3534 Comp.3535 Comp.3536 
+## 0.9994515 0.9994533 0.9994551 0.9994569 0.9994586 0.9994604 0.9994622 0.9994640 
+## Comp.3537 Comp.3538 Comp.3539 Comp.3540 Comp.3541 Comp.3542 Comp.3543 Comp.3544 
+## 0.9994658 0.9994676 0.9994693 0.9994711 0.9994729 0.9994746 0.9994764 0.9994781 
+## Comp.3545 Comp.3546 Comp.3547 Comp.3548 Comp.3549 Comp.3550 Comp.3551 Comp.3552 
+## 0.9994799 0.9994816 0.9994834 0.9994851 0.9994869 0.9994886 0.9994903 0.9994921 
+## Comp.3553 Comp.3554 Comp.3555 Comp.3556 Comp.3557 Comp.3558 Comp.3559 Comp.3560 
+## 0.9994938 0.9994955 0.9994972 0.9994990 0.9995007 0.9995024 0.9995041 0.9995058 
+## Comp.3561 Comp.3562 Comp.3563 Comp.3564 Comp.3565 Comp.3566 Comp.3567 Comp.3568 
+## 0.9995075 0.9995092 0.9995109 0.9995126 0.9995143 0.9995160 0.9995176 0.9995193 
+## Comp.3569 Comp.3570 Comp.3571 Comp.3572 Comp.3573 Comp.3574 Comp.3575 Comp.3576 
+## 0.9995210 0.9995227 0.9995244 0.9995260 0.9995277 0.9995294 0.9995310 0.9995327 
+## Comp.3577 Comp.3578 Comp.3579 Comp.3580 Comp.3581 Comp.3582 Comp.3583 Comp.3584 
+## 0.9995343 0.9995360 0.9995376 0.9995393 0.9995409 0.9995425 0.9995442 0.9995458 
+## Comp.3585 Comp.3586 Comp.3587 Comp.3588 Comp.3589 Comp.3590 Comp.3591 Comp.3592 
+## 0.9995474 0.9995490 0.9995507 0.9995523 0.9995539 0.9995555 0.9995571 0.9995587 
+## Comp.3593 Comp.3594 Comp.3595 Comp.3596 Comp.3597 Comp.3598 Comp.3599 Comp.3600 
+## 0.9995603 0.9995619 0.9995635 0.9995651 0.9995667 0.9995683 0.9995699 0.9995714 
+## Comp.3601 Comp.3602 Comp.3603 Comp.3604 Comp.3605 Comp.3606 Comp.3607 Comp.3608 
+## 0.9995730 0.9995746 0.9995762 0.9995777 0.9995793 0.9995808 0.9995824 0.9995840 
+## Comp.3609 Comp.3610 Comp.3611 Comp.3612 Comp.3613 Comp.3614 Comp.3615 Comp.3616 
+## 0.9995855 0.9995871 0.9995886 0.9995902 0.9995917 0.9995932 0.9995948 0.9995963 
+## Comp.3617 Comp.3618 Comp.3619 Comp.3620 Comp.3621 Comp.3622 Comp.3623 Comp.3624 
+## 0.9995978 0.9995994 0.9996009 0.9996024 0.9996039 0.9996054 0.9996069 0.9996084 
+## Comp.3625 Comp.3626 Comp.3627 Comp.3628 Comp.3629 Comp.3630 Comp.3631 Comp.3632 
+## 0.9996099 0.9996114 0.9996129 0.9996144 0.9996159 0.9996174 0.9996189 0.9996204 
+## Comp.3633 Comp.3634 Comp.3635 Comp.3636 Comp.3637 Comp.3638 Comp.3639 Comp.3640 
+## 0.9996219 0.9996233 0.9996248 0.9996263 0.9996277 0.9996292 0.9996307 0.9996321 
+## Comp.3641 Comp.3642 Comp.3643 Comp.3644 Comp.3645 Comp.3646 Comp.3647 Comp.3648 
+## 0.9996336 0.9996350 0.9996365 0.9996379 0.9996394 0.9996408 0.9996422 0.9996437 
+## Comp.3649 Comp.3650 Comp.3651 Comp.3652 Comp.3653 Comp.3654 Comp.3655 Comp.3656 
+## 0.9996451 0.9996465 0.9996480 0.9996494 0.9996508 0.9996522 0.9996536 0.9996550 
+## Comp.3657 Comp.3658 Comp.3659 Comp.3660 Comp.3661 Comp.3662 Comp.3663 Comp.3664 
+## 0.9996564 0.9996578 0.9996592 0.9996606 0.9996620 0.9996634 0.9996648 0.9996662 
+## Comp.3665 Comp.3666 Comp.3667 Comp.3668 Comp.3669 Comp.3670 Comp.3671 Comp.3672 
+## 0.9996676 0.9996690 0.9996703 0.9996717 0.9996731 0.9996745 0.9996758 0.9996772 
+## Comp.3673 Comp.3674 Comp.3675 Comp.3676 Comp.3677 Comp.3678 Comp.3679 Comp.3680 
+## 0.9996786 0.9996799 0.9996813 0.9996826 0.9996840 0.9996853 0.9996867 0.9996880 
+## Comp.3681 Comp.3682 Comp.3683 Comp.3684 Comp.3685 Comp.3686 Comp.3687 Comp.3688 
+## 0.9996893 0.9996907 0.9996920 0.9996933 0.9996946 0.9996960 0.9996973 0.9996986 
+## Comp.3689 Comp.3690 Comp.3691 Comp.3692 Comp.3693 Comp.3694 Comp.3695 Comp.3696 
+## 0.9996999 0.9997012 0.9997025 0.9997038 0.9997051 0.9997064 0.9997077 0.9997090 
+## Comp.3697 Comp.3698 Comp.3699 Comp.3700 Comp.3701 Comp.3702 Comp.3703 Comp.3704 
+## 0.9997103 0.9997116 0.9997129 0.9997142 0.9997155 0.9997167 0.9997180 0.9997193 
+## Comp.3705 Comp.3706 Comp.3707 Comp.3708 Comp.3709 Comp.3710 Comp.3711 Comp.3712 
+## 0.9997205 0.9997218 0.9997231 0.9997243 0.9997256 0.9997269 0.9997281 0.9997293 
+## Comp.3713 Comp.3714 Comp.3715 Comp.3716 Comp.3717 Comp.3718 Comp.3719 Comp.3720 
+## 0.9997306 0.9997318 0.9997331 0.9997343 0.9997355 0.9997368 0.9997380 0.9997392 
+## Comp.3721 Comp.3722 Comp.3723 Comp.3724 Comp.3725 Comp.3726 Comp.3727 Comp.3728 
+## 0.9997404 0.9997417 0.9997429 0.9997441 0.9997453 0.9997465 0.9997477 0.9997489 
+## Comp.3729 Comp.3730 Comp.3731 Comp.3732 Comp.3733 Comp.3734 Comp.3735 Comp.3736 
+## 0.9997501 0.9997513 0.9997525 0.9997537 0.9997549 0.9997560 0.9997572 0.9997584 
+## Comp.3737 Comp.3738 Comp.3739 Comp.3740 Comp.3741 Comp.3742 Comp.3743 Comp.3744 
+## 0.9997596 0.9997607 0.9997619 0.9997631 0.9997642 0.9997654 0.9997665 0.9997677 
+## Comp.3745 Comp.3746 Comp.3747 Comp.3748 Comp.3749 Comp.3750 Comp.3751 Comp.3752 
+## 0.9997688 0.9997700 0.9997711 0.9997723 0.9997734 0.9997745 0.9997757 0.9997768 
+## Comp.3753 Comp.3754 Comp.3755 Comp.3756 Comp.3757 Comp.3758 Comp.3759 Comp.3760 
+## 0.9997779 0.9997790 0.9997801 0.9997813 0.9997824 0.9997835 0.9997846 0.9997857 
+## Comp.3761 Comp.3762 Comp.3763 Comp.3764 Comp.3765 Comp.3766 Comp.3767 Comp.3768 
+## 0.9997868 0.9997879 0.9997890 0.9997901 0.9997912 0.9997922 0.9997933 0.9997944 
+## Comp.3769 Comp.3770 Comp.3771 Comp.3772 Comp.3773 Comp.3774 Comp.3775 Comp.3776 
+## 0.9997955 0.9997966 0.9997976 0.9997987 0.9997998 0.9998008 0.9998019 0.9998029 
+## Comp.3777 Comp.3778 Comp.3779 Comp.3780 Comp.3781 Comp.3782 Comp.3783 Comp.3784 
+## 0.9998040 0.9998051 0.9998061 0.9998071 0.9998082 0.9998092 0.9998103 0.9998113 
+## Comp.3785 Comp.3786 Comp.3787 Comp.3788 Comp.3789 Comp.3790 Comp.3791 Comp.3792 
+## 0.9998123 0.9998134 0.9998144 0.9998154 0.9998164 0.9998174 0.9998185 0.9998195 
+## Comp.3793 Comp.3794 Comp.3795 Comp.3796 Comp.3797 Comp.3798 Comp.3799 Comp.3800 
+## 0.9998205 0.9998215 0.9998225 0.9998235 0.9998245 0.9998255 0.9998265 0.9998275 
+## Comp.3801 Comp.3802 Comp.3803 Comp.3804 Comp.3805 Comp.3806 Comp.3807 Comp.3808 
+## 0.9998284 0.9998294 0.9998304 0.9998314 0.9998324 0.9998333 0.9998343 0.9998353 
+## Comp.3809 Comp.3810 Comp.3811 Comp.3812 Comp.3813 Comp.3814 Comp.3815 Comp.3816 
+## 0.9998362 0.9998372 0.9998382 0.9998391 0.9998401 0.9998410 0.9998420 0.9998429 
+## Comp.3817 Comp.3818 Comp.3819 Comp.3820 Comp.3821 Comp.3822 Comp.3823 Comp.3824 
+## 0.9998439 0.9998448 0.9998457 0.9998467 0.9998476 0.9998485 0.9998494 0.9998504 
+## Comp.3825 Comp.3826 Comp.3827 Comp.3828 Comp.3829 Comp.3830 Comp.3831 Comp.3832 
+## 0.9998513 0.9998522 0.9998531 0.9998540 0.9998549 0.9998558 0.9998567 0.9998576 
+## Comp.3833 Comp.3834 Comp.3835 Comp.3836 Comp.3837 Comp.3838 Comp.3839 Comp.3840 
+## 0.9998585 0.9998594 0.9998603 0.9998612 0.9998621 0.9998630 0.9998638 0.9998647 
+## Comp.3841 Comp.3842 Comp.3843 Comp.3844 Comp.3845 Comp.3846 Comp.3847 Comp.3848 
+## 0.9998656 0.9998665 0.9998673 0.9998682 0.9998691 0.9998699 0.9998708 0.9998716 
+## Comp.3849 Comp.3850 Comp.3851 Comp.3852 Comp.3853 Comp.3854 Comp.3855 Comp.3856 
+## 0.9998725 0.9998733 0.9998742 0.9998750 0.9998759 0.9998767 0.9998775 0.9998784 
+## Comp.3857 Comp.3858 Comp.3859 Comp.3860 Comp.3861 Comp.3862 Comp.3863 Comp.3864 
+## 0.9998792 0.9998800 0.9998808 0.9998817 0.9998825 0.9998833 0.9998841 0.9998849 
+## Comp.3865 Comp.3866 Comp.3867 Comp.3868 Comp.3869 Comp.3870 Comp.3871 Comp.3872 
+## 0.9998857 0.9998865 0.9998873 0.9998881 0.9998889 0.9998897 0.9998905 0.9998913 
+## Comp.3873 Comp.3874 Comp.3875 Comp.3876 Comp.3877 Comp.3878 Comp.3879 Comp.3880 
+## 0.9998921 0.9998929 0.9998936 0.9998944 0.9998952 0.9998960 0.9998967 0.9998975 
+## Comp.3881 Comp.3882 Comp.3883 Comp.3884 Comp.3885 Comp.3886 Comp.3887 Comp.3888 
+## 0.9998983 0.9998990 0.9998998 0.9999005 0.9999013 0.9999020 0.9999028 0.9999035 
+## Comp.3889 Comp.3890 Comp.3891 Comp.3892 Comp.3893 Comp.3894 Comp.3895 Comp.3896 
+## 0.9999043 0.9999050 0.9999057 0.9999065 0.9999072 0.9999079 0.9999086 0.9999094 
+## Comp.3897 Comp.3898 Comp.3899 Comp.3900 Comp.3901 Comp.3902 Comp.3903 Comp.3904 
+## 0.9999101 0.9999108 0.9999115 0.9999122 0.9999129 0.9999136 0.9999143 0.9999150 
+## Comp.3905 Comp.3906 Comp.3907 Comp.3908 Comp.3909 Comp.3910 Comp.3911 Comp.3912 
+## 0.9999157 0.9999164 0.9999171 0.9999178 0.9999185 0.9999192 0.9999199 0.9999205 
+## Comp.3913 Comp.3914 Comp.3915 Comp.3916 Comp.3917 Comp.3918 Comp.3919 Comp.3920 
+## 0.9999212 0.9999219 0.9999226 0.9999232 0.9999239 0.9999245 0.9999252 0.9999259 
+## Comp.3921 Comp.3922 Comp.3923 Comp.3924 Comp.3925 Comp.3926 Comp.3927 Comp.3928 
+## 0.9999265 0.9999272 0.9999278 0.9999285 0.9999291 0.9999297 0.9999304 0.9999310 
+## Comp.3929 Comp.3930 Comp.3931 Comp.3932 Comp.3933 Comp.3934 Comp.3935 Comp.3936 
+## 0.9999316 0.9999323 0.9999329 0.9999335 0.9999341 0.9999347 0.9999354 0.9999360 
+## Comp.3937 Comp.3938 Comp.3939 Comp.3940 Comp.3941 Comp.3942 Comp.3943 Comp.3944 
+## 0.9999366 0.9999372 0.9999378 0.9999384 0.9999390 0.9999396 0.9999402 0.9999407 
+## Comp.3945 Comp.3946 Comp.3947 Comp.3948 Comp.3949 Comp.3950 Comp.3951 Comp.3952 
+## 0.9999413 0.9999419 0.9999425 0.9999431 0.9999437 0.9999442 0.9999448 0.9999454 
+## Comp.3953 Comp.3954 Comp.3955 Comp.3956 Comp.3957 Comp.3958 Comp.3959 Comp.3960 
+## 0.9999459 0.9999465 0.9999471 0.9999476 0.9999482 0.9999487 0.9999493 0.9999498 
+## Comp.3961 Comp.3962 Comp.3963 Comp.3964 Comp.3965 Comp.3966 Comp.3967 Comp.3968 
+## 0.9999504 0.9999509 0.9999515 0.9999520 0.9999525 0.9999531 0.9999536 0.9999541 
+## Comp.3969 Comp.3970 Comp.3971 Comp.3972 Comp.3973 Comp.3974 Comp.3975 Comp.3976 
+## 0.9999547 0.9999552 0.9999557 0.9999562 0.9999567 0.9999572 0.9999578 0.9999583 
+## Comp.3977 Comp.3978 Comp.3979 Comp.3980 Comp.3981 Comp.3982 Comp.3983 Comp.3984 
+## 0.9999588 0.9999593 0.9999598 0.9999603 0.9999608 0.9999613 0.9999618 0.9999622 
+## Comp.3985 Comp.3986 Comp.3987 Comp.3988 Comp.3989 Comp.3990 Comp.3991 Comp.3992 
+## 0.9999627 0.9999632 0.9999637 0.9999642 0.9999647 0.9999651 0.9999656 0.9999661 
+## Comp.3993 Comp.3994 Comp.3995 Comp.3996 Comp.3997 Comp.3998 Comp.3999 Comp.4000 
+## 0.9999665 0.9999670 0.9999674 0.9999679 0.9999684 0.9999688 0.9999693 0.9999697 
+## Comp.4001 Comp.4002 Comp.4003 Comp.4004 Comp.4005 Comp.4006 Comp.4007 Comp.4008 
+## 0.9999701 0.9999706 0.9999710 0.9999715 0.9999719 0.9999723 0.9999728 0.9999732 
+## Comp.4009 Comp.4010 Comp.4011 Comp.4012 Comp.4013 Comp.4014 Comp.4015 Comp.4016 
+## 0.9999736 0.9999740 0.9999745 0.9999749 0.9999753 0.9999757 0.9999761 0.9999765 
+## Comp.4017 Comp.4018 Comp.4019 Comp.4020 Comp.4021 Comp.4022 Comp.4023 Comp.4024 
+## 0.9999769 0.9999773 0.9999777 0.9999781 0.9999785 0.9999789 0.9999793 0.9999797 
+## Comp.4025 Comp.4026 Comp.4027 Comp.4028 Comp.4029 Comp.4030 Comp.4031 Comp.4032 
+## 0.9999800 0.9999804 0.9999808 0.9999812 0.9999815 0.9999819 0.9999823 0.9999826 
+## Comp.4033 Comp.4034 Comp.4035 Comp.4036 Comp.4037 Comp.4038 Comp.4039 Comp.4040 
+## 0.9999830 0.9999834 0.9999837 0.9999841 0.9999844 0.9999848 0.9999851 0.9999855 
+## Comp.4041 Comp.4042 Comp.4043 Comp.4044 Comp.4045 Comp.4046 Comp.4047 Comp.4048 
+## 0.9999858 0.9999861 0.9999865 0.9999868 0.9999871 0.9999875 0.9999878 0.9999881 
+## Comp.4049 Comp.4050 Comp.4051 Comp.4052 Comp.4053 Comp.4054 Comp.4055 Comp.4056 
+## 0.9999884 0.9999887 0.9999890 0.9999894 0.9999897 0.9999900 0.9999903 0.9999906 
+## Comp.4057 Comp.4058 Comp.4059 Comp.4060 Comp.4061 Comp.4062 Comp.4063 Comp.4064 
+## 0.9999909 0.9999912 0.9999914 0.9999917 0.9999920 0.9999923 0.9999926 0.9999929 
+## Comp.4065 Comp.4066 Comp.4067 Comp.4068 Comp.4069 Comp.4070 Comp.4071 Comp.4072 
+## 0.9999931 0.9999934 0.9999937 0.9999939 0.9999942 0.9999945 0.9999947 0.9999950 
+## Comp.4073 Comp.4074 Comp.4075 Comp.4076 Comp.4077 Comp.4078 Comp.4079 Comp.4080 
+## 0.9999952 0.9999955 0.9999957 0.9999959 0.9999962 0.9999964 0.9999966 0.9999969 
+## Comp.4081 Comp.4082 Comp.4083 Comp.4084 Comp.4085 Comp.4086 Comp.4087 Comp.4088 
+## 0.9999971 0.9999973 0.9999975 0.9999977 0.9999980 0.9999982 0.9999984 0.9999986 
+## Comp.4089 Comp.4090 Comp.4091 Comp.4092 Comp.4093 Comp.4094 Comp.4095 Comp.4096 
+## 0.9999988 0.9999990 0.9999992 0.9999993 0.9999995 0.9999997 0.9999998 1.0000000
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# doublechecking with code}
+\FunctionTok{print}\NormalTok{(}\FunctionTok{which}\NormalTok{(cum\_var}\SpecialCharTok{\textgreater{}=} \FloatTok{0.8}\NormalTok{)[}\DecValTok{1}\NormalTok{]) }\DocumentationTok{\#\#Also 68 }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Comp.68 
+##      68
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# In order to account 80\% of the variance 68 Principle Components are needed. }
+
+\DocumentationTok{\#\#\# Visualizing the first 3 Eigenfaces / PC.}
+
+\DocumentationTok{\#\# First PC}
+\NormalTok{eigenface\_image}\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(mypca}\SpecialCharTok{$}\NormalTok{loadings[,}\DecValTok{1}\NormalTok{], }\AttributeTok{nrow =} \DecValTok{64}\NormalTok{, }\AttributeTok{ncol =} \DecValTok{64}\NormalTok{)}
+\NormalTok{eigenface\_norm}\OtherTok{\textless{}{-}}\NormalTok{ (eigenface\_image }\SpecialCharTok{{-}} \FunctionTok{min}\NormalTok{(eigenface\_image)) }\SpecialCharTok{/}\NormalTok{ (}\FunctionTok{max}\NormalTok{(eigenface\_image) }\SpecialCharTok{{-}} \FunctionTok{min}\NormalTok{(eigenface\_image))}
+\FunctionTok{plot}\NormalTok{(}\FunctionTok{as.cimg}\NormalTok{(eigenface\_norm))}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{DATA605_Homework1_files/figure-latex/pca_code-1.pdf}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{print}\NormalTok{(pct\_tot\_var[}\DecValTok{1}\NormalTok{]) }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##    Comp.1 
+## 0.2300384
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# 23 Percent of the total variance is explained by the first PC. THis can be seen in the plot, generally speaking you can tell its a portrait photo but the details are not present.}
+
+\DocumentationTok{\#\# Second PC}
+\NormalTok{eigenface\_image}\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(mypca}\SpecialCharTok{$}\NormalTok{loadings[,}\DecValTok{2}\NormalTok{],}\AttributeTok{nrow =} \DecValTok{64}\NormalTok{, }\AttributeTok{ncol =} \DecValTok{64}\NormalTok{)}
+\NormalTok{eigenface\_norm}\OtherTok{\textless{}{-}}\NormalTok{ (eigenface\_image }\SpecialCharTok{{-}} \FunctionTok{min}\NormalTok{(eigenface\_image)) }\SpecialCharTok{/}\NormalTok{ (}\FunctionTok{max}\NormalTok{(eigenface\_image) }\SpecialCharTok{{-}} \FunctionTok{min}\NormalTok{(eigenface\_image))}
+\FunctionTok{plot}\NormalTok{(}\FunctionTok{as.cimg}\NormalTok{(eigenface\_norm))}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{DATA605_Homework1_files/figure-latex/pca_code-2.pdf}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{print}\NormalTok{(pct\_tot\_var[}\DecValTok{2}\NormalTok{])}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##     Comp.2 
+## 0.07311962
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# This eigenface has acout 7\% of the total variance. You can see that there is additonal detail here that was not captured in the first eigenface, but still a very crude level of composition.}
+
+\DocumentationTok{\#\# Third PC}
+\NormalTok{eigenface\_image}\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(mypca}\SpecialCharTok{$}\NormalTok{loadings[,}\DecValTok{3}\NormalTok{],}\AttributeTok{nrow =} \DecValTok{64}\NormalTok{, }\AttributeTok{ncol =} \DecValTok{64}\NormalTok{)}
+\NormalTok{eigenface\_norm}\OtherTok{\textless{}{-}}\NormalTok{ (eigenface\_image }\SpecialCharTok{{-}} \FunctionTok{min}\NormalTok{(eigenface\_image)) }\SpecialCharTok{/}\NormalTok{ (}\FunctionTok{max}\NormalTok{(eigenface\_image) }\SpecialCharTok{{-}} \FunctionTok{min}\NormalTok{(eigenface\_image))}
+\FunctionTok{plot}\NormalTok{(}\FunctionTok{as.cimg}\NormalTok{(eigenface\_norm))}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{DATA605_Homework1_files/figure-latex/pca_code-3.pdf}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# This eigenfaces captures about 5.5 percent of all of the variance.}
+\FunctionTok{print}\NormalTok{(pct\_tot\_var[}\DecValTok{3}\NormalTok{])}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##     Comp.3 
+## 0.05504029
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# Comparing these eigenfaces to the original photos}
+
+\DocumentationTok{\#\# Taking an original processed (64x64 grayscale) photo from the original vector matrix.}
+\NormalTok{first\_image\_vec }\OtherTok{\textless{}{-}}\NormalTok{ flattened\_matrix[}\DecValTok{1}\NormalTok{,]}
+\NormalTok{first\_image\_mat }\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(first\_image\_vec, }\AttributeTok{nrow =} \DecValTok{64}\NormalTok{, }\AttributeTok{ncol =} \DecValTok{64}\NormalTok{)}
+\FunctionTok{plot}\NormalTok{(}\FunctionTok{as.cimg}\NormalTok{(first\_image\_mat))}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{DATA605_Homework1_files/figure-latex/pca_code-4.pdf}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# Attempting to reconstruct with eigenface. Lets do 68 PC becuase that was the 80\% threshold}
+\NormalTok{first\_image\_pc\_product}\OtherTok{\textless{}{-}}\NormalTok{ first\_image\_vec }\SpecialCharTok{\%*\%}\NormalTok{ mypca}\SpecialCharTok{$}\NormalTok{loadings[, }\DecValTok{1}\SpecialCharTok{:}\DecValTok{68}\NormalTok{]}
+\NormalTok{first\_image\_pc\_trans\_product }\OtherTok{\textless{}{-}}\NormalTok{ first\_image\_pc\_product }\SpecialCharTok{\%*\%} \FunctionTok{t}\NormalTok{(mypca}\SpecialCharTok{$}\NormalTok{loadings[, }\DecValTok{1}\SpecialCharTok{:}\DecValTok{68}\NormalTok{])}
+\NormalTok{recomp }\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(first\_image\_pc\_trans\_product, }\AttributeTok{nrow =} \DecValTok{64}\NormalTok{, }\AttributeTok{ncol =} \DecValTok{64}\NormalTok{)}
+\FunctionTok{plot}\NormalTok{(}\FunctionTok{as.cimg}\NormalTok{(recomp))}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{DATA605_Homework1_files/figure-latex/pca_code-5.pdf}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# The recomposed photo you can see is similar to about 80\% of the original photo, which tracks with the PC variance. }
+\end{Highlighting}
+\end{Shaded}
+
+
+\end{document}
