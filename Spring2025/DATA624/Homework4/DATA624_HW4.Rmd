@@ -1,0 +1,241 @@
+---
+title: "DATA624_HW4"
+author: "John Ferrara"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+#library(ggplot2)
+library(GGally)
+library(moments)
+library(mice)
+library(dplyr)
+library(mlbench)
+
+```
+
+## Homework 4
+
+Do problems 3.1 and 3.2 in the Kuhn and Johnson book Applied Predictive Modeling.  Please submit your Rpubs link along with your .pdf for your run code.
+
+### 3.1. 
+The UC Irvine Machine Learning Repository6 contains a data set related to glass identification. The data consist of 214 glass samples labeled as one of seven class categories. There are nine predictors, including the refractive index and percentages of eight elements: Na, Mg, Al, Si, K, Ca, Ba, and Fe. The data can be accessed via:
+``` {r 3_1_code}
+
+data(Glass)
+print(str(Glass))
+```
+
+
+#### (a) Using visualizations, explore the predictor variables to understand their distributions as well as the relationships between predictors.
+
+Based on the plots made by GGpairs, there are multiple noteworthy relationships within the data. Firstly, the only distribution of the the columns that seems to be close to normal is that of Si, while most of the other columns and values seem to have right skewness. That is with the exception of Mg, which is left skewed. With respect to the relationships between variables, those that are visually of note are: 
+  - Cs and the Reflective index have a pretty strong direct relationship based on the scatterplot of both columns. 
+  - Similarly, the reflective index (RI) and Na have a direct linear relationship as well, although not as pronounced. 
+  - Na also seems to have a direct linear relationship with Al in the data.
+  - The RI may have a negative correlation with Al based on the looks of the scatterplot.
+  - Bs and Na may have a positive non-linear, perhaps exponential relationship.
+  - There may be a slight negative linear relationship with Mg and Ca. 
+
+```{r 1a, warnings=FALSE,fig.width = 15, fig.height =25}
+## Using GGpairs to plot everythign for the varibles
+ggpairs(Glass, progress = FALSE) +  theme_minimal(base_size=9) 
+```
+
+#### (b) Do there appear to be any outliers in the data? Are any predictors skewed?
+Based on the ggpairs plot and the custom histogram and skewness values below there is are skewed predictors here. The following predictors have right skewed data: RI, K, Ca, Ba, Fe. The following predictors have left skewed data: Mg, and Si. THose columns that have skewness but it may be a bit varied, or not too visible, are: Al. Additionally, based on the histograms the predictors that seem to have outliers are: RI, K, Ca, Ba and Fe. 
+- 
+```{r 1b}
+## Plotting direct histograms for this data to look at skewness.
+
+for (c in colnames(Glass)) {
+  if (c == 'Type'){
+    print("Type column is not numeric")
+    NULL
+  }
+  else{
+  print(c)
+  hist(Glass[[c]],xlab = c)
+
+  }
+}
+## SKEWNESS
+print("RI")
+print(skewness(Glass$RI))
+print("Na")
+print(skewness(Glass$Na))
+print("Mg")
+print(skewness(Glass$Mg))
+print("Al")
+print(skewness(Glass$Al))
+print("Si")
+print(skewness(Glass$Si))
+print("K")
+print(skewness(Glass$K))
+print("Ca")
+print(skewness(Glass$Ca))
+print("Ba")
+print(skewness(Glass$Ba))
+print("Fe")
+print(skewness(Glass$Fe))
+
+
+```
+
+####(c) Are there any relevant transformations of one or more predictors that might improve the classification model?
+Yes, i used Box Cox on each of the predictors in order to transform and help their distrbutions. See below. 
+
+```{r 1c}
+# Transformations for the skewed variables. 
+#install.packages("caret")
+library(caret)
+
+trans_glass <- Glass
+
+## K 
+hist(Glass$K, main="Original K")
+trans_k<- BoxCoxTrans(Glass$K+1) # Taking care of zeros
+print(trans_k$lambda) ## Optimal Lambda is -1 
+trans_glass$K <- ((trans_glass$K + 1)^trans_k$lambda - 1) / trans_k$lambda 
+hist(trans_glass$K, main="Transformed K")
+
+## RI
+hist(Glass$RI, main="Original RI")
+trans_RI<- BoxCoxTrans(Glass$RI+1) # Taking care of zeros
+print(trans_RI$lambda) ## Optimal Lambda is -2
+trans_glass$RI <- ((trans_glass$RI + 1)^trans_RI$lambda - 1) / trans_RI$lambda 
+hist(trans_glass$RI, main="Transformed RI")
+
+## Na
+hist(Glass$Na, main="Original Na")
+trans_Na<- BoxCoxTrans(Glass$Na+1) # Taking care of zeros
+print(trans_Na$lambda) ## Optimal Lambda is -0.2
+trans_glass$Na <- ((trans_glass$Na + 1)^trans_Na$lambda - 1) / trans_Na$lambda 
+hist(trans_glass$Na, main="Transformed Na")
+
+## Mg
+hist(Glass$Mg, main="Original Mg")
+trans_Mg<- BoxCoxTrans(Glass$Mg+1) # Taking care of zeros
+print(trans_Mg$lambda) ## Optimal Lambda is 2
+trans_glass$Mg <- (trans_glass$Mg)^2
+hist(trans_glass$Mg, main="Transformed Mg")
+
+## Al
+hist(Glass$Al, main="Original Al")
+trans_Al<- BoxCoxTrans(Glass$Al+1) # Taking care of zeros
+print(trans_Al$lambda) ## Optimal Lambda is 
+trans_glass$Al <- log(trans_glass$Al + 1)
+hist(na.omit(trans_glass$Al), main="Transformed Al")
+
+## Si
+hist(Glass$Si, main="Original Si")
+trans_Si <- BoxCoxTrans(Glass$Si + 1)  
+print(trans_Si$lambda)  ##2
+trans_glass$Si <- (trans_glass$Si)^2
+hist(trans_glass$Si, main="Transformed Si")
+
+## Ca
+hist(Glass$Ca, main="Original Ca")
+trans_Ca <- BoxCoxTrans(Glass$Ca + 1)  
+print(trans_Ca$lambda)  
+trans_glass$Ca <- ((Glass$Ca + 1)^trans_Ca$lambda - 1) / trans_Ca$lambda 
+hist(trans_glass$Ca, main="Transformed Ca")
+
+## Ba
+hist(Glass$Ba, main="Original Ba")
+trans_Ba <- BoxCoxTrans(Glass$Ba + 1)  
+print(trans_Ba$lambda)  
+trans_glass$Ba <- ((Glass$Ba + 1)^trans_Ba$lambda - 1) / trans_Ba$lambda 
+hist(trans_glass$Ba, main="Transformed Ba")
+
+## Fe
+hist(Glass$Fe, main="Original Fe")
+trans_Fe <- BoxCoxTrans(Glass$Fe + 1)  
+print(trans_Fe$lambda)  
+trans_glass$Fe <- ((Glass$Fe + 1)^trans_Fe$lambda - 1) / trans_Fe$lambda 
+hist(trans_glass$Fe, main="Transformed Fe")
+
+
+```
+
+### 3.2. 
+The soybean data can also be found at the UC Irvine Machine Learning Repository. Data were collected to predict disease in 683 soybeans. The 35 predictors are mostly categorical and include information on the environmental conditions (e.g., temperature, precipitation) and plant conditions (e.g., left spots, mold growth). The outcome labels consist of 19 distinct classes.The data can be loaded via:
+
+``` {r 3_2_code}
+#library(mlbench)
+data(Soybean)
+## See ?Soybean for details
+#?Soybean
+```
+
+
+#### (a) Investigate the frequency distributions for the categorical predictors. Are any of the distributions degenerate in the ways discussed earlier in this chapter?
+Yes, many of the columns in this table do not have a large amount of variability, the data is numeric categorical dummy variables. Therefore it's a hurdle when attempting to model any type of variability. 
+```{r 2a}
+#head(Soybean)
+for (c in colnames(Soybean)){
+  print(c)
+ print(table(Soybean[[c]]))
+}
+
+#The following columnd only have binary values, that is there is only 1 or 0 values present in the column:
+#  plant.stand
+#  hail
+#  plant.growth
+#  leaves
+#  leaf.shread
+#  leaf.malf
+#  stem
+#  lodging
+#  fruiting.bodies
+#  mycellium
+#  sclerotia
+#  seed
+#  seed.discolor
+#  seed.size
+#  shriveling
+
+#These binary columns also have a disproportionate amount of zeros when compared to 1's, except for plant.stand, stem,  plant.growth. 
+# plant.leaf has many more 1 values than 0. 
+```
+
+#### (b) Roughly 18 % of the data are missing. Are there particular predictors that are more likely to be missing? Is the pattern of missing data related to the classes?
+The predictor columns that are most likely to be null are:  hail, sever, seet.tmt, lodging. Those with no nulls are:Class, Leaves Those with nulls, but have the fewest amount: date,area.dam, crop.hist,stem,plant.growth.
+
+When looking at the Class the nulls are mostly limited to a handfull of class values, so these should probably be removed. The class values that have all of the nulls are: phytophthora-rot, 2-4-d-injury,cyst-nematode,diaporthe-pod-&-stem-blight, and herbicide-injury.
+
+
+```{r 2b}
+## Using the MICE package to display the null coverage.
+md.pattern(Soybean,rotate.names = TRUE)
+
+## Most nulls: hail sever seet.tmt lodging
+
+## Least NUlls: date,area.dam, crop.hist,stem,plant.growth
+  
+## NO Nulls : Class, Leaves
+missing_counts <- Soybean |>
+  group_by(Class) |>
+  summarise(across(everything(), ~sum(is.na(.)), .names = "missing_{col}"))
+
+missing_counts <- missing_counts %>%
+  mutate(total_nulls = rowSums(across(starts_with("missing_"))))
+
+print(nrow(Soybean)) #683
+
+print(missing_counts |> select(Class, total_nulls) |>arrange(desc(total_nulls) ))
+```
+
+#### (c) Develop a strategy for handling missing data, either by eliminating predictors or imputation.
+After removing the class values that are associated with the largest amount of null values in the data, the remaining class values has much fewer nulls. The max number of nulls in a column is 84, which is about 13% of the rows in the df. This level of nulls can then be imputed using what ever appropriate means to derive the values. However, the rows that are imputed shoudl be flagged with a second column to indicate where the data was imputed. For instance if the plant.growth column is imputed, the null value rows should be flagged with a "plat.growth_impute_flag" column, so that the analyst can keep track of where imputation was used. 
+```{r 3c}
+
+no_nulls <- Soybean |> filter(!Class %in% c("phytophthora-rot, 2-4-d-injury","cyst-nematode","diaporthe-pod-&-stem-blight","herbicide-injury")) 
+md.pattern(no_nulls,rotate.names = TRUE)
+
+nrow(no_nulls) #646
+colSums(is.na(no_nulls)) # Max number of nulls in a column is 84. 
+
+```

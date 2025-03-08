@@ -1,0 +1,422 @@
+---
+title: "DATA624_Homework3"
+author: "John Ferrara"
+date: "`r Sys.Date()`"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# install.packages("fpp3")
+library(dplyr)
+library(fpp3)
+
+```
+
+## 1) Produce forecasts for the following series using whichever of NAIVE(y), SNAIVE(y) or RW(y ~ drift()) is more appropriate in each case:
+
+- (a) Australian Population (global_economy)
+- (b) Bricks (aus_production)
+- (c) NSW Lambs (aus_livestock)
+- (d) Household wealth (hh_budget).
+- (e) Australian takeaway food turnover (aus_retail).
+
+### Question 1 Answer: 
+
+```{r Question1a_answer}
+## Population of AUS projection with DRIFT method, as its annual data (no seasons) and last observed val considered with avg change over time seems most appropriate.
+
+## Country Lim
+aus_pop <- global_economy |> filter(Country == "Australia")
+
+## Plotting
+autoplot(aus_pop, Population)+ labs(title="Population of Australia")
+
+## Making mable and fable
+aus_pop_pred <- aus_pop |>
+  ##Ensuring pop values
+  filter(!is.na(Population))|>
+  model(Drift = RW(Population ~ drift()))
+
+drift_pop <- aus_pop_pred |> forecast(h = "10 years")
+
+## Plotting the benchmark forcast 
+drift_pop |>
+  autoplot(aus_pop) +
+  labs(title="Australian Population & Forcast")
+
+
+
+```
+
+```{r Question1b_answer}
+##Plotting brick production with SNAIVE method, as the seasonality of data makes it seem most appropriate.
+
+## Pltoting Original Data
+autoplot(aus_production, Bricks)+ labs(title="Australia Brick Production ")
+
+## Limiting for values
+brick_prod <- aus_production |> filter(!is.na(Bricks))
+  
+## Model and forecast
+brick_model <- brick_prod |> model(SNAIVE = SNAIVE(Bricks))
+brick_fable <- brick_model |> forecast(h = "3 years")
+
+## Plotting the benchmark forcast 
+brick_fable |>
+  autoplot(brick_prod, level=NULL) + ## Removing C.I because it looks messy
+  labs(title="Australian Brick Production & Forcast")
+
+```
+
+```{r Question1c_answer}
+## Monthly data so SNAIVE may be the most ideal lets take a look.
+
+##unique(aus_livestock$Animal) #lambs
+##unique(aus_livestock$State) #New South Wales
+
+## Limiting to relevant data 
+nsw_lambs<- aus_livestock |> filter(Animal == "Lambs",
+                                State == "New South Wales")
+## Plotting original data
+autoplot(nsw_lambs, Count)+ labs(title="Australia Livestock (New South Wales Lambs) ")
+
+## Getting Fitted Model Values. USing Naive and Mean methods.
+lamb_fit <- nsw_lambs |> filter(!is.na(Count))|>
+  model(AVG = MEAN(Count),  SNAIVE=SNAIVE(Count))
+
+lamb_forecast <- lamb_fit |> forecast(h="5 years")
+
+## Plotting Results 
+lamb_forecast |>
+  autoplot(nsw_lambs, level=NULL) + ## Removing C.I because it looks messy
+  labs(title="Australia Livestock Count (New South Wales Lambs)")
+
+```
+
+
+```{r Question1d_answer}
+
+## Household Wealth
+lim_budget <- hh_budget |> filter(!is.na(Wealth), Country=="Australia")
+
+## Plotting Original Data
+autoplot(lim_budget, Wealth)+ labs(title="Australian Household Wealth) ")
+
+## No Seasonal Granularity, using NAIVE and DRIFT becuase of the difference in the latest data.
+
+## Getting Fitted Model Values.
+wealth_fit <- lim_budget |> model(DRIFT = RW(Wealth ~ drift()),  NAIVE=NAIVE(Wealth))
+
+wealth_forecasts <- wealth_fit |> forecast(h="5 years")
+
+## Plotting Results 
+wealth_forecasts |>
+  autoplot(lim_budget, level=NULL) + ## Removing C.I because it looks messy
+  labs(title="Australia Household Wealth")
+
+
+```
+
+```{r Question1e_answer}
+
+### First look is that its monthly Data 
+unique(aus_retail$Industry)
+aus_retail
+
+## Processing to sum up for country over time 
+lim_aus_retail <- aus_retail |> 
+  filter(Industry=="Takeaway food services")|>
+  select(Month,Turnover)|>
+  summarize(Turnover = sum(Turnover))
+
+## Plottign original Data without Forecast - Seasonal Data so SNAIVE, apparent trend so DRIFT 
+autoplot(lim_aus_retail, Turnover)+ labs(title="Total Australian Takeaway Food Service Turnover  ")
+
+
+## Getting Fitted Model Values.
+retail_fit <- lim_aus_retail |> model(DRIFT = RW(Turnover ~ drift()),  SNAIVE=SNAIVE(Turnover))
+
+retail_forecasts <- retail_fit |> forecast(h="2 years")
+
+## Plotting Results 
+retail_forecasts |>
+  autoplot(lim_aus_retail, level=NULL) + ## Removing C.I because it looks messy
+  labs(title="Australia Takeaway Turnover")
+
+
+
+```
+
+
+## 2) Use the Facebook stock price (data set gafa_stock) to do the following:
+
+- (a) Produce a time plot of the series.
+- (b) Produce forecasts using the drift method and plot them.
+- (c) Show that the forecasts are identical to extending the line drawn between the first and last observations.
+- (d) Try using some of the other benchmark functions to forecast the same data set. Which do you think is best? Why?
+
+
+### Question 2 Answer: 
+
+```{r Question2a_answer}
+
+#Prepping the Facebook stock price data for what we need.Mimicking the text book here 
+fb_stock <- gafa_stock |>
+  filter(Symbol == "FB") |>
+  mutate(trading_day = row_number()) |>
+  update_tsibble(index = trading_day, regular = TRUE)
+
+## Initial Time plot of the series
+autoplot(fb_stock, Close)+ labs(title="FB Stock Closing Price by Trading Day", y="USD", x="Number of Trading Days from Start")
+
+
+```
+
+```{r Question2b_answer}
+
+## Generating Fit Model Points
+drift_fb_fit <- fb_stock |> model(DRIFT = RW(Close ~ drift()))
+
+fb_forecasts <- drift_fb_fit |> forecast(h=60) ## Doing 30 because 30 days 
+
+fb_forecasts |>
+  autoplot(fb_stock) +
+  labs(title="Facebook Price Forecast")
+
+```
+
+```{r Question2c_answer}
+
+## Taking first and last values based on trading day for the begining and end line.
+fb_stock_min_max <- fb_stock |> 
+  filter(trading_day == min(trading_day) | trading_day == max(trading_day))
+
+## Plotting both the forecasts and the line on same chart. 
+fb_forecasts |>
+  autoplot(fb_stock) +
+  autolayer(fb_stock_min_max, color = "red", linetype = "dashed") +
+  labs(title="Facebook Price Forecast")
+
+
+```
+
+```{r Question2d_answer}
+
+### Adding other bench mark functions to the model. 
+drift_fb_fit <- fb_stock |> model(
+  DRIFT = RW(Close ~ drift()),
+  NAIVE = NAIVE(Close),
+  AVG = MEAN(Close))
+
+fb_forecasts <- drift_fb_fit |> forecast(h=60) ## Doing 30 because 30 days 
+
+fb_forecasts |>
+  autoplot(fb_stock, level=NULL) +
+  autolayer(fb_stock_min_max, color = "red", linetype = "dashed") +
+  labs(title="Facebook Price Forecast")
+
+## Tried the other options for bench marks in the data. I think DRIFT is the best as it seems to capture the longer term trend of increasing price pf tje stoc, while the Avg and the Naive do not. 
+```
+
+
+## 3) Apply a seasonal naïve method to the quarterly Australian beer production data from 1992. Check if the residuals look like white noise, and plot the forecasts. The following code will help.
+
+``` {r question_code}
+# Extract data of interest
+recent_production <- aus_production |>
+  filter(year(Quarter) >= 1992,
+         ## Limiting no nulls 
+         !is.na(Beer))
+# Define and estimate a model
+fit <- recent_production |> model(SNAIVE(Beer))
+# Look at the residuals
+fit |> gg_tsresiduals()
+# Look a some forecasts
+fit |> forecast() |> autoplot(recent_production)
+```
+
+### Question 3 Answer: 
+
+```{r Question3_answer}
+
+## Checking to see if the residuals  of the previous forecasting look like white noise
+
+## Taking a look at the residual plots for the above.
+gg_tsresiduals(fit)
+
+## Visual Notes: The residual distribution in the histogram seems somewhat normal. The ACF chart has all but one of the residual values outlise of the limit. Generally good. However, the first chart on the top portion of the plots does NOT look ok. THe variance does not dseem to surrounding zero there are many larger spikes in the data.
+
+## Next Step is a Portmanteau Test with Ljung-Box method. Seasonal Data so we want a lag of 8 because ites 2x the seasonal period. 
+augment(fit) |> features(.resid, ljung_box, lag=8)
+
+## The pvalue is statistically relevant, pair that with the large Q value of 32.2 this means that this is probably NOT white noise. 
+
+```
+
+
+## 4) Repeat the previous exercise using the Australian Exports series from global_economy and the Bricks series from aus_production. Use whichever of NAIVE() or SNAIVE() is more appropriate in each case.
+
+### Question 4 Answer:
+
+```{r Question4a_answer}
+## Doing the same for the Exports in the global_economy dataset. Non Seasonal Data, so using NAIVE
+
+## Country Lim 
+aus_exp <- global_economy |> filter(Country == "Australia", !is.na(Exports))
+
+# Define and estimate a model
+fit <- aus_exp |> model(NAIVE(Exports))
+
+# Look a some forecasts
+fit |> forecast(h="5 years") |> autoplot(aus_exp)
+
+### Checking the resids
+fit |> gg_tsresiduals()
+
+### Visual Check: Histogram seems like mostly Normal Distribution. However, first plot does not show residuals staying around zero. There are larger spikes, however this spikes are generally aroudn 2/-2. Lastly, the ACF chart only has on value outside of the limit, which is good. Moving on to Portmanteau test.
+
+augment(fit) |> features(.resid, ljung_box, lag=10)
+
+## The pvalue is over 0.05 so that means that the Q result is not statistically significant and we cannot reject the null hypothesis of white noise. So it is white noise. 
+
+
+```
+
+```{r Question4b_answer}
+## Doing the same for the Bricks in the aus_production dataset. Seasonal Data, so using SNAIVE
+
+# Limiting for values
+brick_prod <- aus_production |> filter(!is.na(Bricks))
+
+
+# Define and estimate a model
+fit <- brick_prod |> model(SNAIVE(Bricks))
+
+# Look a some forecasts
+fit |> forecast(h = "5 years") |> autoplot(brick_prod)
+
+### Checking the resid
+fit |> gg_tsresiduals()
+
+### Visual Check: Histogram is not ormallydistributed. First plot does not show residuals staying around zero. There are larger spikes up to aroudn 100 and down to -200. Lastly, the ACF chart only has many values outside the limits. Additionally the is an obvious patterin the the residuals here.
+
+augment(fit) |> features(.resid, ljung_box, lag=8) ## Quarterly data so 2m is 8
+
+## P value is 0 with a very large Q score so we reject any possibility of white noise.
+
+
+```
+
+## 7) For your retail time series (from Exercise 7 in Section 2.10):
+
+#### a) Create a training dataset consisting of observations before 2011 using.
+
+```{r Question7a}
+
+set.seed(12345678)
+myseries <- aus_retail |>
+  filter(`Series ID` == sample(aus_retail$`Series ID`,1))
+myseries_train <- myseries |>
+  filter(year(Month) < 2011)
+
+# myseries_test <- myseries |>
+#   filter(year(Month) >= 2011)
+
+
+```
+
+#### b) Check that your data have been split appropriately by producing the following plot.
+
+```{r Question7b}
+autoplot(myseries, Turnover) +
+  autolayer(myseries_train, Turnover, colour = "red")
+```
+
+#### c) Fit a seasonal naïve model using SNAIVE() applied to your training data (myseries_train).
+
+
+```{r Question7c}
+
+fit <- myseries_train |>  model(SNAIVE(Turnover))
+
+## Plotting pre 2011 froecast
+fit |> forecast() |> autoplot(myseries_train)
+
+
+```
+
+#### d) Check the residuals.Do the residuals appear to be uncorrelated and normally distributed?
+
+```{r Question7d}
+## Checking Residuals
+fit |> gg_tsresiduals()
+
+## Visual Checks: There are large variations in the first plot, not just constant around zero. However, they are relatively large, only going up to 5 and down to 3. The distribution in the histogram appears mostly normal, however there are some outliers. Lastly, there are many instances of residuals being outside the limits in the ACF chart. There is also an obvious pattern of correlation for the residuals in this chart.
+
+## Port. Test 
+augment(fit) |> features(.resid, ljung_box, lag=24) ## Monthly Data
+
+### This is NOT white noise, p score is 0 along with very large q score. 
+
+```
+
+#### e) Produce forecasts for the test data
+
+```{r Question7e}
+## using code from book to forcast all data with training data.
+
+fc <- fit |>  forecast(new_data = anti_join(myseries, myseries_train))
+
+fc |> autoplot(myseries)
+
+
+
+```
+
+#### f) Compare the accuracy of your forecasts against the actual values.
+
+```{r Question7f}
+
+##Training Data
+print(fit |> accuracy())
+# ME      RMSE        MAE       MPE       MAPE    MASE   RMSSE
+# 5.203003	14.39031	10.34054	5.449036	11.49075	1     1
+
+
+## Test Data 
+print(fc |> accuracy(myseries))
+# ME         RMSE       MAE      MPE       MAPE      MASE     RMSSE
+# 12.54687	17.71474	14.66354	6.497419	7.782965	1.418063 1.231019
+
+
+## Overall the first model forecast is better than the second. The level of errors are lower in the first model most likely because the training data was used on it
+
+
+```
+
+#### g) How sensitive are the accuracy measures to the amount of training data used?
+
+```{r Question7g}
+###  For each of the following, the sensitivities are: 
+### ME (MEAN ERROR) - This measure is highly sensitive to the amount of training data useds as it is a simple mean, so this metric can be swayed easily. 
+
+### MAE (MEAN ABSOLUTE ERROR) - Using the absolute error cancels out the over and under estimates in the data with the Absolute fuinction. Less sensitive than ME.
+
+### MSE (Mean Squared Error) - The squaring for the mean error dulls the easiness with which the measure is influenced by the amount of data. Depending on the outliers this would be less sensitive than the ME to the amount of data.
+
+### RMSE (Root Mean Square Error) - This would be same sentivity as MSE, as its simply bringing the scale back to the original data scale bu undoing the X^2.
+
+### MAPE (Mean Absolute Percentage Error) - Attempts to normalize the data by taking away the scale of the errors. Only works if Y doesn't have zero values, or not super close to zero. This would be less sensitive to the amoutn of data trained because the data itself is used to normalize. 
+
+### MASE (Mean Absolute Scale Error) - Similar to the MAPE normalization, but uses the "scale" of the data or the absolute value of the difference of the samples instead of simply the Y value. The absolue values are averages for this metric. This would be less sensitive to the amount of data as the range in the data itself is the denominator for normalization 
+
+### RMSSE (Root Mean Squared Scaled Error) - Similar to MASE. 
+
+## In conclusion, based on these two sets of results, the ME is the most sensitive. With MAE, RMSE, and MAPE seeming to be in second for how sensitive if were comparing relational values. 
+
+
+```
+
