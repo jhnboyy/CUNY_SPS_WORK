@@ -1,0 +1,96 @@
+---
+title: "DATA607_Week9_Assignment"
+author: "John Ferrara"
+date: "`r Sys.Date()`"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Web APIs
+
+The New York Times web site provides a rich set of APIs, as described here: https://developer.nytimes.com/apis
+You’ll need to start by signing up for an API key.
+Your task is to choose one of the New York Times APIs, construct an interface in R to read in the JSON data, and
+transform it into an R DataFrame.
+
+```{r hhtr}
+# install.packages("httr2")
+library(httr2)
+library(rjson)
+library(readr)
+library(tibble)
+library(dplyr)
+
+```
+
+## Prepping Creds and oter setup
+```{r set_up}
+api_path <- "~/OneDrive/Desktop/CUNY_SPS_Materials/DATA607 - DATA ACQ/Week9/nyt_api_creds.json"
+api_file <- read_file(path.expand(api_path))
+json_data <- fromJSON(api_file)
+
+```
+
+```{r api Call}
+
+### Gettign the most viewed article in the last 30 days. 
+day_period <- "7"
+
+url_call <- sprintf("https://api.nytimes.com/svc/mostpopular/v2/viewed/%s.json", day_period)
+
+response <- request(url_call) %>%
+  req_url_query("api-key" = json_data$public_key) %>%  # Add the API key as a query parameter
+  req_perform()
+
+# Parse the response content
+data <- response %>% resp_body_json()
+
+```
+
+
+``` {r processing to df}
+
+df_list <- list()
+
+for (i in seq_along(data$results)) {
+  article <- data$results[[i]]
+  ## Taking Article informstion
+  new_row <- data.frame(
+    uri = article$uri,
+    url = article$url,
+    id = article$id,
+    asset_id = article$asset_id,
+    source = article$source,
+    published_date = article$published_date,
+    updated = article$updated,
+    section = article$section,
+    subsection = article$subsection,
+    ## THis value can be null in my results and im accomodating
+    nytsection = ifelse(!is.null(article$nytsection), article$nytsection, NA),
+    adx_keywords = article$adx_keywords,
+    byline = article$byline,
+    type = article$type,
+    title = article$title,
+    abstract = article$abstract,
+    stringsAsFactors = FALSE
+  )
+  
+  #Append the new row to the list
+  df_list[[i]] <- new_row
+  
+}
+
+df <- bind_rows(df_list)
+df
+
+```
+
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

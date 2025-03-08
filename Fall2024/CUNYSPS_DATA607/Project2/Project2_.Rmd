@@ -1,0 +1,484 @@
+---
+title: "DATA607_Project2"
+author: "John Ferrara"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(dplyr)
+library(tidyr)
+```
+
+## Project 2
+#### Your task is to: 
+
+**(1)** Choose any three of the “wide” datasets identified in the Week 6 Discussion items. (You may use your own dataset; please don’t use my Sample Post dataset, since that was used in your Week 6 assignment!) For each of the three chosen datasets:
+- Create a .CSV file (or optionally, a MySQL database!) that includes all of the information included in the dataset. You’re encouraged to use a “wide” structure similar to how the information appears in the discussion item, so that you can practice tidying and transformations as described below.
+- Read the information from your .CSV file into R, and use tidyr and dplyr as needed to tidy and transform your data. [Most of your grade will be based on this step!]
+- Perform the analysis requested in the discussion item.
+- Your code should be in an R Markdown file, posted to rpubs.com, and should include narrative descriptions of your data cleanup work, analysis, and conclusions.
+**(2)** Please include in your homework submission, for each of the three chosen datasets:
+- The URL to the .Rmd file in your GitHub repository, and
+- The URL for your rpubs.com web page
+
+
+## Working with Dataset Number 1: Car Comparisons
+**DATA SOURCE: https://brightspace.cuny.edu/d2l/le/437179/discussions/threads/492562/View**
+
+### Discussion Post: 
+The dataset I am referencing can be found here: https://fueleconomy.gov/feg/download.shtml. This data set has data from a myriad of different makes and models, including gas powered and electric cars. This leads to many unfilled columns where the specs for an electric car would go in rows describing gas powered cars. A good way to tidy this data would be to separate these types of cars, so that we have multiple tables with all of their columns filled. (https://brightspace.cuny.edu/d2l/le/437179/discussions/threads/492562/View)
+
+### Working Notes
+Unllike the post alludes to the data was in an excel file with three different tabs for different car types. Rather than parsing out three different car types (EV, Plug-in Hybrid EVs, and ICE Cars), I will take a limited number of rows from each of the initial tabs and place them in one coherent table to plot and analize. The three excel tabs, i Manually parsed out into three different CSV files for the sake of this exercise. 
+
+#### Reading in and Cleaning EV data
+```{r car_comparisons1}
+## Dealing with Reading in each of the raw files. 
+ev_cars_raw <- read.csv("https://raw.githubusercontent.com/jhnboyy/CUNYSPS_DATA607/refs/heads/main/Project2/dataset1/EV_Cars_24.csv",header=FALSE,sep=',')
+
+## Cleaning and keeping limited info from each df. 
+## UNKLIST CITATION: https://www.spsanderson.com/steveondata/posts/2023-08-02/index.html#:~:text=The%20unlist()%20function%20in%20R%20does%20exactly%20what%20its,it%20into%20a%20single%20vector.
+#AS VECTOR CITATION: https://www.rdocumentation.org/packages/pbdDMAT/versions/0.5-1/topics/as.vector
+colnames <- as.vector(unlist(ev_cars_raw[3,]))
+ev_cars_raw_lim<-ev_cars_raw[-c(1,2,3,4),]
+
+## Cleaning the column names for the df
+## Make Names Citation: https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/make.names
+## Trimming White space: https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/trimws
+colnames(ev_cars_raw_lim) <-make.names(trimws(colnames), unique=TRUE)
+
+## Removing those that dont have values for model year, proxy for the rows i want. 
+ev_cars_raw_lim <- ev_cars_raw_lim %>%filter(Model.Yr!="")
+
+## Keeping the columns I want for simple analysis, dropping others. Renaming the ones i want to keep. 
+## No real metadata key on website, so just making assumptions about contents
+ev_cars_raw_lim <- ev_cars_raw_lim %>% select(Mfr.Name,
+                           Division,
+                           Fuel.Usage....Conventional.Fuel,
+                           Fuel.Usage.Desc...Conventional.Fuel,
+                           Fuel.Unit...Conventional.Fuel,
+                           Fuel.Unit.Desc...Conventional.Fuel,
+                           Annual.Fuel1.Cost...Conventional.Fuel,
+                           EPA.Calculated.Annual.Fuel.Cost...Conventional.Fuel........Annual.fuel.cost.error..Please.revise.Verify.,
+                           Fuel2.Usage...Alternative.Fuel,
+                           Fuel2.Usage.Desc...Alternative.Fuel,
+                           Fuel2.Unit...Alternative.Fuel,
+                           Fuel2.Unit.Desc...Alternative.Fuel,
+                           Fuel2.Annual.Fuel.Cost...Alternative.Fuel,
+                           Fuel2.EPA.Calculated.Annual.Fuel.Cost...Alternative.Fuel,
+                           City.Range..miles.,
+                           Hwy.Range..miles.)
+## Dropping those columns that have no values. (Checking that they do actually have no values)
+print(unique(ev_cars_raw_lim$Fuel2.Usage...Alternative.Fuel))
+print(unique(ev_cars_raw_lim$Fuel2.Usage.Desc...Alternative.Fuel))
+print(unique(ev_cars_raw_lim$Fuel2.Unit...Alternative.Fuel))
+print(unique(ev_cars_raw_lim$Fuel2.Unit...Alternative.Fuel))
+print(unique(ev_cars_raw_lim$Fuel2.Unit.Desc...Alternative.Fuel))
+print(unique(ev_cars_raw_lim$Fuel2.Annual.Fuel.Cost...Alternative.Fuel))
+print(unique(ev_cars_raw_lim$Fuel2.EPA.Calculated.Annual.Fuel.Cost...Alternative.Fuel))
+#Further Limiting and renaming
+ev_cars_semi_final <- ev_cars_raw_lim %>% select(Mfr.Name,
+                           Division,
+                           Fuel.Usage....Conventional.Fuel,
+                           Fuel.Usage.Desc...Conventional.Fuel,
+                           Fuel.Unit...Conventional.Fuel,
+                           Fuel.Unit.Desc...Conventional.Fuel,
+                           Annual.Fuel1.Cost...Conventional.Fuel,
+                           EPA.Calculated.Annual.Fuel.Cost...Conventional.Fuel........Annual.fuel.cost.error..Please.revise.Verify.,
+                           #Decided to not use these
+                           # City.Range..miles.,
+                           # Hwy.Range..miles.
+                           ) %>%
+  rename(
+     manufacturer = Mfr.Name,
+    division = Division,
+    fuel_type_abrv = Fuel.Usage....Conventional.Fuel,
+    fuel_type_desc = Fuel.Usage.Desc...Conventional.Fuel,
+    fuel_unit_abrv = Fuel.Unit...Conventional.Fuel,
+    fuel_unit_desc = Fuel.Unit.Desc...Conventional.Fuel,
+    fuel_annual_cost = Annual.Fuel1.Cost...Conventional.Fuel,
+    epa_calc_fuel_annual_cost = EPA.Calculated.Annual.Fuel.Cost...Conventional.Fuel........Annual.fuel.cost.error..Please.revise.Verify.,
+    ## DECIDED TO NOT USE THSE
+    # miles_range_city = City.Range..miles.,
+    # miles_range_hwy = Hwy.Range..miles.
+     )
+
+## Checking the product
+ev_cars_semi_final$fuel_annual_cost<- as.integer(ev_cars_semi_final$fuel_annual_cost) 
+
+### Repalcing "Group of" text in those Manufacturer cells that have it
+unique(ev_cars_semi_final$manufacturer)
+ev_cars_semi_final$manufacturer<- sub("\\sGroup\\sof$", "", ev_cars_semi_final$manufacturer)
+
+
+#Adding source column
+ev_cars_semi_final$source = "EV"
+
+```
+
+#### Reading in and Cleaning PHEV data
+```{r car_comparisons2}
+
+ phev_cars_raw <- read.csv("https://raw.githubusercontent.com/jhnboyy/CUNYSPS_DATA607/refs/heads/main/Project2/dataset1/PHEV_Cars_24.csv", header=FALSE,sep=',')
+colnames <- as.vector(unlist(phev_cars_raw[4,]))
+phev_cars_raw_lim<-phev_cars_raw[-c(1,2,3,4,5,6),]
+colnames(phev_cars_raw_lim) <-make.names(trimws(colnames), unique=TRUE)
+
+## Droppping the blanks, ignoring the color details in col name for this analysis. 
+phev_cars_raw_lim <- phev_cars_raw_lim %>%filter(Model.Yr...gold.fill.means.release.date.is.after.today.s.date.!="")
+phev_cars_raw_lim <- phev_cars_raw_lim %>% select(Mfr.Name,
+                                                  Division,
+                                                  Fuel.Usage....Conventional.Fuel,
+                                                  Fuel.Usage.Desc...Conventional.Fuel,
+                                                  Fuel.Unit...Conventional.Fuel,
+                                                  Fuel.Unit.Desc...Conventional.Fuel,
+                                                  Annual.Fuel1.Cost...Conventional.Fuel,
+                                                  EPA.Calculated.Annual.Fuel.Cost...Conventional.Fuel........Annual.fuel.cost.error..Please.revise.Verify.,
+                                                  Fuel2.Usage...Alternative.Fuel,
+                                                  Fuel2.Usage.Desc...Alternative.Fuel,
+                                                  Fuel2.Unit...Alternative.Fuel,
+                                                  Fuel2.Unit.Desc...Alternative.Fuel,
+                                                  Fuel2.Annual.Fuel.Cost...Alternative.Fuel,
+                                                  Fuel2.EPA.Calculated.Annual.Fuel.Cost...Alternative.Fuel)
+## Blank checks for columns to drop (only the one column)
+print(unique(phev_cars_raw_lim$Fuel2.EPA.Calculated.Annual.Fuel.Cost...Alternative.Fuel))
+
+phev_cars_semi_final <- phev_cars_raw_lim %>% select(Mfr.Name,
+                                                  Division,
+                                                  Fuel.Usage....Conventional.Fuel,
+                                                  Fuel.Usage.Desc...Conventional.Fuel,
+                                                  Fuel.Unit...Conventional.Fuel,
+                                                  Fuel.Unit.Desc...Conventional.Fuel,
+                                                  Annual.Fuel1.Cost...Conventional.Fuel,
+                                                  EPA.Calculated.Annual.Fuel.Cost...Conventional.Fuel........Annual.fuel.cost.error..Please.revise.Verify.,
+                                                  Fuel2.Usage...Alternative.Fuel,
+                                                  Fuel2.Usage.Desc...Alternative.Fuel,
+                                                  Fuel2.Unit...Alternative.Fuel,
+                                                  Fuel2.Unit.Desc...Alternative.Fuel,
+                                                  Fuel2.Annual.Fuel.Cost...Alternative.Fuel) %>%
+  rename (manufacturer = Mfr.Name,
+          division =Division,
+          fuel_type_abrv = Fuel.Usage....Conventional.Fuel,
+    fuel_type_desc = Fuel.Usage.Desc...Conventional.Fuel,
+    fuel_unit_abrv = Fuel.Unit...Conventional.Fuel,
+    fuel_unit_desc = Fuel.Unit.Desc...Conventional.Fuel,
+    fuel_annual_cost1 = Annual.Fuel1.Cost...Conventional.Fuel,
+    epa_calc_fuel_annual_cost = EPA.Calculated.Annual.Fuel.Cost...Conventional.Fuel........Annual.fuel.cost.error..Please.revise.Verify.,
+    fuel_type_abrv2 = Fuel2.Usage...Alternative.Fuel,
+    fuel_type_desc2 = Fuel2.Usage.Desc...Alternative.Fuel,
+    fuel_unit_abrv2 = Fuel2.Unit...Alternative.Fuel,
+    fuel_unit_desc2 = Fuel2.Unit.Desc...Alternative.Fuel,
+    fuel_annual_cost2 = Fuel2.Annual.Fuel.Cost...Alternative.Fuel)
+
+## Cleaning the values here so that inline with single fuel source cars. 
+## Making the assumption that for hybrid cars the fuel cost annually would be the sum of the two different fuel options.
+
+#Using Regex to replace empty strings with 0
+phev_cars_semi_final$fuel_annual_cost1 <- sub("^$", "0", phev_cars_semi_final$fuel_annual_cost1)
+phev_cars_semi_final$fuel_annual_cost2 <- sub("^$", "0", phev_cars_semi_final$fuel_annual_cost2)
+#Converting to integers
+phev_cars_semi_final$fuel_annual_cost1 <- as.integer(phev_cars_semi_final$fuel_annual_cost1) 
+phev_cars_semi_final$fuel_annual_cost2 <- as.integer(phev_cars_semi_final$fuel_annual_cost2)
+phev_cars_semi_final$fuel_annual_cost <-phev_cars_semi_final$fuel_annual_cost1 + phev_cars_semi_final$fuel_annual_cost2
+# Cehcking the work 
+phev_cars_semi_final %>% select(fuel_annual_cost1,fuel_annual_cost2,fuel_annual_cost)
+
+## Issues with the manufacturer values here because of original formatting 
+
+
+phev_cars_semi_final
+### Using window function and regex to deal with unwanted values in the Manufacturer column. B/c of how it was grouped in original 
+### data the manufacuter wasnt mentioned in the instances where there was a description containing a parenthesis. Filled in those values with the previous value in the manufacturer column. For this code i used a combination of various website soruces and ai to help correct where i was getting an error for nuanced r syntax
+phev_cars_semi_final <- phev_cars_semi_final %>%
+  mutate(manufacturer = ifelse(grepl("(\\()", manufacturer), lag(manufacturer), manufacturer))
+
+### Repalcing "Group of" text in those Manufacturer cells that have it
+phev_cars_semi_final$manufacturer<- sub("\\sGroup\\sof$", "", phev_cars_semi_final$manufacturer)
+phev_cars_semi_final
+
+#Adding source column
+phev_cars_semi_final$source = "PHEV"
+
+
+```
+
+```{r car_comparisons3}
+ice_cars_raw <-read.csv("https://raw.githubusercontent.com/jhnboyy/CUNYSPS_DATA607/refs/heads/main/Project2/dataset1/ICE_Cars_24.csv", header=FALSE,sep=',')
+
+colnames <- as.vector(unlist(ice_cars_raw[1,]))
+ice_cars_raw_lim<-ice_cars_raw[-c(1),]
+colnames(ice_cars_raw_lim) <-make.names(trimws(colnames), unique=TRUE)
+## Keeping the columns i want 
+ice_cars_raw_lim <- ice_cars_raw_lim %>% select(Mfr.Name,
+  Division,
+  Fuel.Usage....Conventional.Fuel,
+  Fuel.Usage.Desc...Conventional.Fuel,
+  Fuel.Unit...Conventional.Fuel,                                                                
+  Fuel.Unit.Desc...Conventional.Fuel,
+  Annual.Fuel1.Cost...Conventional.Fuel, 
+  EPA.Calculated.Annual.Fuel.Cost...Conventional.Fuel........Annual.fuel.cost.error..Please.revise.Verify.,
+  Fuel2.Usage...Alternative.Fuel,
+  Fuel2.Usage.Desc...Alternative.Fuel,
+  Fuel2.Unit...Alternative.Fuel,                                                                
+  Fuel2.Unit.Desc...Alternative.Fuel,
+  Fuel2.Annual.Fuel.Cost...Alternative.Fuel,
+  Fuel2.EPA.Calculated.Annual.Fuel.Cost...Alternative.Fuel)
+
+## Checking to see if empty vefore dropping 
+print(unique(ice_cars_raw_lim$Fuel2.Usage...Alternative.Fuel))
+print(unique(ice_cars_raw_lim$Fuel2.Usage.Desc...Alternative.Fuel))
+print(unique(ice_cars_raw_lim$Fuel2.Unit...Alternative.Fuel))
+print(unique(ice_cars_raw_lim$Fuel2.Unit...Alternative.Fuel))
+print(unique(ice_cars_raw_lim$Fuel2.Unit.Desc...Alternative.Fuel))
+print(unique(ice_cars_raw_lim$Fuel2.Annual.Fuel.Cost...Alternative.Fuel))
+print(unique(ice_cars_raw_lim$Fuel2.EPA.Calculated.Annual.Fuel.Cost...Alternative.Fuel))
+
+## All are not empty, so need to keep them, moving on to renamign the columns
+ice_cars_semi_final <- ice_cars_raw_lim %>% rename(manufacturer = Mfr.Name,
+          division =Division,
+          fuel_type_abrv = Fuel.Usage....Conventional.Fuel,
+    fuel_type_desc = Fuel.Usage.Desc...Conventional.Fuel,
+    fuel_unit_abrv = Fuel.Unit...Conventional.Fuel,
+    fuel_unit_desc = Fuel.Unit.Desc...Conventional.Fuel,
+    fuel_annual_cost1 = Annual.Fuel1.Cost...Conventional.Fuel,
+    epa_calc_fuel_annual_cost = EPA.Calculated.Annual.Fuel.Cost...Conventional.Fuel........Annual.fuel.cost.error..Please.revise.Verify.,
+    fuel_type_abrv2 = Fuel2.Usage...Alternative.Fuel,
+    fuel_type_desc2 = Fuel2.Usage.Desc...Alternative.Fuel,
+    fuel_unit_abrv2 = Fuel2.Unit...Alternative.Fuel,
+    fuel_unit_desc2 = Fuel2.Unit.Desc...Alternative.Fuel,
+    fuel_annual_cost2 = Fuel2.Annual.Fuel.Cost...Alternative.Fuel,
+    epa_calc_fuel_annual_cost2 = Fuel2.EPA.Calculated.Annual.Fuel.Cost...Alternative.Fuel)
+
+### Dealing with additional values for annual costs as i did with the PHEV data
+
+#Using Regex to replace empty strings with 0
+ice_cars_semi_final$fuel_annual_cost1 <- sub("^$", "0", ice_cars_semi_final$fuel_annual_cost1)
+ice_cars_semi_final$fuel_annual_cost2 <- sub("^$", "0", ice_cars_semi_final$fuel_annual_cost2)
+#Converting to integers
+ice_cars_semi_final$fuel_annual_cost1 <- as.integer(ice_cars_semi_final$fuel_annual_cost1) 
+ice_cars_semi_final$fuel_annual_cost2 <- as.integer(ice_cars_semi_final$fuel_annual_cost2)
+ice_cars_semi_final$fuel_annual_cost <-ice_cars_semi_final$fuel_annual_cost1 + ice_cars_semi_final$fuel_annual_cost2
+# Cehcking the work 
+ice_cars_semi_final %>% select(fuel_annual_cost1,fuel_annual_cost2,fuel_annual_cost)
+
+
+### Repalcing "Group of" text in those Manufacturer cells that have it
+ice_cars_semi_final$manufacturer<- sub("\\sGroup\\sof$", "", ice_cars_semi_final$manufacturer)
+ice_cars_semi_final
+
+## Adding a soruce column
+ice_cars_semi_final$source = "ICE"
+
+```
+
+```{r car_comparisons4}
+## Putting them all togeher and plotting with analysis. 
+## Limiting to the core columsn i want for annual cost 
+ev_final<- ev_cars_semi_final%>% select(manufacturer,division,source, fuel_annual_cost)
+phev_final<-phev_cars_semi_final%>% select(manufacturer,division,source, fuel_annual_cost)
+ice_final<- ice_cars_semi_final %>% select(manufacturer,division,source, fuel_annual_cost)
+
+
+# Concatenating mutlple dfs 
+#Citation: https://stackoverflow.com/questions/8169323/r-concatenate-two-dataframes
+car_data <- rbind(ev_final, phev_final, ice_final)
+
+## Group by source (car type) and Manufacturer
+## Citation: https://stackoverflow.com/questions/62140483/how-to-interpret-dplyr-message-summarise-regrouping-output-by-x-override
+
+car_data_grouped <- car_data %>% group_by(manufacturer,source) %>% summarise(mean_annual_cost = mean(fuel_annual_cost),.groups = 'drop')
+
+# Plotting so that the resultscazn
+#Chacking Manufactuers
+unique(ice_final$manufacturer)
+```
+#### Analysis
+What you can see in the charts below is that the annual cost for fuel is greatest for EV's, highest for Internal Combustion Engine vehicles, and then in the middle for Plug in Hybrid cars. The overal numbers can be seen in chart 1, while the average total fuel cost by manufacturer can be seen in the second chart. This number is going to vary based on the types of cars a manufacturer makes. If one was purchasing a car it may be best to look at the third chart, where, despite being a bit messy, one can see which costs for car type and manufacturer are lowest and highest. 
+
+```{r car_comparisons5}
+## Plotting 
+#Clatation: https://r-graph-gallery.com/48-grouped-barplot-with-ggplot2.html
+# https://www.andrewheiss.com/blog/2022/06/23/long-labels-ggplot/
+
+## Fristly looking at the overal different in annual fuel cost for ICE, PHEV, and EV
+ggplot(car_data_grouped, aes(fill=source, y=mean_annual_cost, x=source)) + 
+    geom_bar(position="dodge", stat="identity")
+## Second looking at the annual cost for fuel by manufactuers
+ggplot(car_data_grouped, aes( y=mean_annual_cost, x=manufacturer)) + 
+    geom_bar(position="dodge", stat="identity", width=.5)+
+   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
+
+## Third attempting to show it all in one chart, looks a bit messy 
+## The bar width seems to vary even though im setting it. Probably because not all manufacturers have each type of car. When a manufacturer only has one, the single bar is the width of all three bars for a manufacture that has all three types of cars
+ggplot(car_data_grouped, aes(fill=source, y=mean_annual_cost, x=manufacturer)) + 
+    geom_bar(position="dodge", stat="identity", width=.8)+
+   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
+```
+
+### Working with Dataset Number 2: Buffalo Blizzards
+**DATA SOURCE: https://brightspace.cuny.edu/d2l/le/437179/discussions/threads/443928/View**
+
+#### Discussion Post: 
+So I'm actually based in Buffalo and we have a bit of a reputation for snow. Below is an (untidy) data set of recorded snowfall from the National Weather Association. We've made national headlines a few times for record snowfall - see if you can find the worst storms!
+
+```{r buffalo_storms1}
+
+storms <-read.csv("https://raw.githubusercontent.com/jhnboyy/CUNYSPS_DATA607/refs/heads/main/Project2/dataset2/buffalo_weather.csv.csv", header=FALSE,sep=',')
+
+### Getting the index numbers where the column names are 
+columns <-storms[1,]
+## Column headers are every 11 rows after the first row
+#citation:https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/seq
+subheaders <- seq(1,by=11,length.out = nrow(storms))
+
+storms_lim <- storms[-subheaders,]
+colnames(storms_lim)<-columns
+
+## Masking the Season Value a date 
+## Citation 
+# as.Date()
+
+### Assuming the data is in inches (convertting to double)
+storms_lim$JUL<-as.double(storms_lim$JUL)
+storms_lim$AUG<- as.double(storms_lim$AUG)
+storms_lim$SEP<- as.double(storms_lim$SEP)
+storms_lim$OCT<- as.double(storms_lim$OCT)
+storms_lim$NOV<- as.double(storms_lim$NOV)
+storms_lim$DEC<- as.double(storms_lim$DEC)
+storms_lim$JAN<- as.double(storms_lim$JAN)
+storms_lim$FEB<- as.double(storms_lim$FEB)
+storms_lim$MAR <- as.double(storms_lim$MAR)
+storms_lim$APR <-as.double(storms_lim$APR)
+storms_lim$MAY <- as.double(storms_lim$MAY)
+storms_lim$JUN <- as.double(storms_lim$JUN)
+storms_lim$ANNUAL <-as.double(storms_lim$ANNUAL)
+
+#FIlling Nulls with zero
+#Ciation: https://stackoverflow.com/questions/8161836/how-do-i-replace-na-values-with-zeros-in-an-r-dataframe
+storms_lim[is.na(storms_lim)] <- 0
+#CITATION: https://stackoverflow.com/questions/61004387/is-there-an-r-function-for-taking-the-first-four-characters-in-a-column-and-putt
+storms_lim$year<- substr(storms_lim$SEASON, 1, 4)
+
+#limiting to 2023 and before
+storms_lim<- storms_lim %>% filter(storms_lim$year<=2023)
+
+## Pivoting long form for monthly plot
+storm_for_piv <-storms_lim %>% 
+  select("JUL","AUG","SEP","OCT","NOV","DEC","JAN","FEB","MAR","APR","MAY","JUN",'year')
+
+storms_month_long <- pivot_longer(storm_for_piv,
+             cols = c("JUL","AUG","SEP","OCT","NOV","DEC","JAN","FEB","MAR","APR","MAY","JUN"),
+             names_to = "month",
+             values_to ="inches")
+
+monthly_smmry <- storms_month_long %>% group_by(month) %>% summarise(mean_inches = mean(inches),.groups = 'drop')
+## Reordering
+monthly_smmry<-monthly_smmry[c(5,4,8,1,9,7,6,2,12,11,10,3),]
+
+## Limited Annual table for yearly data 
+storms_lim$year<- as.numeric(storms_lim$year)
+
+
+```
+#### Analysis
+Overall, the  year on record as having the most snow fall in Buffalo, NY is 1976, with 200 having the second highest number of inches for annual snopwfall. When looking at the snow fall by month, over all of the years, the month that has has the highest average snow fall for the years in the data is January. December is the second highest. The months with no snowfall at all for the years within the data are June July August and Septwember. 
+
+```{r buffalo_storms2}
+### PLotting different parts of data 
+
+## Years with most inches of snow
+ggplot(storms_lim, aes(x=year, y=ANNUAL))+
+  geom_line()+
+  geom_point()+
+  scale_x_continuous(n.breaks=25)
+
+## Months with most inches of snow
+## CITATION for factor feature: https://stackoverflow.com/questions/26469612/how-do-i-set-factor-levels-to-the-order-they-appear-in-a
+ggplot(monthly_smmry, aes(y=mean_inches, x=factor(month, levels = unique(month)))) + 
+     geom_bar(stat="identity")
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
+
+```
+
+## Working with Dataset Number 2: NYC Car Accident Data
+**DATA SOURCE: https://brightspace.cuny.edu/d2l/le/437179/discussions/threads/502453/View**
+
+### Discussion Post: 
+While structured, I went ahead and decided on NYC vehicular collision data. These accidents are those incidents that took place and yielded $1,000  or more in damages. While the data is structured, it is a decently sized one, and is also a wide-type of format, it can most definitely be flattened in some aspects in order to more readily analyze.  The link to the data set is here: https://data.cityofnewyork.us/Public-Safety/Motor-Vehicle-Collisions-Crashes/h9gi-nx95/about_data
+
+I would be curious to analyze which boroughs had the most accidents, along with if any days of the year tend to be worse than others. I would also like to plot the locations of these accidents and so some geographic analysis on the problem spots in the city, and how these areas improved or got worse overtime. Lastly, for fun, I would also like to do some exploratory work to see if people that drive certain types of cars tend to be in more accidents than others
+
+### Working Notes
+Due to the size of this data set the raw bulk data is not on github. For the sake of this analysis and excercise i will limit the accidents to one year with the hopes of limiting the size, and placing that subset of the data on github. For ingestion and cleaning. 
+
+```{r nyc_collisions}
+
+collisions_2023_raw <-read.csv("https://raw.githubusercontent.com/jhnboyy/CUNYSPS_DATA607/refs/heads/main/Project2/dataset3_subset/nyc_collisions_2023.csv", header=FALSE,sep=',')
+colnames(collisions_2023_raw)<-collisions_2023_raw[1,]
+collisions_2023_raw<-collisions_2023_raw[-c(1),]
+
+## I dont know how to geocode / do overlap intersection with shape files in r using Lat Long, so dropping the nulls in the borough columns. This will impact final numbers.
+
+collisions_2023_raw_lim <-collisions_2023_raw %>% filter(BOROUGH!="")
+
+colnames(collisions_2023_raw_lim) <-make.names(trimws(colnames(collisions_2023_raw_lim)), unique=TRUE)
+
+### keeping the columns we want for deadliest boroughs, and times of year
+collisions_core_columns <- collisions_2023_raw_lim %>% select(
+  "CRASH.DATE","BOROUGH","NUMBER.OF.PERSONS.INJURED", "NUMBER.OF.PERSONS.KILLED")
+#Converting data types 
+
+collisions_core_columns$NUMBER.OF.PERSONS.INJURED<- as.integer(collisions_core_columns$NUMBER.OF.PERSONS.INJURED)
+collisions_core_columns$NUMBER.OF.PERSONS.KILLED<- as.integer(collisions_core_columns$NUMBER.OF.PERSONS.KILLED)
+
+#parsing month out of the date 
+#Citation: https://stackoverflow.com/questions/52672853/how-to-convert-full-date-character-into-mm-dd-yyyy-in-r
+library(lubridate)
+collisions_core_columns$CRASH.DATE <-format(mdy(collisions_core_columns$CRASH.DATE), "%m-%d-%Y")
+
+# Grouping to get counts and sums per month and borough
+boro_summary_collisions<-collisions_core_columns %>% group_by(BOROUGH) %>% summarise(total_injured = sum(NUMBER.OF.PERSONS.INJURED),
+                                                            total_killed = sum(NUMBER.OF.PERSONS.KILLED),
+                                                            total_collisions = n()
+                                                                                ,.groups = 'drop')
+
+## Group by and summarize for months
+## Citation :https://stackoverflow.com/questions/22603847/how-to-extract-month-from-date-in-r
+collisions_core_columns$month<-month(as.numeric(substr(collisions_core_columns$CRASH.DATE,1,2)),label=TRUE)
+month_summary_collisions<-collisions_core_columns %>% group_by(month) %>% summarise(total_injured = sum(NUMBER.OF.PERSONS.INJURED),
+                                                            total_killed = sum(NUMBER.OF.PERSONS.KILLED),
+                                                            total_collisions = n()
+                                                                                ,.groups = 'drop')
+
+
+
+
+```
+
+### Analysis
+
+After removing the null values for borough, and workuing with the data that remained. We then looked at the totla number of vehicular collisions and resulting injuries for each borough. We also took a look at the same stats for each month of the year. Remember that this data is for the year 2023. The data shows that the borough with the most number of people injured in vehicle accidents was brooklyn, brooklyn also had the highest number of accidents too. The safest borough in 2023 was staten island with hte lowest number of accidents and injuries. The second highest numbers for injuries was the bronx, while queens had the second highest number of collisions. When looking to different times of the year, December was the month with the highest number of collisions with July coming in second place. Both of these months were much higher than the other months of the year. When looking at the number of injuries from collisions, July was the month with the most injured, followed by December. 
+```{r collisions_2}
+boro_summary_collisions
+## Plotting injuries by borogh
+### No one was killed in vehicle collisions in 2023, based on the data that had a borough values So just plotting injuries
+ggplot(boro_summary_collisions, aes(y=total_injured, x=BOROUGH, fill=BOROUGH)) + 
+     geom_bar(stat="identity")
+
+## Total collisions by borough
+ggplot(boro_summary_collisions, aes(y=total_collisions, x=BOROUGH, fill=BOROUGH)) + 
+     geom_bar(stat="identity")
+
+
+## Finding the most dangerous Month of the year 2023
+ggplot(month_summary_collisions, aes(y=total_collisions, x=month, fill=month)) + 
+     geom_bar(stat="identity")
+
+ggplot(month_summary_collisions, aes(y=total_injured, x=month, fill=month)) + 
+     geom_bar(stat="identity")
+
+```

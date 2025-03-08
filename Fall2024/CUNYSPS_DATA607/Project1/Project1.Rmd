@@ -1,0 +1,319 @@
+---
+title: "DATA607_Project1"
+author: "John Ferrara"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(dplyr)
+library(stringr)
+library(tidyverse)
+```
+
+## Project 1 
+
+n this project, you’re given a text file with chess tournament results where the information has some structure. Your job is to create an R Markdown file that generates a .CSV file (that could for example be imported into a SQL database) with the following information for all of the players:
+
+Player’s Name, Player’s State, Total Number of Points, Player’s Pre-Rating, and Average Pre Chess Rating of Opponents
+
+For the first player, the information would be:
+Gary Hua, ON, 6.0, 1794, 1605
+
+1605 was calculated by using the pre-tournament opponents’ ratings of 1436, 1563, 1600, 1610, 1649, 1663, 1716, and dividing by the total number of games played. If you have questions about the meaning of the data or the results, please post them on the discussion forum. Data science, like chess, is a game of back and forth…
+The chess rating system (invented by a Minnesota statistician named Arpad Elo) has been used in many other contexts, including assessing relative strength of employment candidates by human resource departments.
+You may substitute another text file (or set of text files, or data scraped from web pages) of similar or greater complexity, and create your own assignment and solution. You may work in a small team. All of your code should be in an R markdown file (and published to rpubs.com); with your data accessible for the person running the script.
+
+### Step 1: Reading in the data from a local pathway.
+```{r read_file}
+# Reading in the text file provided for assignment 
+path = path.expand("~/OneDrive/Desktop/CUNY_SPS_Materials/DATA607 - DATA ACQ/Project1/tornamentinfo.txt")
+print(path)
+
+### alternative is to read from git 
+# alt_text <-read.table("https://raw.githubusercontent.com/jhnboyy/CUNYSPS_DATA607/refs/heads/main/Project1/tornamentinfo.txt",header = FALSE, sep = "\n", dec = ".")
+# alt_text
+
+## CITATION for read.table:http://www.sthda.com/english/wiki/reading-data-from-txt-csv-files-r-base-functions#google_vignette
+raw_txt <- read.table(path, header = FALSE, sep = "\n", dec = ".")#, ...)
+#Ctation for typeof: https://swcarpentry.github.io/r-novice-inflammation/13-supp-data-structures.html
+typeof(raw_txt)
+
+#Getting the total number of values so i can extract the needed info
+max_index <- length(raw_txt[,1])
+print(max_index)
+```
+
+### Step 2: Cleaning and Restructuring (Stripping the Noise)
+```{r }
+#Generating the index numbers that i need to parae
+## Citation: Found the seq() command:https://r02pro.github.io/vector-patterns.html
+dash_entries = seq(from = 1, to = max_index, by = 3)
+# print(dash_entries)
+
+no_dash <- raw_txt[-c(dash_entries),]
+# print(no_dash)
+
+no_dash_len <- length(no_dash)
+# print(no_dash_len)
+
+#Skipping the First two rows that have original raw headers
+raw_data <- no_dash[3:no_dash_len]
+# print(raw_data)
+
+```
+
+### Step3: Cleaning and Restructuring the Data (Restructuring )
+```{r}
+#Hardcording the original Structure of the file into an empty df 
+data_frame = data.frame(
+  PairNum_State = character(),
+  PlayerName_USCFID_RtgPrePost = character(),
+  TtlPts = character(),
+  Round1 = character(),
+  Round2 = character(),
+  Round3 = character(),
+  Round4 = character(),
+  Round5 = character(),
+  Round6 = character(),
+  Round7 = character())
+
+# Using a for loop to go item by item to parse, strip and clean. 
+## For loop Citation : https://epirhandbook.com/new_pages/iteration.html
+for (raw_row in raw_data) {
+    # Removing last pip before splitting
+    raw_row <-str_sub(raw_row, end= -1)
+    split <- strsplit(raw_row, "\\|")
+    temp_vec <-c()
+    for (s in split){
+      trimmed_s <- str_trim(s, side="left")
+      trimmed_s <- str_trim(trimmed_s, side="right")
+      temp_vec = c(temp_vec, trimmed_s)
+      }
+    data_frame[nrow(data_frame)+1,] <- temp_vec
+}      
+
+#Checking the dataframe results
+head(data_frame)
+
+
+```
+
+### Step 4: Parsing from new Datafrme (Primary ROws)
+
+```{r}
+# Taking the rows that are the main ans secondary rows for each entry by index Number 
+regular_index = seq(from = 1, to = length(data_frame[,1]), by = 2)
+
+#Split them into 2 separate dataframes and rename the columns in both to be proper
+#Dealing with the "regular" or primary rows
+regular_vals<-data_frame[c(regular_index),]
+
+#Rename CItation: https://www.datanovia.com/en/lessons/rename-data-frame-columns-in-r/
+regular_vals<-regular_vals %>%
+  rename(
+     PairNum = PairNum_State,
+     PlayerName=PlayerName_USCFID_RtgPrePost,
+     TtlPts_1=TtlPts,
+     Round1_1=Round1,
+     Round2_1=Round2,
+     Round3_1=Round3,
+     Round4_1=Round4,
+     Round5_1=Round5,
+     Round6_1=Round6,
+     Round7_1=Round7
+  )
+#Using the Regular index as join column
+regular_vals$join_col<-regular_index
+
+#checking results
+head(regular_vals)
+
+
+```
+
+
+### Step 5: Parsing from new Datafrme (Secondary ROws)
+```{r}
+## Secondary Lines that start with state vals
+state_index = seq(from = 2, to = length(data_frame[,1]), by = 2)
+
+state_vals <- data_frame[c(state_index),]
+
+state_vals<-state_vals %>%
+  rename(
+      State=PairNum_State,
+      USCFID_RtgPrePost=PlayerName_USCFID_RtgPrePost,
+      TtlPts2=TtlPts,
+      sec_Round1=Round1,
+      Round2_2=Round2,
+      Round3_2=Round3,
+      Round4_2=Round4,
+      Round5_2=Round5,
+      Round6_2=Round6,
+      Round7_2=Round7
+    )
+state_vals$join_col <- regular_index
+
+head(state_vals)
+
+```
+
+
+
+### Step 6: Joining the two distinct dataframes and further cleaning
+
+```{r}
+# Joining the two dfs
+#Citation for merge: https://www.datanovia.com/en/lessons/rename-data-frame-columns-in-r/
+all_data = merge(x = regular_vals, y = state_vals, by = "join_col")
+head(all_data)
+
+#Cleaning up the column with the prerating
+all_data$pre_rating <- str_extract(all_data$USCFID_RtgPrePost, "R:\\s*(\\d+)(P\\d+)?\\s*->")
+all_data$pre_rating <-str_replace_all(all_data$pre_rating ,"R:", "")
+all_data$pre_rating <-str_replace_all(all_data$pre_rating ,"(\\s?->)|(P(\\d+))", "")
+
+```
+
+### Step 7: Parsing Out Opponent and Score information
+```{r}
+all_data <- all_data %>% 
+  separate(Round1_1, c('Round1_Status', 'Round1_Oppnt')) %>%
+  separate(Round2_1, c('Round2_Status', 'Round2_Oppnt')) %>%
+  separate(Round3_1, c('Round3_Status', 'Round3_Oppnt')) %>%
+  separate(Round4_1, c('Round4_Status', 'Round4_Oppnt')) %>%
+  separate(Round5_1, c('Round5_Status', 'Round5_Oppnt')) %>%
+  separate(Round6_1, c('Round6_Status', 'Round6_Oppnt')) %>%
+  separate(Round7_1, c('Round7_Status', 'Round7_Oppnt'))
+
+head(all_data)
+
+```
+### Step 8: Limiting data to two separate and concise dfs
+```{r}
+#Limiting to the columns that we need for the project mandate Plyer Data 
+player_data <- all_data[c("PairNum","PlayerName","State", "TtlPts_1","pre_rating")]
+head(player_data)
+
+# Limiting to the columns that need parsing for the scores
+scoring_data <- all_data[c("PairNum","Round1_Oppnt","Round2_Oppnt","Round3_Oppnt",
+                           "Round4_Oppnt","Round5_Oppnt","Round6_Oppnt","Round7_Oppnt")]
+
+#### ---- START : DIDNT END UP NEEDING THIS SECTION BECAUSE OF THE na.rm feature. ----
+# scoring_data_transposed <- t(scoring_data)
+# head(scoring_data_transposed)
+
+## Null counts to subrtract from 7 rounds for each play in ordinal fashion
+##Citation: https://www.spsanderson.com/steveondata/posts/2024-05-07/#:~:text=We'll%20leverage%20the%20colSums,each%20column%20of%20a%20dataframe.&text=In%20this%20code%20snippet%2C%20is,count%20of%20NAs%20per%20column.
+# na_counts <- colSums(is.na(scoring_data_transposed))
+# print(na_counts)
+
+# rounds_played <- 7 - na_counts
+# head(rounds_played)
+
+#Adding to df
+# player_data$rounds_played <-rounds_played
+# head(player_data)
+#### ---- END: DIDNT END UP NEEDING THIS SECTION BECAUSE OF THE na.rm feature. ----
+
+```
+
+### Step 9: Reorienting Opponent Data Together
+```{r}
+#New columns for the for loop to place values in 
+scoring_data$opp1_prerate = numeric(nrow(scoring_data))
+scoring_data$opp2_prerate = numeric(nrow(scoring_data))
+scoring_data$opp3_prerate = numeric(nrow(scoring_data))
+scoring_data$opp4_prerate = numeric(nrow(scoring_data))
+scoring_data$opp5_prerate = numeric(nrow(scoring_data))
+scoring_data$opp6_prerate = numeric(nrow(scoring_data))
+scoring_data$opp7_prerate = numeric(nrow(scoring_data))
+
+## if clause citation: https://www.dataquest.io/blog/control-structures-in-r-using-loops-and-if-else-statements/
+for (i in 1:nrow(scoring_data)) {
+  row <- scoring_data[i,]
+  opp1_number = row$Round1_Oppnt
+  opp2_number = row$Round2_Oppnt
+  opp3_number = row$Round3_Oppnt
+  opp4_number = row$Round4_Oppnt
+  opp5_number = row$Round5_Oppnt
+  opp6_number = row$Round6_Oppnt
+  opp7_number = row$Round7_Oppnt
+  if (!is.na(opp1_number)){
+        temp_df1<- player_data %>% filter(PairNum ==opp1_number)
+        scoring_data$opp1_prerate[i] <- as.numeric(temp_df1$pre_rating)
+  }
+  if (!is.na(opp2_number)){
+      temp_df2<- player_data %>% filter(PairNum ==opp2_number)
+      scoring_data$opp2_prerate[i] <- as.numeric(temp_df2$pre_rating)
+  }
+  if (!is.na(opp3_number)){
+      temp_df3<- player_data %>% filter(PairNum ==opp3_number)
+      scoring_data$opp3_prerate[i] <- as.numeric(temp_df3$pre_rating)
+  }
+  if (!is.na(opp4_number)){
+      temp_df4<- player_data %>% filter(PairNum ==opp4_number)
+      scoring_data$opp4_prerate[i] <- as.numeric(temp_df4$pre_rating)
+  }
+  if (!is.na(opp5_number)){
+      temp_df5<- player_data %>% filter(PairNum ==opp5_number)
+      scoring_data$opp5_prerate[i] <- as.numeric(temp_df5$pre_rating)
+  }
+  if (!is.na(opp6_number)){
+      temp_df6<- player_data %>% filter(PairNum ==opp6_number)
+      scoring_data$opp6_prerate[i] <- as.numeric(temp_df6$pre_rating)
+    }
+  if (!is.na(opp7_number)){
+      temp_df7<- player_data %>% filter(PairNum ==opp7_number)
+      scoring_data$opp7_prerate[i] <- as.numeric(temp_df7$pre_rating)
+    }
+}
+
+## Replacing the Zeros fro mhow i made the co;umns with Nulls 
+scoring_data$opp1_prerate[scoring_data$opp1_prerate == 0] <- NA
+scoring_data$opp2_prerate[scoring_data$opp2_prerate == 0] <- NA
+scoring_data$opp3_prerate[scoring_data$opp3_prerate == 0] <- NA
+scoring_data$opp4_prerate[scoring_data$opp4_prerate == 0] <- NA
+scoring_data$opp5_prerate[scoring_data$opp5_prerate == 0] <- NA
+scoring_data$opp6_prerate[scoring_data$opp6_prerate == 0] <- NA
+scoring_data$opp7_prerate[scoring_data$opp7_prerate == 0] <- NA
+
+```
+
+### Step 10: Getting the Means and Joining 
+```{r}
+### Citation: https://stataiml.com/posts/calculate_mean_sel_columns_r/
+scoring_data$opponentavg <- rowMeans(subset(scoring_data,
+                                            select =c(opp1_prerate,opp2_prerate,opp3_prerate,opp4_prerate,
+                                                      opp5_prerate,opp6_prerate,opp7_prerate
+)),
+                                     na.rm = TRUE)
+
+scoring_data_lim <- select(scoring_data,PairNum,opponentavg)
+head(scoring_data_lim)
+
+#merging together for semifinal df
+semifinal = merge(x = player_data, y = scoring_data_lim, by = "PairNum")
+
+
+## limiting to only the columns i need
+final<- select(semifinal,PlayerName,State,TtlPts_1,pre_rating,opponentavg)
+head(final)
+```
+### Step 11: Place into a CSv file
+```{r}
+## Placing into a local CSV
+write.csv(final, "ChessPlayerData.csv")
+
+```
+
+
+
+
+
+
+
+
+
+

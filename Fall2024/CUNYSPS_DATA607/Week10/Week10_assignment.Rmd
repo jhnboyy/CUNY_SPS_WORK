@@ -1,0 +1,63 @@
+---
+title: "DATA607_Week10_Assgnmt"
+author: "John Ferrara"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Week 10 Assignment
+
+#### Instructions
+In Text Mining with R, Chapter 2 looks at Sentiment Analysis.  In this assignment, you should start by getting the primary example code from chapter 2 working in an R Markdown document.  You should provide a citation to this base code.  You’re then asked to extend the code in two ways:
+
+Work with a different corpus of your choosing, and
+Incorporate at least one additional sentiment lexicon (possibly from another R package that you’ve found through research).
+As usual, please submit links to both an .Rmd file posted in your GitHub repository and to your code on rpubs.com.  You make work on a small team on this assignment.
+
+## Base Code from Text Book
+
+```{r part1}
+
+## Base Code Citation: https://www.tidytextmining.com/sentiment.html
+
+
+# install.packages("janeaustenr")
+#install.packages("tidytext")
+
+library(tidytext)
+library(janeaustenr)
+library(dplyr)
+library(stringr)
+
+tidy_books <- austen_books() %>%
+  group_by(book) %>%
+  mutate(
+    linenumber = row_number(),
+    chapter = cumsum(str_detect(text, 
+                                regex("^chapter [\\divxlc]", 
+                                      ignore_case = TRUE)))) %>%
+  ungroup() %>%
+  unnest_tokens(word, text)
+
+head(tidy_books)
+
+```
+### Sentiment Analysis on Another Data Set found
+```{r step2}
+#install.packages("textdata")
+
+library(textdata)
+# IMBD Reviews
+imdb_data <- textdata::dataset_imdb()
+head(imdb_data)
+
+print("test")
+```
+
+
+
+

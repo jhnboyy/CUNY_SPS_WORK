@@ -1,0 +1,161 @@
+---
+title: "Week5_Data607"
+author: "John Ferrara"
+date: "`r Sys.Date()`"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Reading in the Library
+
+
+```{r importing}
+library(dplyr)
+library(tidyr)
+library(tidyverse)
+```
+
+## Looking at the data in the dplyr package
+
+
+```{r pressure, echo=FALSE}
+(data(package="dplyr")$results)
+```
+## Reading in the created CSV file 
+
+``` {r reading_in}
+#Alternatvie Github data ingest (for points)
+df <-read.table("https://raw.githubusercontent.com/jhnboyy/CUNYSPS_DATA607/refs/heads/main/Week5/flight_data.csv",
+                      header=TRUE,sep=',')
+df
+## I dont know what the missing data is supposed to be, making the assumption that its formatting that needs fixing
+df[2, 'Airline'] <- "ALASKA"
+df[5, 'Airline'] <- "AMWEST"
+df <-df[!df$Airline == '',]
+
+df
+```
+
+## Working to Transform the data in order to plot and compare the delays
+
+``` {r transform}
+## First parsing out the delayed and the ontime using filter function in dplyr
+ontime <- df %>% filter(Status =="on time")
+delayed <- df %>% filter(Status =="delayed")
+
+## Using Tidyr  to pivot each one longways for analysis
+
+##Citation: https://tidyr.tidyverse.org/reference/pivot_longer.html
+long_ontime <- pivot_longer(ontime,
+             cols = c("Los.Angeles","Phoenix","San.Diego","San.Francisco","Seattle"), names_to = "arrival_city", values_to ="instance_count")
+long_delay <- pivot_longer(delayed,
+             cols = c("Los.Angeles","Phoenix","San.Diego","San.Francisco","Seattle"), names_to = "arrival_city", values_to ="instance_count")
+
+## before placing in long df i want to calc percentages for delays for each city (referenced later on in analysis text)
+temp_pct_work <- inner_join(long_ontime,long_delay, by=c("arrival_city"="arrival_city","Airline"="Airline"),su)
+temp_pct_work$pct_delay <- round((temp_pct_work$instance_count.y/(temp_pct_work$instance_count.x+temp_pct_work$instance_count.y))*100,2)
+temp_pct_work_lim <- temp_pct_work[,c("Airline","arrival_city","pct_delay")]
+temp_pct_work_lim
+
+#Concatenatining them together for one coherent DF 
+# CITATIOn: https://dplyr.tidyverse.org/reference/bind_rows.html
+long_flights <- bind_rows(long_ontime,long_delay)
+long_flights
+
+```
+## Transformation Part 2 (Alaska)
+```{r transform1}
+## Mean and Median for Alaska Airlines
+alaska_del <- long_flights %>%
+  filter(Airline=='ALASKA' & Status=='delayed') %>%
+  summarize(
+    total_del_count = sum(instance_count),
+    avg_del_count = mean(instance_count),
+    med_del_count = median(instance_count)
+  ) 
+
+alaska_del$airline = "ALASKA"
+  
+alaska_ot <-long_flights %>%
+  filter(Airline=='ALASKA' & Status=='on time')%>%
+  summarize(
+    total_ot_count = sum(instance_count),
+    avg_ot_count = mean(instance_count),
+    med_ot_count = median(instance_count)
+  ) 
+alaska_ot$airline = "ALASKA"
+
+alaska <- merge(alaska_del, alaska_ot, by = "airline")
+alaska$pct_del <- (alaska$total_del_count / (alaska$total_del_count + alaska$total_ot_count))*100
+
+alaska
+```
+
+##  Transformation Part 2 (AMWEST)
+``` {r transform2}
+# Mean and Median for AMWEST Airlines
+## Mean and Median for Alaska Airlines
+amwest_del <- long_flights %>%
+  filter(Airline=='AMWEST' & Status=='delayed') %>%
+  summarize(
+    total_del_count = sum(instance_count),
+    avg_del_count = mean(instance_count),
+    med_del_count = median(instance_count)
+  ) 
+
+amwest_del$airline = "AMWEST"
+
+amwest_ot <-long_flights %>%
+  filter(Airline=='AMWEST' & Status=='on time')%>%
+  summarize(
+    total_ot_count = sum(instance_count),
+    avg_ot_count = mean(instance_count),
+    med_ot_count = median(instance_count)
+  ) 
+amwest_ot$airline = "AMWEST"
+
+amwest <- merge(amwest_del, amwest_ot, by = "airline")
+amwest$pct_del <- (amwest$total_del_count / (alaska$total_del_count + amwest$total_ot_count))*100
+
+amwest
+
+#Combining both descriptive wide dfs for analysis
+ stat_table <- bind_rows(alaska,amwest)
+ stat_table
+```
+
+## Analysis
+
+**When all flights are considered Alaska airlines has a total of 13.27% of arrival delays, which is a bit more than the 11.34 percent arrival delays of AMWest. However, when looking at the COUNT of delays by city on the second plot, the arrival delays vary widely depending on location. The best airline with the lesser amount of delays for arrivals in Los Angeles, Phoenix, and San Diego is Alaska airlines. While AMwest is the best airline for arrivals of the two for in Seatle. Arrival delays are San Francisco are more evenly distributed between the airlines, but AMWEST has a little more of them. Further analysis with percent delays shows the the largest performenace in delays between airlines are in Seattle, SF, and San Diego arrivals. With performance being similar in Phoenix. That being said Alaska has consistantly less percent delays for their flights regardless of city than AMWEST. **
+```{r analysis}
+#Plotting the main overview stats for relative percent delays performamce
+ggplot(data = stat_table, aes(x=airline, y=pct_del))+
+  geom_bar(stat = "identity")
+
+#Looking at the long df again
+head(long_flights)
+
+ggplot(data = long_flights%>%filter(Status=='delayed'),aes(x=arrival_city,y=instance_count, fill=Airline))+
+  geom_bar(position="dodge",stat = "identity")+
+  geom_text(aes(label=instance_count),position = position_dodge(width = 0.8))
+
+
+amwest$pct_del <- (amwest$total_del_count / (alaska$total_del_count + amwest$total_ot_count))*100
+
+## Charting the earlier table for city-specific delays
+ggplot(data =temp_pct_work_lim,aes(x=arrival_city,y=pct_delay, fill=Airline))+
+  geom_bar(position="dodge", stat="identity")+
+  geom_text(aes(label=pct_delay),position = position_dodge(width = 0.8))
+
+
+#Note the labels are off, but can be assumed based on the chart colors and sizes. 
+
+```
+
+## Conclusion
+**Overall, the airlines are very similar in performance when looked at as a percentage of arrival delays compared to all of their respective flights. Alaska airlines does have a few more arriaval delays than AMWEST. However, using percent of total flights that get delayed Alaska performs better in every city. THe degree to which this is true, varies by city. The city where Alaska performs the best relative to AMWEST is San Fransisco, while the discrepency in performance is smallest in arrivales to Phoenix. Cities with a larger discrepency in performance between the two airlines will be those where a passenger will want to choose Alaska airlines over AMwest. In the cities with less of a descrepency, then it matters less. **

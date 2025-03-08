@@ -1,0 +1,115 @@
+---
+title: "Week3 Extra Credit"
+author: "John Ferrara"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Extra Credit: Global Baseline Estimates
+
+Using the information you collected on movie ratings, implement a Global Baseline Estimate recommendation system in R.   The attached spreadsheet provides the implementation algorithm.
+
+Most recommender systems use personalized algorithms like “content management” and “item-item collaborative filtering.” Sometimes non-personalized recommenders are also useful or necessary. One of the best non-personalized recommender system algorithms is the “Global Baseline Estimate.
+
+The job here is to use the survey data collected and write the R code that makes a movie recommendation using the Global Baseline Estimate algorithm. 
+
+## Connection to the SQL Server 
+
+Connecting the the localhost SQL server in order to pull in my movies data. 
+
+#### Step 1 - Importing and installing the packages needed
+```{r sql_connect1}
+
+#install.packages("RMySQL")
+library(RMySQL)
+library(readr)
+library(dplyr)
+library(tidyr)
+
+```
+
+
+#### Step 2 - Establish connection to MySQL database
+```{r sql_connect2}
+
+# Read the password in from file
+pw_path <- "~/Documents/Github/CUNYSPS_DATA607/secrets/mysql_root_pw.txt"
+password <- read_file(path.expand(pw_path))
+
+con <- dbConnect(RMySQL::MySQL(),
+                 dbname = "assignment2_movies",
+                 host = "127.0.0.1",
+                 port = 3306,
+                 user = "root",
+                 password = password)
+```
+
+#### Step 3 - Listing tables in the selected schema to confirm the connection
+```{r sql_connect3}
+dbListTables(con)
+```
+
+## Pulling in Data 
+Now that the connection is established, pulling in the data to a dataframe. 
+
+```{r dataframe}
+movies_df <- dbReadTable(con, "critics_ratings")
+
+head(movies_df)
+```
+
+## Step 4 - Establish the Problem
+With all of the data pulled into r, the next step is the establish the issue we're attempting to resolve. The problem is we want to get a proper movie rating  estimate for Lisa for for the movie Arrival.
+
+## Step 5 - Get the  Movie Average
+``` {r MovieAverages}
+#Getting The avg for each movie
+GoodfellasAVG <- mean(movies_df$Goodfellas, na.rm=TRUE)
+VforVendettaAVG<-mean(movies_df$VforVendetta, na.rm=TRUE)
+ArrivalAVG<-mean(movies_df$Arrival, na.rm=TRUE)
+InceptionAVG<-mean(movies_df$Inception, na.rm=TRUE)
+TheWitchAVG<- mean(movies_df$TheWitch, na.rm=TRUE)
+TheDarkKnightAVG <- mean(movies_df$TheDarkKnight, na.rm=TRUE)
+```
+
+## Step 6 - Get the Mean for all of Users' Movie Ratings
+```{r lisa_ratingavg}
+## Getting the avg for each person
+movies_df$mean_rating <- rowMeans(movies_df[, -1], na.rm = TRUE)
+movies_df 
+
+## Getting the overall avg of every rating
+overall_mean_df <- movies_df %>%
+  pivot_longer(cols = Goodfellas:TheDarkKnight, values_drop_na = TRUE) %>%
+  summarize(mean_rating = mean(value, na.rm = TRUE))
+overall_mean_df
+# Limiting to value
+overall_mean<- overall_mean_df$mean_rating
+overall_mean
+```
+
+## Step 5 - Get the Global Baseline Estimate Formula  and then Derive what Lisa would rate Arrival
+
+Following the formula in provided Excel file for Extra Credit Assignment. 
+
+```{r solution}
+#Getting the avg for lisa value 
+lisa_avg_df <- movies_df%>%
+  filter(critic == 'Lisa')
+lisa_avg_df
+
+lisa_avg = lisa_avg_df$mean_rating
+lisa_avg
+
+#Getting the differences
+lisa_diferential <- lisa_avg-overall_mean
+movie_diferential <-ArrivalAVG - overall_mean
+ 
+## This is the estimat rating for Lisa for Arrival
+lisa_est_rating_arrival <- overall_mean - abs(movie_diferential) - abs(lisa_diferential)
+lisa_est_rating_arrival
+```
