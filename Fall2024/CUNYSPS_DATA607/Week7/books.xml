@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<data>
+    <book>
+        <title>1984</title>
+        <author>George Orwell</author>
+        <published>1949</published>
+        <category>fiction</category>
+    </book>
+        <book>
+        <title>Fahrenheit 451</title>
+        <author>Ray Bradbury</author>
+        <published>1953</published>
+        <category>fiction</category>
+    </book>
+        <book>
+        <title>The Talisman</title>
+        <author>Stephen King, Peter Straub</author>
+        <published>1984</published>
+        <category>fiction</category>
+    </book>
+</data>

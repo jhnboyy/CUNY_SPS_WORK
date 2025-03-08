@@ -1,0 +1,1847 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\documentclass[
+]{article}
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\makeatletter
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi%
+}
+% Set default figure placement to htbp
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={Final Project - DATA 606 \& DATA 607},
+  pdfauthor={John Ferrara},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Final Project - DATA 606 \& DATA 607}
+\author{John Ferrara}
+\date{2024-12-09}
+
+\begin{document}
+\maketitle
+
+\subsection{Abstract}\label{abstract}
+
+This observational study examines whether completed housing-related
+construction correlates with the adult homeless population, and how
+homelessness correlates with public syringe recovery in NYC parks. Using
+data sourced from NYC Open Data, two questions were analyzed: (1) Does
+completed housing construction projects over the preceding five-year
+window affect the size of the adult homeless population? (2) Does the
+size of the adult homeless population correlate with disposed syringe
+recovery rates? Data from the NYC Department of City Planning for
+construction projects, NYC Parks Department syringe recovery data, and
+NYC Department of Homelessness Services homeless population data were
+analyzed using linear regression models, both at the community district
+and borough levels.
+
+Several statistically significant relationships were found. At the
+community district level, more completed construction projects directly
+correlated with a larger homeless population, possibly reflecting the
+concentration of construction jobs in wealthier or gentrifying areas.
+Additionally, an increase in the adult homeless population directly
+correlated with higher syringe recovery rates in NYC parks. At the more
+generalized borough level, the correlation between completed
+construction projects and homelessness was stronger, with the
+construction projects explaining roughly 67\% of the variance in
+homelessness populations. Borough-level analysis also revealed an
+indirect relationship between the average year-over-year increases in
+completed construction projects and homelessness, suggesting targeted
+development may help reduce homelessness.
+
+These findings highlight connections between housing policy,
+homelessness, and syringe recovery as a singular dimension of public
+health. While limitations for this analysis exist, such as a lack of
+housing data granularity and a lack of non-shelter based homeless
+counts, the analysis underscores the importance of public data in
+addressing complex urban challenges.
+
+\subsection{Introduction and Overview}\label{introduction-and-overview}
+
+As most know, in recent years the cost of housing has been outpacing
+wage growth1. Rising housing costs have led to a series of policy
+issues. While some impacts of high housing costs are obvious, others are
+less apparent. This analysis explores whether one such issue --- the
+recovery of used syringes in public parks --- is correlated to the
+housing crisis. In short, the overarching question: Does housing impact
+this seemingly separate public health and safety issue of public, or
+improper, syringe disposal?
+
+The overarching question for this observational study must be broken
+down into two different main questions. The following are the two
+sub-questions and their respective hypotheses:
+
+\begin{itemize}
+\tightlist
+\item
+  \emph{Question 1}: Does the Number of Housing Related Construction
+  Projects for the Previous 5 Years correlate with the Size of Adult
+  Homeless Population?
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \emph{Null Hypothesis}: The number of housing related construction
+    projects for the preceding 5 year window period \textbf{does not}
+    correlate with the adult homeless population.
+  \item
+    \emph{Alternative Hypothesis}: The number of housing related
+    construction projects for the preceding 5 year window period
+    \textbf{does} correlated with the adult homeless population.
+  \item
+    \emph{Independent Variable}: The independent variable in this
+    question is the completed housing-related construction projects
+    completed in the preceding 5 year window from when the homeless
+    population was counted.
+  \item
+    \emph{Dependent Variable}: The dependent variable in this question
+    is the Adult homeless population.
+  \end{itemize}
+\item
+  \emph{Question 2}: Does the size of the Adult Homeless Population
+  correlate with the Number of Used Syringes recovered by NYC Parks?
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \emph{Null Hypothesis}: The size of the Adult homeless population
+    \textbf{does not} correlate with the number of used syringes
+    recovered in NYC Parks.
+  \item
+    \emph{Alternative Hypothesis}: The size of the Adult homeless
+    population \textbf{does} correlate with the number of used syringes
+    recovered in NYC Parks.
+  \item
+    \emph{Independent Variable}: The independent variable in this
+    question is the adult unhoused population.
+  \item
+    \emph{Dependent Variable}: The dependent variable in this question
+    is the total syringes collected from NYC Parks and public safe
+    disposal sites.
+  \end{itemize}
+\end{itemize}
+
+It should be noted that these are large questions. Questions that are
+much more nuanced and complex than any single analysis can outline, so
+while this study seeks to demonstrate a correlation between varying
+dimensions of public policy implications, it is by no means an attempt
+at a solution. Rather, the study seeks to determine if there is an
+overlap between these issues using several sources of public data.
+
+\subsection{Data Sources}\label{data-sources}
+
+There are multiple data sources used in this study. Most, if not all,
+were sourced from \href{https://opendata.cityofnewyork.us/}{NYC Open
+Data} a website that provides a multitude of public data sets generated
+by New York City government agencies. The data used in this analysis
+were:
+
+\textbf{- Dataset 1:
+\href{https://data.cityofnewyork.us/Public-Safety/Summary-of-Syringe-Data-in-NYC-Parks/t8xi-d5wb/about_data}{NYC
+Parks Syringe Collection Data}}
+
+\emph{Overview \& Data Assumptions}
+
+This dataset is from the NYC Parks Department. NYC Parks department
+staff, along with the staff of various community non-profit
+organizations, collect used syringes discarded improperly in public
+parks and log the totals. These collection totals are grouped by each
+Parks District, which is an internal administrative geographic boundary
+for the New York City Parks Department. Each row of data is the
+equivalent of a day's total collection of syringes. Within this data set
+there are three total columns that outline the number of syringes
+collected. They are as follows:
+
+\begin{itemize}
+\item
+  Total Kiosk Syringes Collected: This is the total number of syringes
+  that are collected from the city's safe disposal kiosks.
+\item
+  Total Ground Syringes Collected: This is the total number of syringes
+  that are collected from the ground, or just generally found to be
+  improperly disposed of.
+\item
+  Total Syringes Collected: This is the total number of syringes from
+  both the ``ground'' category and the ``kiosk'' category.
+\end{itemize}
+
+This analysis makes use of the total ground syringes collected, not the
+kiosk or ground syringes. While assumptions could be made about housed
+and unhoused population's syringe disposal habits, the total number of
+syringes publicly disposed by either method should capture what is
+needed for this analysis.
+
+\emph{Source Format \& Ingestion Method}
+
+Sourced from CSV formatted files. The NYC Open Data API was used for
+iteratively ingesting this data from CSV structured formatting.
+
+\textbf{- Dataset 2:
+\href{https://data.cityofnewyork.us/Housing-Development/Housing-Database/6umk-irkx/about_data}{NYC
+Dept. City Planning Housing Database}}
+
+\emph{Overview \& Data Assumptions}
+
+This data is from the NYC Department of City Planning (DCP), the data
+contains information from the NYC Department of Buildings (DOB) for how
+many construction and demolition jobs are within a specific
+municipality-based geographies. For this analysis used at Community
+Districts for the main geographic boundary. The analysis leverages
+yearly counts of completed construction projects. The annual count data
+does not provide nuance between the three main types of construction
+projects included in the data (new buildings, major alterations, and
+demolitions), however, for the sake of this analysis, a larger number of
+projects is assumed to be targeted at enhancing living conditions and
+making new units available to the housing market. Annual counts from
+2010 through 2020 by Community District were used in varying relative
+5-year windows. How this was done is explained in detail within the
+methodology section.
+
+The original download is a zipfile with multiple geographies, for this
+analysis the Community District boundary was used.
+
+\emph{Source Format \& Ingestion Method}
+
+The data source was downloaded in a zipfile containing multiple csv
+files for various geographic boundaries, the data was extracted, and a
+singular csv file containing housing units by Community District was
+ingested for processing.
+
+\textbf{- Dataset 3:
+\href{https://data.cityofnewyork.us/City-Government/NYC-Parks-Districts/mebz-ditc/about_data}{NYC
+Parks Disticts}}
+
+\emph{Overview \& Data Assumptions}
+
+This data set contained both the NYC Parks Department districts and
+Community Districts within one file. This geography data was processed
+so as to flatten the number of Community Districts that were listed for
+each respective Parks District. For example, if one row of data for
+Parks District X listed overlaps with Community Districts A, B and C.
+These three districts, in the raw data, are listed in one cell. This
+data was parsed so that the one row was extracted into three different
+rows, having one row for each Community District associated with the
+Parks District. The data was essentially flattened long ways, the data
+was subsequently grouped to get a unique value count for Community
+Districts per Parks District. The processed table was used as a
+crosswalk to process the syringe numbers to obtain an estimate of
+syringe counts at the Community District level. As mentioned, the NYC
+Syringe Collection data only contained Parks districts, this crosswalk
+was joined into the syringe data in order to get syringe count estimates
+for Community Districts. This is discussed further in the methodology
+section.
+
+\emph{Source Format \& Ingestion Method}
+
+Read in directly from a single CSV URL.
+
+\textbf{- Dataset 4:
+\href{https://data.cityofnewyork.us/Social-Services/Individual-Census-by-Borough-Community-District-an/veav-vj3r/about_data}{NYC
+Dept. Homelessness Services Individual Census by Borough, Community
+District, and Facility Type}}
+
+\emph{Overview \& Data Assumptions}
+
+This dataset contains counts of individuals within the various types of
+shelters across New York City by community district for various
+reporting dates. The shelter types covered by this dataset include:
+
+\begin{itemize}
+\item
+  Adult Family (Commercial Hotel): The population of adults in makeshift
+  homeless shelters held within commercial hotels designated for adult
+  families (i.e.m married couples with no children, a family with no
+  children under the age of 21, or an unmarried couple who meets the DHS
+  definition of a family unit).
+\item
+  Adult Family Shelter: The population of adults in homeless shelters
+  designated for adult families (i.e.m married couples with no children,
+  a family with no children under the age of 21, or an unmarried couple
+  who meets the DHS definition of a family unit).
+\item
+  Adult Shelter: The population of adults in homeless shelters
+  designated for single unhoused adults.
+\item
+  Adult Shelter (Commercial Hotel): The population of adults in
+  makeshift homeless shelters held within commercial hotels designated
+  for single unhoused adults.
+\item
+  Family with Children (Commercial Hotel): The population of individuals
+  in makeshift homeless shelters held within commercial hotels
+  designated for families with children.
+\item
+  Family with Children Shelter: The population of individuals in
+  homeless shelters designated for families with children.
+\end{itemize}
+
+For the sake of this analysis, only those shelters categories with
+adult-only numbers were counted, the assumption being is that
+intravenous drug users would be adults and not families with children.
+This means that the totals for Adult Family (Commercial Hotel), Adult
+Family Shelter, Adult Shelter, and Adult Shelter (Commercial Hotel) were
+used in the analysis for homeless populations within a community
+district. Those columns that had counts for family-only specific counts
+were not used.
+
+\emph{Source Format \& Ingestion Method}
+
+Sourced from JSON formatted files. The NYC Open Data API was used for
+iteratively ingesting this data from JSON structured formatting.
+
+\subsection{Methodology}\label{methodology}
+
+After ingesting the various data sets through their respective means,
+the data was processed. Each data set needed a unique series of
+processing steps in order to yield the finalized version of the data
+ultimately included in this analysis.
+
+\paragraph{Syringe Data Processing}\label{syringe-data-processing}
+
+The Syringe data had totals for each park district on each date that the
+syringes were collected. For the sake of this analysis, the numbers were
+aggregated up to an annual collection total for each park district.
+Using the processed Community District to Park District crosswalk data,
+the final version of the crosswalk contained Community District, Parks
+District, and a count of distinct Community Districts for each parks
+district. The processed versions of both dfs were joined, and in order
+to yield an estimate for ground syringes recovered the Park District
+Syringe totals, which were native to the data, were divided by the
+number of community districts overlapping with each Parks District to
+generate a syringe estimate for each community district.
+
+\paragraph{Controlling for Varying
+Geographies}\label{controlling-for-varying-geographies}
+
+As mentioned, the incongruities of the geographic units between the
+Community District-based housing and homeless datasets and the NYC Parks
+District syringe collection data set mandated the raw syringe totals be
+processed to yield a syringe estimate for Community District. Community
+Districts are a city-wide administrative boundary associated with the
+city's community boards, while the parks districts are an internal NYC
+Parks Department administrative boundary. These two geographic
+boundaries do not have a 1:1 relationship with each other. There were
+instances of a singular community district overlapping with multiple
+parks districts, and vice versa. In order to approximate the number of
+syringes per community district, I simply divided the total number of
+syringes for each parks drastic by the total number of distinct
+Community Districts in each respective parks district. While this
+methodology is imperfect, the syringe collection data did not have
+Latitude and Longitude for each collected syringe or for specific
+collection sites, so a spatial join using shapefile geographies could
+not be completed.
+
+\paragraph{Housing Data}\label{housing-data}
+
+The housing data that was used was imported after downloading a zip file
+from 2023 Q4, and using one Community District-specific CSV from the
+batch of files. The CSV used contains annual counts fr the number of
+completed housing constructions projects fr each year from 2010 through
+2023 by community district. For this analysis the assumption was made
+that the number of syringes collected in an area, provided that syringe
+collection is impacted by new housing units, would be a lagging
+indicator. With this mindset, the number of completed housing
+construction projects in a community district for five years prior to
+the year the syringes were collected, was the aggregate version of
+housing numbers used for the analysis In other words, for each year in
+the syringe collection data, the preceding five years of construction
+jobs were summed up and the average Year-Over-Year change in
+construction jobs for those years were calculated. For instance, for the
+total number of estimated syringes collected for a Community District in
+2017, the metrics for housing-related construction jobs within that same
+community district would be the aggregate sum of all housing jobs from
+2011 through 2016, as well as the average Year-Over-Year change in
+housing jobs for those years. This aggregation into two main columns for
+each annually summed community district row allowed for the housing
+numbers to be joined with the Syringe Collection data.
+
+\paragraph{Homeless Population Data}\label{homeless-population-data}
+
+The Homeless shelter population data was pulled into the analysis in
+JSON format via NYC Open Data's API. To process this data the sum of the
+following columns were used as an estimate for the total number of
+unhoused adults: adult\_shelter, adult\_shelter\_comm\_hotel,
+adult\_family\_shelter,and adult\_family\_comm\_hotel. These columns
+were counts from various types of shelters throughout the city. The
+row-specific sums for these columns were then averaged for each
+community district on an annual basis, which was to control for multiple
+collections within a year. Once completed, the processed data was joined
+into the df that contained the syringes data and the housing
+construction data.
+
+\subsection{Ingestion}\label{ingestion}
+
+\paragraph{NYC Parks Syringe Collection
+Data}\label{nyc-parks-syringe-collection-data}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# API Intake; Documentation states there are 35,155 rows of data. Iterate through these numbers for API intake ( Limited to 1,000 row chunks)}
+\NormalTok{total\_srg\_rows }\OtherTok{\textless{}{-}} \DecValTok{35155} \CommentTok{\#Manually Checked on Site}
+\NormalTok{srg\_endpnt }\OtherTok{\textless{}{-}} \StringTok{"https://data.cityofnewyork.us/resource/t8xi{-}d5wb.csv"}
+\NormalTok{srg\_suffix }\OtherTok{\textless{}{-}} \StringTok{\textquotesingle{}?$offset=\textquotesingle{}}
+
+\DocumentationTok{\#\#Initial Pull}
+\NormalTok{initial\_pull }\OtherTok{\textless{}{-}} \FunctionTok{read.table}\NormalTok{(srg\_endpnt, }\AttributeTok{header =} \ConstantTok{TRUE}\NormalTok{, }\AttributeTok{sep =} \StringTok{","}\NormalTok{, }\AttributeTok{dec =} \StringTok{"."}\NormalTok{)}
+\NormalTok{offset }\OtherTok{\textless{}{-}}\FunctionTok{nrow}\NormalTok{(initial\_pull) }\CommentTok{\# Should be the length of the API chunk limit. (e.g., 1000 rows)}
+
+\DocumentationTok{\#\#Iteratting through all of the chunks \& Appending to empty DF}
+\NormalTok{running\_pulls }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{()}
+\ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \FunctionTok{seq}\NormalTok{(}\DecValTok{0}\NormalTok{, total\_srg\_rows, }\AttributeTok{by =}\NormalTok{ offset)) \{}
+  \ControlFlowTok{if}\NormalTok{ (i }\SpecialCharTok{==} \DecValTok{0}\NormalTok{)\{}
+    \ControlFlowTok{next}
+\NormalTok{  \}}
+\NormalTok{  interim\_endpoint }\OtherTok{\textless{}{-}} \FunctionTok{paste}\NormalTok{(srg\_endpnt,srg\_suffix,i,}\AttributeTok{sep =} \StringTok{""}\NormalTok{)}
+  \CommentTok{\# print(interim\_endpoint)}
+\NormalTok{  interim\_pull }\OtherTok{\textless{}{-}} \FunctionTok{read.table}\NormalTok{(interim\_endpoint, }\AttributeTok{header =} \ConstantTok{TRUE}\NormalTok{, }\AttributeTok{sep =} \StringTok{","}\NormalTok{, }\AttributeTok{dec =} \StringTok{"."}\NormalTok{)}
+\NormalTok{  running\_pulls }\OtherTok{\textless{}{-}} \FunctionTok{rbind}\NormalTok{(running\_pulls,interim\_pull)}
+\NormalTok{\}}
+
+\DocumentationTok{\#\#Putting all Srynge Pulls together }
+\NormalTok{raw\_syrg }\OtherTok{\textless{}{-}} \FunctionTok{rbind}\NormalTok{(initial\_pull,running\_pulls)}
+
+\DocumentationTok{\#\#confirming number of total rows}
+\CommentTok{\# print(nrow(initial\_pull))}
+\CommentTok{\# print(nrow(running\_pulls))}
+\CommentTok{\# print(nrow(raw\_syrg))}
+\end{Highlighting}
+\end{Shaded}
+
+\paragraph{NYC Dept. City Planning Housing
+Database}\label{nyc-dept.-city-planning-housing-database}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# Dataset 2: NYC DCP Housing Data (Broken Down by Multiple Geographic Area\textquotesingle{}s; Choosing Community District Breakdown)}
+
+\DocumentationTok{\#\#\# Downloading the 23Q4 CSV Zip File from the [DCP Wesbite](https://www.nyc.gov/site/planning/data{-}maps/open{-}data/dwn{-}housing{-}database.page\#housingdevelopmentproject).}
+\DocumentationTok{\#\#\# Selected "HousingDB\_by\_CommunityDistrict.csv" from zipped contents.}
+\FunctionTok{download.file}\NormalTok{(}\StringTok{"https://s{-}media.nyc.gov/agencies/dcp/assets/files/zip/data{-}tools/bytes/nychousingdb\_23q4\_csv.zip"}\NormalTok{,}
+              \AttributeTok{destfile =} \StringTok{"housing\_zip.zip"}\NormalTok{, }\AttributeTok{mode =} \StringTok{"wb"}\NormalTok{)}
+\FunctionTok{unzip}\NormalTok{(}\StringTok{"housing\_zip.zip"}\NormalTok{, }\AttributeTok{files =} \StringTok{"HousingDB\_by\_CommunityDistrict.csv"}\NormalTok{, }\AttributeTok{exdir =} \FunctionTok{tempdir}\NormalTok{())}
+\NormalTok{housing\_path }\OtherTok{\textless{}{-}} \FunctionTok{file.path}\NormalTok{(}\FunctionTok{tempdir}\NormalTok{(), }\StringTok{"HousingDB\_by\_CommunityDistrict.csv"}\NormalTok{)}
+\NormalTok{raw\_housing }\OtherTok{\textless{}{-}} \FunctionTok{read.table}\NormalTok{(housing\_path, }\AttributeTok{header =} \ConstantTok{TRUE}\NormalTok{, }\AttributeTok{sep =} \StringTok{","}\NormalTok{, }\AttributeTok{dec =} \StringTok{"."}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\paragraph{NYC Parks Disticts}\label{nyc-parks-disticts}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# Dataset 3: NYC Parks DIstricts to Community District Crosswalk (https://data.cityofnewyork.us/City{-}Government/NYC{-}Parks{-}Districts/mebz{-}ditc/about\_data)}
+\NormalTok{crsswlk}\OtherTok{\textless{}{-}} \FunctionTok{read.table}\NormalTok{(}\StringTok{"https://data.cityofnewyork.us/resource/mebz{-}ditc.csv"}\NormalTok{,}\AttributeTok{header =} \ConstantTok{TRUE}\NormalTok{, }\AttributeTok{sep =} \StringTok{","}\NormalTok{, }\AttributeTok{dec =} \StringTok{"."}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\paragraph{NYC Dept. Homelessness Services Individual Census by Borough,
+Community District, and Facility
+Type}\label{nyc-dept.-homelessness-services-individual-census-by-borough-community-district-and-facility-type}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# Pulling in Via JSON API }
+\CommentTok{\# Endpoint details}
+\NormalTok{total\_rows }\OtherTok{\textless{}{-}} \DecValTok{4325} \CommentTok{\#Manually found row count on site}
+\NormalTok{hmls\_endpnt }\OtherTok{\textless{}{-}} \StringTok{"https://data.cityofnewyork.us/resource/veav{-}vj3r.json"}
+\NormalTok{hmls\_suffix }\OtherTok{\textless{}{-}} \StringTok{"?$offset="}
+
+\CommentTok{\# Initial pull to determine chunk size}
+\NormalTok{initial\_pull }\OtherTok{\textless{}{-}} \FunctionTok{fromJSON}\NormalTok{(}\FunctionTok{paste0}\NormalTok{(hmls\_endpnt, hmls\_suffix, }\DecValTok{0}\NormalTok{)) }\CommentTok{\#Fetch the first chunk}
+
+\NormalTok{offset }\OtherTok{\textless{}{-}} \FunctionTok{nrow}\NormalTok{(initial\_pull) }\CommentTok{\# Number of rows in each chunk returned by the API}
+\ControlFlowTok{if}\NormalTok{ (}\FunctionTok{is.null}\NormalTok{(offset) }\SpecialCharTok{||}\NormalTok{ offset }\SpecialCharTok{==} \DecValTok{0}\NormalTok{) \{}
+  \FunctionTok{stop}\NormalTok{(}\StringTok{"Initial pull returned no rows. Check the API endpoint or offset logic."}\NormalTok{)}
+\NormalTok{\}}
+
+\CommentTok{\# List to store the chunks}
+\NormalTok{running\_pulls }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{()}
+\CommentTok{\# Loop through offsets to fetch all chunks}
+\ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \FunctionTok{seq}\NormalTok{(}\DecValTok{0}\NormalTok{, total\_rows, }\AttributeTok{by =}\NormalTok{ offset)) \{}
+  \CommentTok{\# Construct endpoint with offset}
+\NormalTok{  interim\_endpoint }\OtherTok{\textless{}{-}} \FunctionTok{paste0}\NormalTok{(hmls\_endpnt, hmls\_suffix, i)}
+  \CommentTok{\# print(paste("Fetching data from:", interim\_endpoint))}
+  
+  \CommentTok{\# Fetch data from the current offset}
+\NormalTok{  interim\_pull }\OtherTok{\textless{}{-}} \FunctionTok{fromJSON}\NormalTok{(interim\_endpoint)}
+  \DocumentationTok{\#\# Ensuring Zeros instead of nulls}
+\NormalTok{  interim\_pull[}\FunctionTok{is.na}\NormalTok{(interim\_pull)] }\OtherTok{\textless{}{-}} \DecValTok{0}
+  \DocumentationTok{\#\# Keeping the columns we want (Only Adult Counts)}
+\NormalTok{  interim\_pull}\OtherTok{\textless{}{-}}\NormalTok{interim\_pull[}\FunctionTok{c}\NormalTok{(}\StringTok{"report\_date"}\NormalTok{,}\StringTok{"borough"}\NormalTok{,}\StringTok{"community\_districts"}\NormalTok{,}\StringTok{"adult\_shelter"}\NormalTok{,}
+                 \StringTok{"adult\_shelter\_comm\_hotel"}\NormalTok{, }\StringTok{"adult\_family\_shelter"}\NormalTok{,}\StringTok{"adult\_family\_comm\_hotel"}\NormalTok{)]}
+  \CommentTok{\# Check if the pull is empty (no more rows)}
+  \ControlFlowTok{if}\NormalTok{ (}\FunctionTok{length}\NormalTok{(interim\_pull) }\SpecialCharTok{==} \DecValTok{0}\NormalTok{) \{}
+    \CommentTok{\# print("No more data to fetch.")}
+    \ControlFlowTok{break}
+\NormalTok{  \}}
+  
+  \CommentTok{\# Append the data to the list}
+\NormalTok{  running\_pulls[[}\FunctionTok{length}\NormalTok{(running\_pulls) }\SpecialCharTok{+} \DecValTok{1}\NormalTok{]] }\OtherTok{\textless{}{-}}\NormalTok{ interim\_pull}
+\NormalTok{\}}
+
+\CommentTok{\# Combine all fetched data into a single data frame}
+\NormalTok{raw\_hmls }\OtherTok{\textless{}{-}} \FunctionTok{do.call}\NormalTok{(rbind, running\_pulls)}
+
+\CommentTok{\# Confirming the total number of rows}
+ \CommentTok{\#print(paste("Total rows fetched:", nrow(raw\_hmls))) \#\# Shuld be4325}
+
+\DocumentationTok{\#\# Filling in Borough values based on Park District}
+\NormalTok{raw\_hmls\_processed}\OtherTok{\textless{}{-}}\NormalTok{ raw\_hmls }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{filter}\NormalTok{(borough}\SpecialCharTok{!=}\StringTok{"Westchester"}\NormalTok{)}\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{cd\_boro\_num =} \FunctionTok{case\_when}\NormalTok{(borough}\SpecialCharTok{==} \StringTok{"Bronx"}\SpecialCharTok{\textasciitilde{}} \StringTok{"2"}\NormalTok{,}
+\NormalTok{              borough}\SpecialCharTok{==} \StringTok{"Queens"} \SpecialCharTok{\textasciitilde{}}\StringTok{"4"}\NormalTok{,}
+\NormalTok{              borough}\SpecialCharTok{==} \StringTok{"Manhattan"} \SpecialCharTok{\textasciitilde{}}\StringTok{"1"}\NormalTok{,}
+\NormalTok{              borough}\SpecialCharTok{==} \StringTok{"Brooklyn"}\SpecialCharTok{\textasciitilde{}}\StringTok{"3"}\NormalTok{,}
+\NormalTok{              borough}\SpecialCharTok{==}\StringTok{"Staten Island"}\SpecialCharTok{\textasciitilde{}}\StringTok{"5"}\NormalTok{),}
+         \AttributeTok{padded\_cd =} \FunctionTok{str\_pad}\NormalTok{(community\_districts, }\AttributeTok{width =} \DecValTok{2}\NormalTok{, }\AttributeTok{side =} \StringTok{"left"}\NormalTok{, }\AttributeTok{pad =} \StringTok{"0"}\NormalTok{),}
+         \AttributeTok{data\_year =} \FunctionTok{year}\NormalTok{(}\FunctionTok{ymd\_hms}\NormalTok{(report\_date))) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{full\_community\_district =} \FunctionTok{paste0}\NormalTok{(cd\_boro\_num,padded\_cd))}
+
+
+\DocumentationTok{\#\# Data Type Conversion before Sum}
+\NormalTok{raw\_hmls\_processed[, }\FunctionTok{c}\NormalTok{(}\StringTok{"adult\_shelter"}\NormalTok{, }\StringTok{"adult\_shelter\_comm\_hotel"}\NormalTok{, }\StringTok{"adult\_family\_shelter"}\NormalTok{,}\StringTok{"adult\_family\_comm\_hotel"}\NormalTok{)] }\OtherTok{\textless{}{-}} \FunctionTok{lapply}\NormalTok{(raw\_hmls\_processed[, }\FunctionTok{c}\NormalTok{(}\StringTok{"adult\_shelter"}\NormalTok{, }\StringTok{"adult\_shelter\_comm\_hotel"}\NormalTok{, }\StringTok{"adult\_family\_shelter"}\NormalTok{,}\StringTok{"adult\_family\_comm\_hotel"}\NormalTok{)], }\ControlFlowTok{function}\NormalTok{(x) \{}
+  \FunctionTok{as.numeric}\NormalTok{(x)\})}
+
+\NormalTok{raw\_hmls\_processed}\SpecialCharTok{$}\NormalTok{AdultHomelessCount }\OtherTok{\textless{}{-}} \FunctionTok{rowSums}\NormalTok{(raw\_hmls\_processed[, }\FunctionTok{c}\NormalTok{(}\StringTok{"adult\_shelter"}\NormalTok{, }\StringTok{"adult\_shelter\_comm\_hotel"}\NormalTok{,}
+                                                        \StringTok{"adult\_family\_shelter"}\NormalTok{,}\StringTok{"adult\_family\_comm\_hotel"}\NormalTok{)])}
+\CommentTok{\# limiting to the columns needed}
+\NormalTok{raw\_hmls\_limited }\OtherTok{\textless{}{-}}\NormalTok{ raw\_hmls\_processed[,}\FunctionTok{c}\NormalTok{(}\StringTok{"data\_year"}\NormalTok{,}\StringTok{"borough"}\NormalTok{,}\StringTok{"full\_community\_district"}\NormalTok{,}\StringTok{"AdultHomelessCount"}\NormalTok{)]}
+\DocumentationTok{\#\# Grouping for a 1:1 value on year and CD, averaging th values where there are multple.}
+\NormalTok{hmls\_final }\OtherTok{\textless{}{-}}\NormalTok{ raw\_hmls\_limited }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{group\_by}\NormalTok{(data\_year,borough, full\_community\_district) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{summarise}\NormalTok{(}
+    \AttributeTok{avg\_homeless\_count =} \FunctionTok{mean}\NormalTok{(AdultHomelessCount, }\AttributeTok{na.rm=}\ConstantTok{TRUE}\NormalTok{) )}
+
+\NormalTok{hmls\_final}\OtherTok{\textless{}{-}}\NormalTok{hmls\_final }\SpecialCharTok{\%\textgreater{}\%}\NormalTok{ dplyr}\SpecialCharTok{::}\FunctionTok{rename}\NormalTok{(}\StringTok{"communitydistrict"}\OtherTok{=}\StringTok{"full\_community\_district"}\NormalTok{,}
+                                  \StringTok{"year"}\OtherTok{=}\StringTok{"data\_year"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\subsection{Processing}\label{processing}
+
+\paragraph{Starting with Syringe Data and Geographic
+Crosswalk}\label{starting-with-syringe-data-and-geographic-crosswalk}
+
+\emph{Flattening the crosswalk longways. Multiple Community District
+Values in for a singular Parks District Row. Once flattened, the table
+can be used to for Park Districts to Community Districts to enrich the
+Syringe Data with Community District.}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# Firstly, limiting to the columns i need.}
+\NormalTok{crsswlk\_lim }\OtherTok{\textless{}{-}}\NormalTok{ crsswlk[,}\FunctionTok{c}\NormalTok{(}\StringTok{"borough"}\NormalTok{,}\StringTok{"communityboard"}\NormalTok{,}\StringTok{"parkdistrict"}\NormalTok{)] }
+
+\DocumentationTok{\#\# The NYC Parks DIstricts are not the same (1:1) as the Community Districts. Multiple community Districts for each park district. Need to flatten.}
+\NormalTok{crsswlk\_parsed }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{()}
+\ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\FunctionTok{nrow}\NormalTok{(crsswlk\_lim)) \{}
+\NormalTok{  row }\OtherTok{\textless{}{-}}\NormalTok{ crsswlk\_lim[i, ]}
+\NormalTok{  cd\_raw\_char }\OtherTok{\textless{}{-}} \FunctionTok{as.character}\NormalTok{(row}\SpecialCharTok{$}\NormalTok{communityboard)}
+\NormalTok{  split\_values }\OtherTok{\textless{}{-}} \FunctionTok{substring}\NormalTok{(cd\_raw\_char, }\FunctionTok{seq}\NormalTok{(}\DecValTok{1}\NormalTok{, }\FunctionTok{nchar}\NormalTok{(cd\_raw\_char), }\DecValTok{3}\NormalTok{), }\FunctionTok{seq}\NormalTok{(}\DecValTok{3}\NormalTok{, }\FunctionTok{nchar}\NormalTok{(cd\_raw\_char), }\DecValTok{3}\NormalTok{))}
+
+\NormalTok{  expanded\_df }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}
+    \AttributeTok{communitydistrict =}\NormalTok{ split\_values,}
+    \AttributeTok{parkdistrict =}\NormalTok{ row}\SpecialCharTok{$}\NormalTok{parkdistrict,}
+    \AttributeTok{brough =}\NormalTok{ row}\SpecialCharTok{$}\NormalTok{borough}
+\NormalTok{  )}
+\NormalTok{  crsswlk\_parsed }\OtherTok{\textless{}{-}} \FunctionTok{rbind}\NormalTok{(crsswlk\_parsed, expanded\_df)\}}
+
+\CommentTok{\# Sorting DF}
+\NormalTok{crsswlk\_parsed }\OtherTok{\textless{}{-}}\NormalTok{ crsswlk\_parsed }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{arrange}\NormalTok{(communitydistrict)}
+\end{Highlighting}
+\end{Shaded}
+
+\emph{Grouping Data to get Total Counts of Community District per Parks
+District}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# Getting Denominator for Aggregate Park District Syringe Totals; The number of Community Districts within each Park District. }
+\NormalTok{crsswlk\_div\_num\_cd }\OtherTok{\textless{}{-}}\NormalTok{ crsswlk\_parsed }\SpecialCharTok{\%\textgreater{}\%} 
+                    \FunctionTok{group\_by}\NormalTok{(parkdistrict) }\SpecialCharTok{\%\textgreater{}\%}
+                    \FunctionTok{summarise}\NormalTok{(}\AttributeTok{cd\_count\_for\_pd =} \FunctionTok{n\_distinct}\NormalTok{(communitydistrict))}
+
+\DocumentationTok{\#\# Crosswalk Final; CD Counts added, and data grouped. }
+\NormalTok{crosswalk\_final }\OtherTok{\textless{}{-}} \FunctionTok{merge}\NormalTok{(crsswlk\_parsed,crsswlk\_div\_num\_cd, }\AttributeTok{by =} \StringTok{"parkdistrict"}\NormalTok{, }\AttributeTok{all =} \ConstantTok{FALSE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\emph{Further Cleaning, Null Removal, and Limiting to what is Needed}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# Removing those entries that have no value for a park district }
+\CommentTok{\# print(nrow(raw\_syrg)) \#35,155}
+\NormalTok{syringe\_lim }\OtherTok{\textless{}{-}}\NormalTok{ raw\_syrg }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(district }\SpecialCharTok{!=} \StringTok{""}\NormalTok{) }
+
+\DocumentationTok{\#\# Filling in Borough values based on Park District}
+\NormalTok{syringe\_lim}\OtherTok{\textless{}{-}}\NormalTok{ syringe\_lim }\SpecialCharTok{\%\textgreater{}\%}
+ \FunctionTok{mutate}\NormalTok{(}\AttributeTok{borough =} \FunctionTok{ifelse}\NormalTok{(}
+\NormalTok{    borough }\SpecialCharTok{==} \StringTok{""}\NormalTok{,  }\CommentTok{\# Check if \textasciigrave{}category\textasciigrave{} is blank}
+    \FunctionTok{case\_when}\NormalTok{(}
+      \FunctionTok{substr}\NormalTok{(district, }\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{) }\SpecialCharTok{==} \StringTok{"X"} \SpecialCharTok{\textasciitilde{}} \StringTok{"Bronx"}\NormalTok{,}
+      \FunctionTok{substr}\NormalTok{(district, }\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{) }\SpecialCharTok{==} \StringTok{"M"} \SpecialCharTok{\textasciitilde{}} \StringTok{"Manhattan"}\NormalTok{,}
+      \FunctionTok{substr}\NormalTok{(district, }\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{) }\SpecialCharTok{==} \StringTok{"Q"} \SpecialCharTok{\textasciitilde{}} \StringTok{"Queens"}\NormalTok{,}
+      \FunctionTok{substr}\NormalTok{(district, }\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{) }\SpecialCharTok{==} \StringTok{"B"} \SpecialCharTok{\textasciitilde{}} \StringTok{"Brooklyn"}\NormalTok{,}
+      \FunctionTok{substr}\NormalTok{(district, }\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{) }\SpecialCharTok{==} \StringTok{"R"} \SpecialCharTok{\textasciitilde{}} \StringTok{"Staten Island"}\NormalTok{,}
+\NormalTok{    ),}
+\NormalTok{    borough}
+\NormalTok{  ))}
+
+\CommentTok{\#print(nrow(syringe\_lim)) \#35,060 (95 Rows Removed)}
+
+\DocumentationTok{\#\#\# Limiting the raw syringe data to the columns i need for my analysis}
+\NormalTok{syringe\_lim }\OtherTok{\textless{}{-}}\NormalTok{ syringe\_lim[,}\FunctionTok{c}\NormalTok{(}\StringTok{"year"}\NormalTok{,}\StringTok{"group"}\NormalTok{,}\StringTok{"location"}\NormalTok{,}\StringTok{"borough"}\NormalTok{,}\StringTok{"district"}\NormalTok{,}\StringTok{"property\_type"}\NormalTok{,}\StringTok{"ground\_syringes"}\NormalTok{,}\StringTok{"kiosk\_syringes"}\NormalTok{,}\StringTok{"total\_syringes"}\NormalTok{)]}
+\end{Highlighting}
+\end{Shaded}
+
+\emph{Syringe Approximation by Community District}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{syringe\_grouped }\OtherTok{\textless{}{-}}\NormalTok{ syringe\_lim }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{group\_by}\NormalTok{(year,borough, district) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{summarise}\NormalTok{(}
+    \AttributeTok{total\_syringes =} \FunctionTok{sum}\NormalTok{(total\_syringes, }\AttributeTok{na.rm=}\ConstantTok{TRUE}\NormalTok{),}
+    \AttributeTok{ground\_syringes=} \FunctionTok{sum}\NormalTok{(ground\_syringes, }\AttributeTok{na.rm=}\ConstantTok{TRUE}\NormalTok{)}
+\NormalTok{  )}
+\CommentTok{\# print(head(syringe\_grouped))}
+
+\CommentTok{\#renaming columns as needed }
+\NormalTok{syringe\_grouped }\OtherTok{\textless{}{-}}\NormalTok{ syringe\_grouped }\SpecialCharTok{\%\textgreater{}\%}\NormalTok{ dplyr}\SpecialCharTok{::}\FunctionTok{rename}\NormalTok{(}\AttributeTok{parkdistrict =}\NormalTok{ district)}
+
+\DocumentationTok{\#\# Looking at min and max years}
+\CommentTok{\# print(min(syringe\_grouped$year))\#2017}
+\CommentTok{\# print(max(syringe\_grouped$year))\#2024}
+
+\NormalTok{syringe\_grouped\_enr }\OtherTok{\textless{}{-}} \FunctionTok{merge}\NormalTok{(syringe\_grouped, crosswalk\_final, }\AttributeTok{by =} \StringTok{"parkdistrict"}\NormalTok{, }\AttributeTok{all =} \ConstantTok{FALSE}\NormalTok{)}
+\NormalTok{syringe\_massaged }\OtherTok{\textless{}{-}}\NormalTok{ syringe\_grouped\_enr }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{mutate}\NormalTok{(}\AttributeTok{ttl\_syring\_est\_interim =}\NormalTok{  total\_syringes }\SpecialCharTok{/}\NormalTok{ cd\_count\_for\_pd)}
+
+\NormalTok{syringe\_final }\OtherTok{\textless{}{-}}\NormalTok{ syringe\_massaged }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{group\_by}\NormalTok{(year,borough,communitydistrict) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{summarise}\NormalTok{(}\AttributeTok{total\_syringe\_ests =} \FunctionTok{sum}\NormalTok{(ttl\_syring\_est\_interim, }\AttributeTok{na.rm=}\ConstantTok{TRUE}\NormalTok{) )}
+\end{Highlighting}
+\end{Shaded}
+
+\paragraph{Starting with Housing Data}\label{starting-with-housing-data}
+
+\emph{Summarizing data for total new Units by CD from the DOB for
+various rolling 5 years periods for each of the years within the syringe
+data}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# Limiting Columns for is needed for analysis}
+\NormalTok{raw\_housing}\OtherTok{\textless{}{-}}\NormalTok{raw\_housing[,}\FunctionTok{c}\NormalTok{(}\StringTok{"commntydst"}\NormalTok{,}\StringTok{"comp2010"}\NormalTok{,}\StringTok{"comp2011"}\NormalTok{,}\StringTok{"comp2012"}\NormalTok{,}\StringTok{"comp2013"}\NormalTok{,}\StringTok{"comp2014"}\NormalTok{,}\StringTok{"comp2015"}\NormalTok{,}\StringTok{"comp2016"}\NormalTok{,}\StringTok{"comp2017"}\NormalTok{,}
+               \StringTok{"comp2018"}\NormalTok{,}\StringTok{"comp2019"}\NormalTok{,}\StringTok{"comp2020"}\NormalTok{,}\StringTok{"comp2021"}\NormalTok{,}\StringTok{"comp2022"}\NormalTok{,}\StringTok{"comp2023"}\NormalTok{)]}
+
+\DocumentationTok{\#\# Summarizing data for totals for various rolling 5 years periods for each of the years within the syringe data}
+\DocumentationTok{\#\#\#Syringe Rolling Years}
+\NormalTok{housing\_agg\_df }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{()}
+\ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\FunctionTok{nrow}\NormalTok{(syringe\_grouped)) \{}
+\NormalTok{  row }\OtherTok{\textless{}{-}}\NormalTok{ syringe\_grouped[i, ]}
+  \CommentTok{\# row$year}
+\NormalTok{  year\_range }\OtherTok{\textless{}{-}} \FunctionTok{as.character}\NormalTok{(}\FunctionTok{as.integer}\NormalTok{(}\FunctionTok{seq}\NormalTok{(}\AttributeTok{from =}\NormalTok{ (row}\SpecialCharTok{$}\NormalTok{year}\DecValTok{{-}5}\NormalTok{), }\AttributeTok{to =}\NormalTok{ (row}\SpecialCharTok{$}\NormalTok{year}\DecValTok{{-}1}\NormalTok{), }\AttributeTok{length.out =} \DecValTok{5}\NormalTok{)))}
+  \CommentTok{\# print(year\_range)}
+\NormalTok{  temp\_housing }\OtherTok{\textless{}{-}}\NormalTok{ raw\_housing[,}\FunctionTok{c}\NormalTok{(}
+                                 \StringTok{"commntydst"}\NormalTok{,}
+                                 \FunctionTok{glue}\NormalTok{(}\StringTok{"comp\{year\_range[1]\}"}\NormalTok{),}
+                                 \FunctionTok{glue}\NormalTok{(}\StringTok{"comp\{year\_range[2]\}"}\NormalTok{),}
+                                 \FunctionTok{glue}\NormalTok{(}\StringTok{"comp\{year\_range[3]\}"}\NormalTok{),}
+                                 \FunctionTok{glue}\NormalTok{(}\StringTok{"comp\{year\_range[4]\}"}\NormalTok{),}
+                                 \FunctionTok{glue}\NormalTok{(}\StringTok{"comp\{year\_range[5]\}"}\NormalTok{))]}
+\NormalTok{  temp\_housing}\SpecialCharTok{$}\NormalTok{syringe\_yr }\OtherTok{\textless{}{-}}\NormalTok{row}\SpecialCharTok{$}\NormalTok{year}
+\NormalTok{  temp\_housing }\OtherTok{\textless{}{-}}\NormalTok{ temp\_housing }\SpecialCharTok{\%\textgreater{}\%}\NormalTok{ dplyr}\SpecialCharTok{::}\FunctionTok{rename}\NormalTok{(}\StringTok{"comp\_yr1"} \OtherTok{=} \FunctionTok{glue}\NormalTok{(}\StringTok{"comp\{year\_range[1]\}"}\NormalTok{),}
+                                          \StringTok{"comp\_yr2"} \OtherTok{=} \FunctionTok{glue}\NormalTok{(}\StringTok{"comp\{year\_range[2]\}"}\NormalTok{),}
+                                          \StringTok{"comp\_yr3"} \OtherTok{=} \FunctionTok{glue}\NormalTok{(}\StringTok{"comp\{year\_range[3]\}"}\NormalTok{),}
+                                          \StringTok{"comp\_yr4"} \OtherTok{=} \FunctionTok{glue}\NormalTok{(}\StringTok{"comp\{year\_range[4]\}"}\NormalTok{),}
+                                          \StringTok{"comp\_yr5"} \OtherTok{=} \FunctionTok{glue}\NormalTok{(}\StringTok{"comp\{year\_range[5]\}"}\NormalTok{))}
+\NormalTok{  housing\_agg\_df }\OtherTok{\textless{}{-}} \FunctionTok{rbind}\NormalTok{(housing\_agg\_df, temp\_housing)}
+\NormalTok{\}}
+
+\CommentTok{\#Looking at result}
+\CommentTok{\#print(head(housing\_agg\_df))}
+
+\CommentTok{\# Relative Yearly Sums for individual years within 5 yr window}
+\NormalTok{housing\_sums }\OtherTok{\textless{}{-}}\NormalTok{ housing\_agg\_df }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{housingsum =}\NormalTok{ comp\_yr1 }\SpecialCharTok{+}\NormalTok{ comp\_yr2 }\SpecialCharTok{+}\NormalTok{ comp\_yr3 }\SpecialCharTok{+}\NormalTok{ comp\_yr4 }\SpecialCharTok{+}\NormalTok{ comp\_yr5,}
+    \AttributeTok{yoy\_yr2 =} \FunctionTok{ifelse}\NormalTok{(comp\_yr1 }\SpecialCharTok{==} \DecValTok{0}\NormalTok{, }\ConstantTok{NA}\NormalTok{, (comp\_yr2 }\SpecialCharTok{{-}}\NormalTok{ comp\_yr1) }\SpecialCharTok{/}\NormalTok{ comp\_yr1 }\SpecialCharTok{*} \DecValTok{100}\NormalTok{),}
+    \AttributeTok{yoy\_yr3 =} \FunctionTok{ifelse}\NormalTok{(comp\_yr2 }\SpecialCharTok{==} \DecValTok{0}\NormalTok{, }\ConstantTok{NA}\NormalTok{, (comp\_yr3 }\SpecialCharTok{{-}}\NormalTok{ comp\_yr2) }\SpecialCharTok{/}\NormalTok{ comp\_yr2 }\SpecialCharTok{*} \DecValTok{100}\NormalTok{),}
+    \AttributeTok{yoy\_yr4 =} \FunctionTok{ifelse}\NormalTok{(comp\_yr3 }\SpecialCharTok{==} \DecValTok{0}\NormalTok{, }\ConstantTok{NA}\NormalTok{, (comp\_yr4 }\SpecialCharTok{{-}}\NormalTok{ comp\_yr3) }\SpecialCharTok{/}\NormalTok{ comp\_yr3 }\SpecialCharTok{*} \DecValTok{100}\NormalTok{),}
+    \AttributeTok{yoy\_yr5 =} \FunctionTok{ifelse}\NormalTok{(comp\_yr4 }\SpecialCharTok{==} \DecValTok{0}\NormalTok{, }\ConstantTok{NA}\NormalTok{, (comp\_yr5 }\SpecialCharTok{{-}}\NormalTok{ comp\_yr4) }\SpecialCharTok{/}\NormalTok{ comp\_yr4 }\SpecialCharTok{*} \DecValTok{100}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}
+    \AttributeTok{avg\_yoy\_change =} \FunctionTok{rowMeans}\NormalTok{(}\FunctionTok{select}\NormalTok{(., yoy\_yr2, yoy\_yr3, yoy\_yr4, yoy\_yr5), }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{)}
+\NormalTok{  )}
+
+\NormalTok{housing\_final }\OtherTok{\textless{}{-}}\NormalTok{housing\_sums[,}\FunctionTok{c}\NormalTok{(}\StringTok{"syringe\_yr"}\NormalTok{,}\StringTok{"commntydst"}\NormalTok{,}\StringTok{"housingsum"}\NormalTok{,}\StringTok{"avg\_yoy\_change"}\NormalTok{)] }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{                dplyr}\SpecialCharTok{::}\FunctionTok{rename}\NormalTok{(}\StringTok{"communitydistrict"}\OtherTok{=}\StringTok{"commntydst"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\paragraph{Putting it all Together; the Final
+DF}\label{putting-it-all-together-the-final-df}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# Joining in the homeless data to the syringe data (full join for maps. Will limit for regressions later.)}
+\NormalTok{syringe\_homeless\_fnl}\OtherTok{\textless{}{-}}\FunctionTok{merge}\NormalTok{(syringe\_final,hmls\_final, }\AttributeTok{by =} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}year\textquotesingle{}}\NormalTok{,}\StringTok{"borough"}\NormalTok{,}\StringTok{"communitydistrict"}\NormalTok{), }\AttributeTok{all =} \ConstantTok{TRUE}\NormalTok{)}
+
+\NormalTok{housing\_final\_join }\OtherTok{\textless{}{-}}\NormalTok{housing\_final }\SpecialCharTok{\%\textgreater{}\%}\NormalTok{ dplyr}\SpecialCharTok{::}\FunctionTok{rename}\NormalTok{(}\StringTok{"year"}\OtherTok{=}\StringTok{"syringe\_yr"}\NormalTok{)}
+
+\CommentTok{\# checking data types }
+\NormalTok{syringe\_homeless\_fnl}\SpecialCharTok{$}\NormalTok{year }\OtherTok{\textless{}{-}} \FunctionTok{as.integer}\NormalTok{(syringe\_homeless\_fnl}\SpecialCharTok{$}\NormalTok{year)}
+\NormalTok{syringe\_homeless\_fnl}\SpecialCharTok{$}\NormalTok{communitydistrict }\OtherTok{\textless{}{-}} \FunctionTok{as.integer}\NormalTok{(syringe\_homeless\_fnl}\SpecialCharTok{$}\NormalTok{communitydistrict)}
+\NormalTok{housing\_final\_join}\SpecialCharTok{$}\NormalTok{year }\OtherTok{\textless{}{-}} \FunctionTok{as.integer}\NormalTok{(housing\_final\_join}\SpecialCharTok{$}\NormalTok{year)}
+\NormalTok{housing\_final\_join}\SpecialCharTok{$}\NormalTok{communitydistrict }\OtherTok{\textless{}{-}} \FunctionTok{as.integer}\NormalTok{(housing\_final\_join}\SpecialCharTok{$}\NormalTok{communitydistrict)}
+
+\NormalTok{housing\_syringe\_df }\OtherTok{\textless{}{-}} \FunctionTok{merge}\NormalTok{(syringe\_homeless\_fnl, }
+\NormalTok{                           housing\_final\_join, }
+                           \AttributeTok{by=} \FunctionTok{c}\NormalTok{(}\StringTok{"year"}\NormalTok{,}\StringTok{"communitydistrict"}\NormalTok{),}\AttributeTok{all=}\ConstantTok{TRUE}\NormalTok{)}
+
+\NormalTok{housing\_syringe\_df}\OtherTok{\textless{}{-}}\NormalTok{housing\_syringe\_df}\SpecialCharTok{\%\textgreater{}\%}\FunctionTok{distinct}\NormalTok{()}
+
+\NormalTok{data\_final }\OtherTok{\textless{}{-}}\NormalTok{ housing\_syringe\_df[,}\FunctionTok{c}\NormalTok{(}\StringTok{"year"}\NormalTok{,}\StringTok{"borough"}\NormalTok{,}\StringTok{"communitydistrict"}\NormalTok{,}
+                                    \StringTok{"total\_syringe\_ests"}\NormalTok{,}\StringTok{"avg\_homeless\_count"}\NormalTok{,}
+                                    \StringTok{"housingsum"}\NormalTok{,}\StringTok{"avg\_yoy\_change"}\NormalTok{)]}\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{rename}\NormalTok{(}\StringTok{"prev5\_avg\_yoy\_change"}\OtherTok{=}\StringTok{"avg\_yoy\_change"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\subsection{Analysis}\label{analysis}
+
+Firstly, let's take a look at the data itself and see what the processed
+data shows us about these three dimensions of data.
+
+\subsubsection{Basic Summary Statistics}\label{basic-summary-statistics}
+
+\textbf{SUmmary for Syringes}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{print}\NormalTok{(}\FunctionTok{summary}\NormalTok{(data\_final}\SpecialCharTok{$}\NormalTok{total\_syringe\_ests))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##     Min.  1st Qu.   Median     Mean  3rd Qu.     Max.     NA's 
+##      0.5      7.0     55.0   4875.9   1540.8 101547.0      374
+\end{verbatim}
+
+\textbf{Summary for Avg. Homeless}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{print}\NormalTok{(}\FunctionTok{summary}\NormalTok{(data\_final}\SpecialCharTok{$}\NormalTok{avg\_homeless\_count))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+##    0.00   35.33  290.92  364.35  583.70 1681.44     157
+\end{verbatim}
+
+\textbf{Summary for Housing Sum}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{print}\NormalTok{(}\FunctionTok{summary}\NormalTok{(data\_final}\SpecialCharTok{$}\NormalTok{housingsum))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##  -194.0   273.0   877.5  1624.7  2174.5 10451.0
+\end{verbatim}
+
+\textbf{Summary for Housing YOY Change}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{print}\NormalTok{(}\FunctionTok{summary}\NormalTok{(data\_final}\SpecialCharTok{$}\NormalTok{prev5\_avg\_yoy\_change))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##      Min.   1st Qu.    Median      Mean   3rd Qu.      Max.      NA's 
+## -2973.248     4.368    38.269   232.867   110.634 22137.460        97
+\end{verbatim}
+
+\subsubsection{Histograms for
+Distributions}\label{histograms-for-distributions}
+
+\textbf{Syringe Data}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(data\_final, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ total\_syringe\_ests)) }\SpecialCharTok{+} \FunctionTok{geom\_histogram}\NormalTok{(}\AttributeTok{binwidth =} \DecValTok{2000}\NormalTok{)}\SpecialCharTok{+} \FunctionTok{xlab}\NormalTok{(}\StringTok{"Est. Total Syringe Collected"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{FinalProject_JohnFerrara_files/figure-latex/hist_dist1a-1.pdf}}
+Has a floor at Zero, cant have negative Syringes. Log Transform Needed.
+
+\textbf{Logged Syringe Data}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(data\_final, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =} \FunctionTok{log}\NormalTok{(total\_syringe\_ests}\SpecialCharTok{+}\DecValTok{1}\NormalTok{))) }\SpecialCharTok{+} \FunctionTok{geom\_histogram}\NormalTok{(}\AttributeTok{binwidth =} \DecValTok{1}\NormalTok{) }\SpecialCharTok{+} \FunctionTok{xlab}\NormalTok{(}\StringTok{"Logged Est. Total Syringe Collected"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{FinalProject_JohnFerrara_files/figure-latex/hist_dist1b-1.pdf}}
+Looks better than original.
+
+\textbf{Adult Homeless Population}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(data\_final, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ avg\_homeless\_count)) }\SpecialCharTok{+} \FunctionTok{geom\_histogram}\NormalTok{(}\AttributeTok{binwidth =} \DecValTok{200}\NormalTok{)}\SpecialCharTok{+} \FunctionTok{xlab}\NormalTok{(}\StringTok{"Avg. Annual Adult Homeless Population"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{FinalProject_JohnFerrara_files/figure-latex/hist_dist2a-1.pdf}}
+Has a floor at zero b/c cant have negative people. Log Transform needed.
+
+\textbf{Logged Adult Homeless Population}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(data\_final, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =} \FunctionTok{log}\NormalTok{(avg\_homeless\_count}\SpecialCharTok{+}\DecValTok{1}\NormalTok{))) }\SpecialCharTok{+} \FunctionTok{geom\_histogram}\NormalTok{(}\AttributeTok{binwidth =} \DecValTok{1}\NormalTok{)}\SpecialCharTok{+}\FunctionTok{xlab}\NormalTok{(}\StringTok{"Logged Avg. Annual Adult Homeless Population"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{FinalProject_JohnFerrara_files/figure-latex/hist_dist2b-1.pdf}}
+Looks better.
+
+\textbf{Total 5 Yr Completed Construction Projects}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(data\_final, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ housingsum)) }\SpecialCharTok{+} \FunctionTok{geom\_histogram}\NormalTok{(}\AttributeTok{binwidth =} \DecValTok{200}\NormalTok{) }\SpecialCharTok{+} \FunctionTok{xlab}\NormalTok{(}\StringTok{"Total 5 Yr Completed Construction Projects"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{FinalProject_JohnFerrara_files/figure-latex/hist_dist3a-1.pdf}}
+Has clustering at zero, trying Log Transform.
+
+\textbf{Logged Total 5 Yr Completed Construction Projects}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(data\_final, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =} \FunctionTok{log}\NormalTok{(housingsum}\SpecialCharTok{+}\DecValTok{1}\NormalTok{))) }\SpecialCharTok{+} \FunctionTok{geom\_histogram}\NormalTok{(}\AttributeTok{binwidth =} \DecValTok{1}\NormalTok{) }\SpecialCharTok{+} \FunctionTok{xlab}\NormalTok{(}\StringTok{"Logged Total 5 Yr Completed Construction Projects"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{FinalProject_JohnFerrara_files/figure-latex/hist_dist3b-1.pdf}}
+Still high count at 0, best I can do.
+
+\textbf{Avg. 5 Yr YOY Pct. Change in Completed Construction Projects}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(data\_final, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ prev5\_avg\_yoy\_change)) }\SpecialCharTok{+} \FunctionTok{geom\_histogram}\NormalTok{(}\AttributeTok{binwidth =} \DecValTok{500}\NormalTok{)}\SpecialCharTok{+}\FunctionTok{xlab}\NormalTok{(}\StringTok{"Avg. 5 Yr YOY Pct. Change in Completed Construction Projects"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{FinalProject_JohnFerrara_files/figure-latex/hist_dist4a-1.pdf}}
+
+Checking the log distribution.
+
+\textbf{Logged Avg. 5 Yr YOY Pct. Change in Completed Construction
+Projects}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(data\_final, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =} \FunctionTok{log}\NormalTok{(prev5\_avg\_yoy\_change}\SpecialCharTok{+}\DecValTok{1}\NormalTok{))) }\SpecialCharTok{+} \FunctionTok{geom\_histogram}\NormalTok{(}\AttributeTok{binwidth =} \DecValTok{1}\NormalTok{) }\SpecialCharTok{+}\FunctionTok{xlab}\NormalTok{(}\StringTok{"Logged Avg. 5 Yr YOY Pct. Change in Completed Construction Projects"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{FinalProject_JohnFerrara_files/figure-latex/hist_dist4b-1.pdf}}
+Log looks better for nor. dist.
+
+After taking a look at the histograms for each of these variables that I
+want to analyze, because of the zero floors for several of them and the
+original distributions, Log transformations provide a more normal
+distribution to analyze. I will use the log transformations in
+regressions.
+
+\subsubsection{Prepping for Map Visuals}\label{prepping-for-map-visuals}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# Dealing with GeoJSON file in order to map data by Community District}
+\NormalTok{cd\_geojson }\OtherTok{\textless{}{-}} \FunctionTok{tempfile}\NormalTok{(}\AttributeTok{fileext =} \StringTok{".geojson"}\NormalTok{)}
+\FunctionTok{download.file}\NormalTok{(}\StringTok{"https://data.cityofnewyork.us/api/geospatial/yfnk{-}k7r4?method=export\&format=GeoJSON"}\NormalTok{,}
+\NormalTok{              cd\_geojson)}
+\DocumentationTok{\#\# Formatting the Community DIstrict Shapefile as needed to join with the final df.}
+\NormalTok{cd\_sf }\OtherTok{\textless{}{-}} \FunctionTok{read\_sf}\NormalTok{(cd\_geojson)}
+\NormalTok{cd\_sf }\OtherTok{\textless{}{-}}\NormalTok{ cd\_sf }\SpecialCharTok{\%\textgreater{}\%}\NormalTok{ dplyr}\SpecialCharTok{::}\FunctionTok{rename}\NormalTok{(}\StringTok{"communitydistrict"}\OtherTok{=}\StringTok{"boro\_cd"}\NormalTok{)}
+\NormalTok{cd\_sf}\SpecialCharTok{$}\NormalTok{communitydistrict }\OtherTok{\textless{}{-}} \FunctionTok{as.integer}\NormalTok{(cd\_sf}\SpecialCharTok{$}\NormalTok{communitydistrict)}
+
+\DocumentationTok{\#\#\# Looping through all the years in the "data\_final" df to do the join for geom, to keep the blank geoms needed for full map}
+\NormalTok{adjusted\_geom }\OtherTok{=} \FunctionTok{data.frame}\NormalTok{()}
+\ControlFlowTok{for}\NormalTok{ (y }\ControlFlowTok{in} \FunctionTok{unique}\NormalTok{(data\_final}\SpecialCharTok{$}\NormalTok{year))\{}
+\NormalTok{  lim\_data }\OtherTok{\textless{}{-}}\NormalTok{data\_final }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(year}\SpecialCharTok{==}\NormalTok{y)}
+  \CommentTok{\# print(length(unique(lim\_data$communitydistrict)))}
+  \CommentTok{\# Left Joining for each year, so we have Geom for all CD, even if not in the data.}
+\NormalTok{  temp\_df }\OtherTok{\textless{}{-}}\NormalTok{ cd\_sf }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{left\_join}\NormalTok{(lim\_data, }\AttributeTok{by =} \StringTok{"communitydistrict"}\NormalTok{)}
+\NormalTok{  temp\_df}\SpecialCharTok{$}\NormalTok{year }\OtherTok{\textless{}{-}}\NormalTok{ y}
+\NormalTok{  adjusted\_geom}\OtherTok{\textless{}{-}}\FunctionTok{rbind}\NormalTok{(adjusted\_geom,temp\_df)}
+\NormalTok{\}}
+
+\CommentTok{\#Ensuring the borough Values arent null for those CD that are not in the Housing/Syringe Data}
+\NormalTok{adjusted\_geom }\OtherTok{\textless{}{-}}\NormalTok{ adjusted\_geom }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{mutate}\NormalTok{(}\AttributeTok{borough =} \FunctionTok{ifelse}\NormalTok{(}\FunctionTok{is.na}\NormalTok{(borough),}
+                                    \FunctionTok{case\_when}\NormalTok{(}
+                                      \FunctionTok{substr}\NormalTok{(}\FunctionTok{as.character}\NormalTok{(communitydistrict), }\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{) }\SpecialCharTok{==} \StringTok{"2"} \SpecialCharTok{\textasciitilde{}} \StringTok{"Bronx"}\NormalTok{,}
+                                      \FunctionTok{substr}\NormalTok{(}\FunctionTok{as.character}\NormalTok{(communitydistrict), }\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{) }\SpecialCharTok{==} \StringTok{"1"} \SpecialCharTok{\textasciitilde{}} \StringTok{"Manhattan"}\NormalTok{,}
+                                      \FunctionTok{substr}\NormalTok{(}\FunctionTok{as.character}\NormalTok{(communitydistrict), }\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{) }\SpecialCharTok{==} \StringTok{"4"} \SpecialCharTok{\textasciitilde{}} \StringTok{"Queens"}\NormalTok{,}
+                                      \FunctionTok{substr}\NormalTok{(}\FunctionTok{as.character}\NormalTok{(communitydistrict), }\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{) }\SpecialCharTok{==} \StringTok{"3"} \SpecialCharTok{\textasciitilde{}} \StringTok{"Brooklyn"}\NormalTok{,}
+                                      \FunctionTok{substr}\NormalTok{(}\FunctionTok{as.character}\NormalTok{(communitydistrict), }\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{) }\SpecialCharTok{==} \StringTok{"5"} \SpecialCharTok{\textasciitilde{}} \StringTok{"Staten Island"}\NormalTok{,}
+\NormalTok{                                      ),}
+\NormalTok{                                    borough}
+\NormalTok{                                    ))}
+\end{Highlighting}
+\end{Shaded}
+
+\paragraph{Mapping To Visually See The Data in a Geospatial
+Context}\label{mapping-to-visually-see-the-data-in-a-geospatial-context}
+
+\textbf{Syringe Data by Community District}
+
+Looking at the year by year break down for each syringe collection year
+in the data, one can identify that there are a decent number of nulls
+within the data. This could be from either syringes not being found by
+Parks staff in the vast majority of the city, or it could have to do
+with when and how the data started being collected. In the earlier years
+the syringe counts are limited to the South Bronx and small sections of
+Manhattan, but as the years progress additional parts of the city
+register a having a syringes collected.
+
+\pandocbounded{\includegraphics[keepaspectratio]{FinalProject_JohnFerrara_files/figure-latex/mapping1-1.pdf}}
+
+\textbf{Total Number of Housing Related Construction Projects for 5
+Years Previous by Community District}
+
+For the total number of housing related completed construction projects
+registered with DOB, in the early years the high development zones are
+limited to Northern Brooklyn and parts on the lower end of Manhattan. As
+the years progress, the number of projects through out the city, more
+specifically in Brooklyn and Queens, increase.
+
+\pandocbounded{\includegraphics[keepaspectratio]{FinalProject_JohnFerrara_files/figure-latex/mapping2-1.pdf}}
+
+\textbf{Average YOY Change for Housing Related Construction Projects 5
+Years Previous by Community District}
+
+The average YOY change for completed housing related construction
+project is fairly consistent through out the entire city through out the
+years in the data. However, the areas of what looks like Sunset Park \&
+Park Slope in Brooklyn experienced noticeably high YOY change in
+projects from 2017 through 2020.
+
+\pandocbounded{\includegraphics[keepaspectratio]{FinalProject_JohnFerrara_files/figure-latex/mapping3-1.pdf}}
+
+\textbf{Annual Average Adult Homeless Population Based On Shelter
+Counts}
+
+Lastly, for the average annual adult homeless population, there is no
+data for 2017, but once data is collected for 2018 there are many
+different parts of the city that have fairly high average adult homeless
+populations. There doesn't seem to be any particular trend visible just
+by looking at the data. However, it should be noted, that while this
+data is useful for gauging the homeless population in the city, at a
+Community District geographic boundary level, the means by which the
+data is collected - taking counts at homeless shelters of different
+kinds - implicitly causes the homeless population to be higher in areas
+that have hotels or shelters designated for that population. This may
+not necessarily be an issue, but it is something to keep in mind when
+comparing this variable to others.
+
+\pandocbounded{\includegraphics[keepaspectratio]{FinalProject_JohnFerrara_files/figure-latex/mapping4-1.pdf}}
+
+\paragraph{Removing Nulls from Finalized
+DF}\label{removing-nulls-from-finalized-df}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#Removing the Nulls from the final data df in preparation for regression}
+\NormalTok{data\_final\_nonull }\OtherTok{\textless{}{-}} \FunctionTok{na.omit}\NormalTok{(data\_final)}
+\end{Highlighting}
+\end{Shaded}
+
+\subsubsection{Linear Regressions w/ Community District
+Geographies}\label{linear-regressions-w-community-district-geographies}
+
+As outlined in the introduction, there are two parts to this analysis.
+The first is to see if there is a correlation between housing-related
+construction projects and the homeless population. The second is to see
+if the size of homeless population correlates with the amount of
+syringes found in NYC parks. This first attempt at regression models
+will maintain a larger number of data points constrained by community
+district. However, the wide array of factors that influence various
+community districts may influence the regression results obfuscating any
+substantial correlation. Factors such as wealthier, gentrifying areas of
+the city having more construction projects associated with their
+geographic boundary, while intravenous drug use is more likely to be
+concentrated in poorer, less wealthy community districts. Additionally,
+housing units through out the city may not properly be shown to reduce
+homelessness due to the homeless population data being sourced from
+shelters. Shelters are not evenly distributed throughout the city,
+making the numbers at the community district level skewed for the
+overall numbers.
+
+\subsubsection{QUESTION 1: Does the Number of Housing Related
+Construction Projects for the Previous 5 Years influence the Size of
+Adult Homeless
+Population?}\label{question-1-does-the-number-of-housing-related-construction-projects-for-the-previous-5-years-influence-the-size-of-adult-homeless-population}
+
+To answer this question, a linear regression analysis will look at the
+relationship between the annual average for adult homeless shelter
+populations and the number of completed housing construction jobs on
+record with the DOB. For the housing numbers, we will look at the
+average annual year-over-year (YOY) change in housing construction
+projects for the five year window previous to the homeless population
+year, as well as the total number of cumulative housing construction
+projects completed in for the five years previous to the homeless
+population year. Lastly, as outlined previously because of the original
+distributions of he variable a log transform will be used in order to
+get a more normal distribution for the analyzed variables.
+
+\textbf{MODEL 1: Relationship Between Logged Adult Homeless Population
+and Logged Completed Housing Construction Projects for Preceding 5 Years
+at the Community District Level}
+
+\begin{verbatim}
+## 
+## Call:
+## lm(formula = log(avg_homeless_count + 1) ~ log(housingsum + 1), 
+##     data = data_final_nonull)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -5.2104 -0.6184  0.4339  1.1790  4.3159 
+## 
+## Coefficients:
+##                     Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)          -4.8990     1.3206   -3.71 0.000291 ***
+## log(housingsum + 1)   1.3453     0.1789    7.52 4.54e-12 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 2.015 on 151 degrees of freedom
+## Multiple R-squared:  0.2725, Adjusted R-squared:  0.2676 
+## F-statistic: 56.55 on 1 and 151 DF,  p-value: 4.541e-12
+\end{verbatim}
+
+\pandocbounded{\includegraphics[keepaspectratio]{FinalProject_JohnFerrara_files/figure-latex/m1_plot-1.pdf}}
+
+Model 1 \textbf{is} Statisitcally Significant, so Checking Model
+Validity.
+
+\textbf{Model 1 Linearity Check}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Linearity Check}
+\FunctionTok{ggplot}\NormalTok{(m1, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x=}\NormalTok{.fitted, }\AttributeTok{y=}\NormalTok{.resid)) }\SpecialCharTok{+} 
+  \FunctionTok{geom\_point}\NormalTok{()}\SpecialCharTok{+}
+  \FunctionTok{geom\_hline}\NormalTok{(}\AttributeTok{yintercept =} \DecValTok{0}\NormalTok{, }\AttributeTok{linetype =} \StringTok{"dashed"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"Predicted"}\NormalTok{,}\AttributeTok{y =}\StringTok{"Residuals"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{FinalProject_JohnFerrara_files/figure-latex/m1_check1-1.pdf}}
+There seems to be slight correlation in lower portion. Line seems to
+have Zero Slope.
+
+\textbf{Model 1 Residual Distribution Check 1 }
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Residual Dist.}
+\FunctionTok{ggplot}\NormalTok{(}\AttributeTok{data =}\NormalTok{ m1, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ .resid)) }\SpecialCharTok{+}\FunctionTok{geom\_histogram}\NormalTok{(}\AttributeTok{binwidth =} \DecValTok{1}\NormalTok{) }\SpecialCharTok{+} \FunctionTok{xlab}\NormalTok{(}\StringTok{"Residuals"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{FinalProject_JohnFerrara_files/figure-latex/m1_check2-1.pdf}}
+
+\textbf{Model 1 Residual Distribution Check 2}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#Variability of Constant}
+\FunctionTok{ggplot}\NormalTok{(}\AttributeTok{data =}\NormalTok{ m1, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{sample =}\NormalTok{ .resid)) }\SpecialCharTok{+}\FunctionTok{stat\_qq}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{FinalProject_JohnFerrara_files/figure-latex/m1_check3-1.pdf}}
+
+The residuals are basically normally distributed. Model most likely
+valid.
+
+\textbf{MODEL 2: Relationship Between Logged Adult Homeless Population
+and Logged Average YOY Percent Change in Completed Housing Related
+Construction Projects for Preceding 5 Years at the Community District
+Level}
+
+\begin{verbatim}
+## 
+## Call:
+## lm(formula = log(avg_homeless_count + 1) ~ log(prev5_avg_yoy_change + 
+##     1), data = data_final_nonull)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -5.3665 -0.0899  0.7975  1.3047  2.0893 
+## 
+## Coefficients:
+##                               Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)                    5.47574    0.75554   7.247 5.61e-11 ***
+## log(prev5_avg_yoy_change + 1) -0.06501    0.18114  -0.359     0.72    
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 2.191 on 113 degrees of freedom
+##   (38 observations deleted due to missingness)
+## Multiple R-squared:  0.001139,   Adjusted R-squared:  -0.007701 
+## F-statistic: 0.1288 on 1 and 113 DF,  p-value: 0.7203
+\end{verbatim}
+
+\pandocbounded{\includegraphics[keepaspectratio]{FinalProject_JohnFerrara_files/figure-latex/m2_plot-1.pdf}}
+Model 2 is \textbf{NOT} Statistically Significant. Moving On.
+
+\subsubsection{QUESTION 2: Does the size of the Adult Homeless
+Population influence the Number of Used Syringes recovered by NYC
+Parks?}\label{question-2-does-the-size-of-the-adult-homeless-population-influence-the-number-of-used-syringes-recovered-by-nyc-parks}
+
+\textbf{MODEL 3: Relationship Between Logged Adult Homeless Population
+and Logged Est. Total Number of Syringes Recovered at the Community
+District Level}
+
+\begin{verbatim}
+## 
+## Call:
+## lm(formula = log(total_syringe_ests + 1) ~ log(avg_homeless_count + 
+##     1), data = data_final_nonull)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -5.4495 -2.5458 -0.1314  2.3448  6.0140 
+## 
+## Coefficients:
+##                             Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)                   3.0218     0.5802   5.208 6.16e-07 ***
+## log(avg_homeless_count + 1)   0.4562     0.1058   4.311 2.91e-05 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 3.072 on 151 degrees of freedom
+## Multiple R-squared:  0.1096, Adjusted R-squared:  0.1037 
+## F-statistic: 18.59 on 1 and 151 DF,  p-value: 2.914e-05
+\end{verbatim}
+
+\pandocbounded{\includegraphics[keepaspectratio]{FinalProject_JohnFerrara_files/figure-latex/m3_plot-1.pdf}}
+
+Model 3 is Statisitcally Significant. Checking Validity.
+
+\textbf{Model 3 Linearity Check}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Linearity Check}
+\FunctionTok{ggplot}\NormalTok{(m3, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x=}\NormalTok{.fitted, }\AttributeTok{y=}\NormalTok{.resid)) }\SpecialCharTok{+} 
+  \FunctionTok{geom\_point}\NormalTok{()}\SpecialCharTok{+}
+  \FunctionTok{geom\_hline}\NormalTok{(}\AttributeTok{yintercept =} \DecValTok{0}\NormalTok{, }\AttributeTok{linetype =} \StringTok{"dashed"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"Fitted values"}\NormalTok{,}\AttributeTok{y =}\StringTok{"Residuals"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{FinalProject_JohnFerrara_files/figure-latex/m3_check1-1.pdf}}
+Linearity Check should be good.
+
+\textbf{Model 3 Residual Distribution Check 1 }
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Residual Dist.}
+\FunctionTok{ggplot}\NormalTok{(}\AttributeTok{data =}\NormalTok{ m3, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ .resid)) }\SpecialCharTok{+}\FunctionTok{geom\_histogram}\NormalTok{(}\AttributeTok{binwidth =} \DecValTok{1}\NormalTok{) }\SpecialCharTok{+} \FunctionTok{xlab}\NormalTok{(}\StringTok{"Residuals"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{FinalProject_JohnFerrara_files/figure-latex/m3_check2-1.pdf}}
+
+\textbf{Model 3 Residual Distribution Check 2}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#Variablitiy of Constant}
+\FunctionTok{ggplot}\NormalTok{(}\AttributeTok{data =}\NormalTok{ m3, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{sample =}\NormalTok{ .resid)) }\SpecialCharTok{+}\FunctionTok{stat\_qq}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{FinalProject_JohnFerrara_files/figure-latex/m3_check3-1.pdf}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# Slight Deviation b/c of right skew, but passes for normal.}
+\end{Highlighting}
+\end{Shaded}
+
+Residuals are normally distributed.Model 3 most likely Valid.
+
+\subsubsection{Linear Regressions with Aggregate Borough
+Geographies}\label{linear-regressions-with-aggregate-borough-geographies}
+
+After performing the regression analysis above, the results were
+unremarkable. There were two statistically significant relationships.
+Due to potential issues with the data at the Community District level,
+such as an unequal distribution of parks where syringes can be found,
+specific types of zoning limiting where shelters exist implicitly
+skewing homeless populations, or housing projects being limited to
+select areas. I decided to aggregate to the borough level instead.
+Generalizing the geographic limitations may show relationships more
+clearly than the more granular boundaries. The main draw back to this
+aggregation is a reduction in data points, however it is worth taking a
+look.
+
+\paragraph{Aggregating the data to the borough
+level.}\label{aggregating-the-data-to-the-borough-level.}
+
+\textbf{Syringe Borough Aggregation}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{syringe\_grouped\_boro }\OtherTok{\textless{}{-}}\NormalTok{ syringe\_lim }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{group\_by}\NormalTok{(year,borough) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{summarise}\NormalTok{(}
+    \AttributeTok{total\_syringes =} \FunctionTok{sum}\NormalTok{(total\_syringes, }\AttributeTok{na.rm=}\ConstantTok{TRUE}\NormalTok{)}
+\NormalTok{    )}
+\end{Highlighting}
+\end{Shaded}
+
+\textbf{Homeless Borough Aggregation}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{raw\_hmls\_limited\_boro }\OtherTok{\textless{}{-}}\NormalTok{ raw\_hmls\_processed[,}\FunctionTok{c}\NormalTok{(}\StringTok{"report\_date"}\NormalTok{,}\StringTok{"data\_year"}\NormalTok{,}\StringTok{"borough"}\NormalTok{,}\StringTok{"AdultHomelessCount"}\NormalTok{)]}
+
+\DocumentationTok{\#\# Grouping by report date to sum up boro total for report date.}
+\NormalTok{hmls\_grpd\_boro }\OtherTok{\textless{}{-}}\NormalTok{ raw\_hmls\_limited\_boro }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{group\_by}\NormalTok{(report\_date,data\_year,borough) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{summarise}\NormalTok{(}
+    \AttributeTok{boro\_sum\_homeless\_count =} \FunctionTok{sum}\NormalTok{(AdultHomelessCount, }\AttributeTok{na.rm=}\ConstantTok{TRUE}\NormalTok{))}
+
+\DocumentationTok{\#\# Averaging for each boto for each year}
+\NormalTok{hmls\_final\_boro }\OtherTok{\textless{}{-}}\NormalTok{ hmls\_grpd\_boro }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{group\_by}\NormalTok{(data\_year,borough) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{summarise}\NormalTok{(}
+    \AttributeTok{avg\_homeless\_count =} \FunctionTok{mean}\NormalTok{(boro\_sum\_homeless\_count, }\AttributeTok{na.rm=}\ConstantTok{TRUE}\NormalTok{))}
+
+\NormalTok{hmls\_final\_boro }\OtherTok{\textless{}{-}}\NormalTok{ hmls\_final\_boro }\SpecialCharTok{\%\textgreater{}\%}\NormalTok{ dplyr}\SpecialCharTok{::}\FunctionTok{rename}\NormalTok{(}\AttributeTok{year=}\NormalTok{data\_year)}
+\end{Highlighting}
+\end{Shaded}
+
+\textbf{Housing Borough Agg}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{housing\_agg\_df\_boro }\OtherTok{\textless{}{-}}\NormalTok{ housing\_agg\_df }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{borough =} \FunctionTok{case\_when}\NormalTok{(}
+    \FunctionTok{substr}\NormalTok{(}\FunctionTok{as.character}\NormalTok{(commntydst), }\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{) }\SpecialCharTok{==} \StringTok{"2"} \SpecialCharTok{\textasciitilde{}} \StringTok{"Bronx"}\NormalTok{,}
+    \FunctionTok{substr}\NormalTok{(}\FunctionTok{as.character}\NormalTok{(commntydst), }\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{) }\SpecialCharTok{==} \StringTok{"4"} \SpecialCharTok{\textasciitilde{}} \StringTok{"Queens"}\NormalTok{,}
+    \FunctionTok{substr}\NormalTok{(}\FunctionTok{as.character}\NormalTok{(commntydst), }\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{) }\SpecialCharTok{==} \StringTok{"3"} \SpecialCharTok{\textasciitilde{}} \StringTok{"Booklyn"}\NormalTok{,}
+    \FunctionTok{substr}\NormalTok{(}\FunctionTok{as.character}\NormalTok{(commntydst), }\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{) }\SpecialCharTok{==} \StringTok{"5"} \SpecialCharTok{\textasciitilde{}} \StringTok{"Staten Island"}\NormalTok{,}
+    \FunctionTok{substr}\NormalTok{(}\FunctionTok{as.character}\NormalTok{(commntydst), }\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{) }\SpecialCharTok{==} \StringTok{"1"} \SpecialCharTok{\textasciitilde{}} \StringTok{"Manhattan"}\NormalTok{))}
+
+\NormalTok{housing\_agg\_df\_boro\_grpd}\OtherTok{\textless{}{-}}\NormalTok{ housing\_agg\_df\_boro }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{group\_by}\NormalTok{(syringe\_yr, borough) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{summarize}\NormalTok{(}
+    \AttributeTok{comp\_yr1 =} \FunctionTok{sum}\NormalTok{(comp\_yr1, }\AttributeTok{na.rm=}\ConstantTok{TRUE}\NormalTok{),}
+    \AttributeTok{comp\_yr2 =} \FunctionTok{sum}\NormalTok{(comp\_yr2, }\AttributeTok{na.rm=}\ConstantTok{TRUE}\NormalTok{),}
+    \AttributeTok{comp\_yr3 =} \FunctionTok{sum}\NormalTok{(comp\_yr3, }\AttributeTok{na.rm=}\ConstantTok{TRUE}\NormalTok{),}
+    \AttributeTok{comp\_yr4 =} \FunctionTok{sum}\NormalTok{(comp\_yr4, }\AttributeTok{na.rm=}\ConstantTok{TRUE}\NormalTok{),}
+    \AttributeTok{comp\_yr5 =} \FunctionTok{sum}\NormalTok{(comp\_yr5, }\AttributeTok{na.rm=}\ConstantTok{TRUE}\NormalTok{)}
+\NormalTok{  )}
+
+\NormalTok{housing\_sums\_boro }\OtherTok{\textless{}{-}}\NormalTok{   housing\_agg\_df\_boro\_grpd }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{housingsum =}\NormalTok{ comp\_yr1 }\SpecialCharTok{+}\NormalTok{ comp\_yr2 }\SpecialCharTok{+}\NormalTok{ comp\_yr3 }\SpecialCharTok{+}\NormalTok{ comp\_yr4 }\SpecialCharTok{+}\NormalTok{ comp\_yr5,}
+    \AttributeTok{yoy\_yr2 =} \FunctionTok{ifelse}\NormalTok{(comp\_yr1 }\SpecialCharTok{==} \DecValTok{0}\NormalTok{, }\ConstantTok{NA}\NormalTok{, (comp\_yr2 }\SpecialCharTok{{-}}\NormalTok{ comp\_yr1) }\SpecialCharTok{/}\NormalTok{ comp\_yr1 }\SpecialCharTok{*} \DecValTok{100}\NormalTok{),}
+    \AttributeTok{yoy\_yr3 =} \FunctionTok{ifelse}\NormalTok{(comp\_yr2 }\SpecialCharTok{==} \DecValTok{0}\NormalTok{, }\ConstantTok{NA}\NormalTok{, (comp\_yr3 }\SpecialCharTok{{-}}\NormalTok{ comp\_yr2) }\SpecialCharTok{/}\NormalTok{ comp\_yr2 }\SpecialCharTok{*} \DecValTok{100}\NormalTok{),}
+    \AttributeTok{yoy\_yr4 =} \FunctionTok{ifelse}\NormalTok{(comp\_yr3 }\SpecialCharTok{==} \DecValTok{0}\NormalTok{, }\ConstantTok{NA}\NormalTok{, (comp\_yr4 }\SpecialCharTok{{-}}\NormalTok{ comp\_yr3) }\SpecialCharTok{/}\NormalTok{ comp\_yr3 }\SpecialCharTok{*} \DecValTok{100}\NormalTok{),}
+    \AttributeTok{yoy\_yr5 =} \FunctionTok{ifelse}\NormalTok{(comp\_yr4 }\SpecialCharTok{==} \DecValTok{0}\NormalTok{, }\ConstantTok{NA}\NormalTok{, (comp\_yr5 }\SpecialCharTok{{-}}\NormalTok{ comp\_yr4) }\SpecialCharTok{/}\NormalTok{ comp\_yr4 }\SpecialCharTok{*} \DecValTok{100}\NormalTok{))}
+
+\NormalTok{housing\_sums\_boro}\SpecialCharTok{$}\NormalTok{avg\_yoy\_change }\OtherTok{\textless{}{-}} \FunctionTok{rowMeans}\NormalTok{(housing\_sums\_boro[, }\FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}yoy\_yr2\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}yoy\_yr3\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}yoy\_yr4\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}yoy\_yr5\textquotesingle{}}\NormalTok{)])}
+
+\NormalTok{housing\_final\_boro }\OtherTok{\textless{}{-}}\NormalTok{ housing\_sums\_boro[,}\FunctionTok{c}\NormalTok{(}\StringTok{"syringe\_yr"}\NormalTok{,}\StringTok{"borough"}\NormalTok{,}\StringTok{"housingsum"}\NormalTok{,}\StringTok{"avg\_yoy\_change"}\NormalTok{)] }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{                dplyr}\SpecialCharTok{::}\FunctionTok{rename}\NormalTok{(}\StringTok{"year"}\OtherTok{=}\StringTok{"syringe\_yr"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\textbf{Joining Aggregated Data Sets Together for Borough Level
+Geography}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# first join}
+\NormalTok{ syringe\_homeless\_boro}\OtherTok{\textless{}{-}} \FunctionTok{merge}\NormalTok{(syringe\_grouped\_boro,hmls\_final\_boro, }\AttributeTok{by =} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}year\textquotesingle{}}\NormalTok{,}\StringTok{"borough"}\NormalTok{), }\AttributeTok{all =} \ConstantTok{TRUE}\NormalTok{)}
+
+\CommentTok{\# checking data types }
+\NormalTok{syringe\_homeless\_boro}\SpecialCharTok{$}\NormalTok{year }\OtherTok{\textless{}{-}} \FunctionTok{as.integer}\NormalTok{(syringe\_homeless\_boro}\SpecialCharTok{$}\NormalTok{year)}
+\NormalTok{housing\_final\_boro}\SpecialCharTok{$}\NormalTok{year }\OtherTok{\textless{}{-}} \FunctionTok{as.integer}\NormalTok{(housing\_final\_boro}\SpecialCharTok{$}\NormalTok{year)}
+
+\CommentTok{\#second join}
+\NormalTok{housing\_syringe\_df\_boro }\OtherTok{\textless{}{-}} \FunctionTok{merge}\NormalTok{(syringe\_homeless\_boro, }
+\NormalTok{                           housing\_final\_boro, }
+                           \AttributeTok{by=} \FunctionTok{c}\NormalTok{(}\StringTok{"year"}\NormalTok{,}\StringTok{"borough"}\NormalTok{),}\AttributeTok{all=}\ConstantTok{TRUE}\NormalTok{)}
+
+\CommentTok{\#To keep more data points with the Agg, making the NA syrings values zero}
+\NormalTok{housing\_syringe\_df\_boro }\OtherTok{\textless{}{-}}\NormalTok{ housing\_syringe\_df\_boro }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{mutate}\NormalTok{(}\AttributeTok{total\_syringes =} \FunctionTok{ifelse}\NormalTok{(}\FunctionTok{is.na}\NormalTok{(total\_syringes), }\DecValTok{0}\NormalTok{, total\_syringes))}
+
+\CommentTok{\# Omitting the remaining nulls}
+\NormalTok{data\_final\_boro\_nonulls}\OtherTok{\textless{}{-}} \FunctionTok{na.omit}\NormalTok{(housing\_syringe\_df\_boro)}
+\end{Highlighting}
+\end{Shaded}
+
+Not checking the distributions of raw variables again, as I did before.
+We know some have floors around zero, so I will just log the variables
+again.
+
+\paragraph{QUESTION 1: Does the Number of Housing Related Construction
+Projects for the Previous 5 Years influence the Size of Adult Homeless
+Population?}\label{question-1-does-the-number-of-housing-related-construction-projects-for-the-previous-5-years-influence-the-size-of-adult-homeless-population-1}
+
+\textbf{MODEL 4: Relationship Between Logged Adult Homeless Population
+and Logged Total Number of Completed Housing Related Construction
+Projects for Preceding 5 Years at the Borough Level}
+
+\begin{verbatim}
+## 
+## Call:
+## lm(formula = log(avg_homeless_count + 1) ~ log(housingsum + 1), 
+##     data = data_final_boro_nonulls)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -3.9643 -1.3569 -0.2316  1.7439  3.4821 
+## 
+## Coefficients:
+##                     Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)         -22.7823     3.9189  -5.813 3.99e-06 ***
+## log(housingsum + 1)   2.3384     0.3101   7.541 5.27e-08 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 1.9 on 26 degrees of freedom
+## Multiple R-squared:  0.6862, Adjusted R-squared:  0.6741 
+## F-statistic: 56.86 on 1 and 26 DF,  p-value: 5.265e-08
+\end{verbatim}
+
+\pandocbounded{\includegraphics[keepaspectratio]{FinalProject_JohnFerrara_files/figure-latex/m4_plot-1.pdf}}
+
+Model 4 \textbf{is} Statisitcally Significant, checking validity.
+
+\textbf{Model 4 Linearity Check}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Linearity Check}
+\FunctionTok{ggplot}\NormalTok{(m4, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x=}\NormalTok{.fitted, }\AttributeTok{y=}\NormalTok{.resid)) }\SpecialCharTok{+} 
+  \FunctionTok{geom\_point}\NormalTok{()}\SpecialCharTok{+}
+  \FunctionTok{geom\_hline}\NormalTok{(}\AttributeTok{yintercept =} \DecValTok{0}\NormalTok{, }\AttributeTok{linetype =} \StringTok{"dashed"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"Fitted values"}\NormalTok{,}\AttributeTok{y =}\StringTok{"Residuals"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{FinalProject_JohnFerrara_files/figure-latex/m4_check1-1.pdf}}
+Linearity Check doesnt seem to pass. There is a pattern in the portions
+of the data.
+
+\textbf{Model 4 Residual Distribution Check 1 }
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Residual Dist.}
+\FunctionTok{ggplot}\NormalTok{(}\AttributeTok{data =}\NormalTok{ m4, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ .resid)) }\SpecialCharTok{+}\FunctionTok{geom\_histogram}\NormalTok{(}\AttributeTok{binwidth =} \DecValTok{1}\NormalTok{) }\SpecialCharTok{+} \FunctionTok{xlab}\NormalTok{(}\StringTok{"Residuals"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{FinalProject_JohnFerrara_files/figure-latex/m4_check2-1.pdf}}
+
+\textbf{Model 4 Residual Distribution Check 2}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#Variablity of Constant}
+\FunctionTok{ggplot}\NormalTok{(}\AttributeTok{data =}\NormalTok{ m4, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{sample =}\NormalTok{ .resid)) }\SpecialCharTok{+}\FunctionTok{stat\_qq}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{FinalProject_JohnFerrara_files/figure-latex/m4_check3-1.pdf}}
+
+MODEL 4 may not be valid. Redsiduals and Predicted values have a pattern
+in the points. The residuals have mostly normal distribution. Slight
+deviation, but normal.
+
+\textbf{MODEL 5: Relationship Between Logged Adult Homeless Population
+and Logged Average YOY Percent Change in Completed Housing Related
+Construction Projects for Preceding 5 Years at the Borough Level}
+
+\begin{verbatim}
+## 
+## Call:
+## lm(formula = log(avg_homeless_count + 1) ~ log(avg_yoy_change + 
+##     1), data = data_final_boro_nonulls)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -9.6693 -0.5597  1.0825  1.8315  2.3269 
+## 
+## Coefficients:
+##                         Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)              10.9937     2.0885   5.264 4.42e-05 ***
+## log(avg_yoy_change + 1)  -1.3169     0.6193  -2.126   0.0468 *  
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 3.122 on 19 degrees of freedom
+##   (7 observations deleted due to missingness)
+## Multiple R-squared:  0.1922, Adjusted R-squared:  0.1497 
+## F-statistic: 4.521 on 1 and 19 DF,  p-value: 0.04681
+\end{verbatim}
+
+\pandocbounded{\includegraphics[keepaspectratio]{FinalProject_JohnFerrara_files/figure-latex/m5_plot-1.pdf}}
+Model 5 \textbf{is} Statistic Significant, checking validity.
+
+\textbf{Model 5 Linearity Check}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Linearity Check}
+\FunctionTok{ggplot}\NormalTok{(m5, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x=}\NormalTok{.fitted, }\AttributeTok{y=}\NormalTok{.resid)) }\SpecialCharTok{+} 
+  \FunctionTok{geom\_point}\NormalTok{()}\SpecialCharTok{+}
+  \FunctionTok{geom\_hline}\NormalTok{(}\AttributeTok{yintercept =} \DecValTok{0}\NormalTok{, }\AttributeTok{linetype =} \StringTok{"dashed"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"Fitted values"}\NormalTok{,}\AttributeTok{y =}\StringTok{"Residuals"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{FinalProject_JohnFerrara_files/figure-latex/m5_check1-1.pdf}}
+Slight pattern with outliers. May skew regression.
+
+\textbf{Model 5 Residual Distribution Check 1 }
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Residual Dist.}
+\FunctionTok{ggplot}\NormalTok{(}\AttributeTok{data =}\NormalTok{ m5, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ .resid)) }\SpecialCharTok{+}\FunctionTok{geom\_histogram}\NormalTok{(}\AttributeTok{binwidth =} \DecValTok{4}\NormalTok{) }\SpecialCharTok{+} \FunctionTok{xlab}\NormalTok{(}\StringTok{"Residuals"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{FinalProject_JohnFerrara_files/figure-latex/m5_check2-1.pdf}}
+
+\textbf{Model 5 Residual Distribution Check 2}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#Variablitiy of Constant}
+\FunctionTok{ggplot}\NormalTok{(}\AttributeTok{data =}\NormalTok{ m5, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{sample =}\NormalTok{ .resid)) }\SpecialCharTok{+}\FunctionTok{stat\_qq}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{FinalProject_JohnFerrara_files/figure-latex/m5_check3-1.pdf}}
+
+Model 5 may not be Valid. Residuals are mostly normal, but outliers may
+skew.
+
+\paragraph{QUESTION 2: Does the size of the Adult Homeless Population
+influence the Number of Used Syringes recovered by NYC
+Parks?}\label{question-2-does-the-size-of-the-adult-homeless-population-influence-the-number-of-used-syringes-recovered-by-nyc-parks-1}
+
+\textbf{MODEL 6: Relationship Between Logged Adult Homeless Population
+and Logged Total Number of Used Syringes Collected at the Borough Level}
+
+\begin{verbatim}
+## 
+## Call:
+## lm(formula = log(total_syringes + 1) ~ log(avg_homeless_count + 
+##     1), data = data_final_boro_nonulls)
+## 
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+## -7.697 -2.024  2.045  3.827  4.218 
+## 
+## Coefficients:
+##                             Estimate Std. Error t value Pr(>|t|)  
+## (Intercept)                   1.6974     1.8896   0.898    0.377  
+## log(avg_homeless_count + 1)   0.6889     0.2552   2.699    0.012 *
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 4.414 on 26 degrees of freedom
+## Multiple R-squared:  0.2189, Adjusted R-squared:  0.1889 
+## F-statistic: 7.287 on 1 and 26 DF,  p-value: 0.01205
+\end{verbatim}
+
+\pandocbounded{\includegraphics[keepaspectratio]{FinalProject_JohnFerrara_files/figure-latex/m6_plot-1.pdf}}
+
+Model 6 \textbf{is} Statistically Significant. Checking Validity
+
+\textbf{Model 6 Linearity Check}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Linearity Check}
+\FunctionTok{ggplot}\NormalTok{(m6, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x=}\NormalTok{.fitted, }\AttributeTok{y=}\NormalTok{.resid)) }\SpecialCharTok{+} 
+  \FunctionTok{geom\_point}\NormalTok{()}\SpecialCharTok{+}
+  \FunctionTok{geom\_hline}\NormalTok{(}\AttributeTok{yintercept =} \DecValTok{0}\NormalTok{, }\AttributeTok{linetype =} \StringTok{"dashed"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"Fitted values"}\NormalTok{,}\AttributeTok{y =}\StringTok{"Residuals"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{FinalProject_JohnFerrara_files/figure-latex/m6_check1-1.pdf}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\#}
+\end{Highlighting}
+\end{Shaded}
+
+May not be valid, the poitns are clustered and not random.
+
+\textbf{Model 6 Residual Distribution Check 1 }
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Residual Dist.}
+\FunctionTok{ggplot}\NormalTok{(}\AttributeTok{data =}\NormalTok{ m6, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ .resid)) }\SpecialCharTok{+}\FunctionTok{geom\_histogram}\NormalTok{(}\AttributeTok{binwidth =}\DecValTok{5}\NormalTok{) }\SpecialCharTok{+} \FunctionTok{xlab}\NormalTok{(}\StringTok{"Residuals"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{FinalProject_JohnFerrara_files/figure-latex/m6_check2-1.pdf}}
+
+\textbf{Model 6 Residual Distribution Check 2}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#Variablitiy of Constant}
+\FunctionTok{ggplot}\NormalTok{(}\AttributeTok{data =}\NormalTok{ m6, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{sample =}\NormalTok{ .resid)) }\SpecialCharTok{+} \FunctionTok{stat\_qq}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{FinalProject_JohnFerrara_files/figure-latex/m6_check3-1.pdf}}
+
+Model 6 may not be Valid. Residuals mostly normal.
+
+\subsection{Results \& Conclusion}\label{results-conclusion}
+
+Of the 6 different attempts at linear regressions to identify strong
+relationships between varuables, only 5 had statistically significant
+results. These results can be seen in the table below. For each of these
+models, the variable was logged in order to get a more normal
+distribution.
+
+\textbf{RESULTS TABLE: Statistically Significant Models}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.2446}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0944}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1245}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1674}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0472}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0858}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0773}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0773}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0815}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Regression Analysis
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Geography Level
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Dependent Variable
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Independent Variable
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+R-squared
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Adjusted R-squared
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+P-value
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Correlation Type
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Validity
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Adult Homeless Pop. \& Total Housing Proj. Prev 5 Yrs. (Logged) &
+Community District & log(avg\_homeless\_count + 1) & log(housingsum + 1)
+& 0.2725 & 0.2676 & 4.54e-12 & Direct & May not be valid \\
+Adult Homeless Pop. \& Total Recovered Syringe Count (Logged) &
+Community District & log(total\_syringe\_ests + 1) &
+log(avg\_homeless\_count + 1) & 0.1096 & 0.1037 & 2.914e-05 & Direct &
+Should be Valid \\
+Adult Homeless Pop. \& Total Housing Proj. Prev 5 Yrs. (Logged) &
+Borough & log(avg\_homeless\_count + 1) & log(housingsum + 1) & 0.6862 &
+0.6741 & 5.27e-08 & Direct & May not be valid \\
+Adult Homeless Pop. \& Avg. YOY Pct. Chg. Housing Proj. Prev 5 Yrs.
+(Logged) & Borough & log(avg\_homeless\_count + 1) &
+log(avg\_yoy\_change + 1) & 0.1922 & 0.1497 & 0.04681 & Indirect & May
+not be valid \\
+Adult Homeless Pop. \& Total Recovered Syringe Count (Logged) & Borough
+& log(total\_syringes + 1) & log(avg\_homeless\_count + 1) & 0.2189 &
+0.1889 & 0.01205 & Direct & May not be valid \\
+\end{longtable}
+
+\paragraph{Community District Level
+Results}\label{community-district-level-results}
+
+For the analysis at this Geographic level there was two models with a
+p-value indicating statistical significance. The first was the
+relationship between the Average Annual Adult Homeless and the total
+number of Completed Housing related construction projects. About 27\% of
+the variance in the Homeless population can be explained by the
+Completed Construction Projects. The correlation was direct, which was
+unexpected. Essentially, the model showed that as the number of
+completed housing related construction projects for the previous 5 years
+increased, so did the homeless population. This was surprising because
+one would expect a negative sloped correlation, or that more
+construction projects completed the less homeless people. These results
+refute the Null hypothesis that there is no relationship between the
+variables, and confirms the alternative hypothesis of the independent
+variable, completed housing construction projects, impacting the
+homeless population. However, as mentioned, the result was opposite of
+what one may expect with a larger homeless population correlating with
+more completed housing projects in the preceding 5 year window.
+
+The second model that was statistically significant at the Community
+District level, was the direct relationship between the number of
+syringes collected in NYC Parks and from public disposal sites and the
+size of the adult homeless population. Roughly 10\% of the variance in
+Syringe Collection counts can be explained by the size of the adult
+homeless population. These results reject the null hypothesis and
+confirm the alternative hypothesis. A reduction in the homeless
+population does reduce the number of syringes recovered.
+
+\paragraph{Borough Level Results}\label{borough-level-results}
+
+Due to various limitations of the data when examined at the community
+district level, the same analysis was carried out at the borough level.
+This generalization of geographic boundaries can help control for the
+wide variance of city zoning for shelters, the varying presence of
+parks, and uneven concentration of housing developments between
+community districts. All three models at the borough level were
+statistically significant.
+
+Similar to the Community District analysis, a direct relationship was
+found between the Adult homeless population and the Total Completed
+Housing Construction Projects for the previous 5 year window. At the
+borough level, about 67\% of the variance for the size of the homeless
+population can be explained by the number of completed housing related
+construction projects for the preceding 5 year window. This is a
+stronger direct correlation than at the community district level.
+
+Unlike the community district level analysis, the relationship between
+the YOY average change in completed housing related construction
+projects and the adult homeless population was statistically
+significant. This relationship was found to be an indirect one, with
+about 15\% of the variance in the homeless population being explained by
+the Average YOY Change in projects for the preceding 5 year window. This
+is more inline with what one would expect, with an increase in housing
+related construction projects the homeless population would decrease.
+
+Both of these models refute the null hypothesis of no relationship
+between the completion of housing related construction project and the
+adult homeless populations, but they do so in different ways.
+
+Lastly, the model at the borough level that explores the relationship
+between the syringes collected and the size of the adult homeless
+population shows a direct relationship. An increase in the adult
+homeless population does increase the number of syringes collected.
+About 19\% of the variance in the amount of syringes collected can be
+explained by the adult homeless population. This refutes the null
+hypothesis and confirms the alternative hypothesis for question two.
+
+\paragraph{Overall Conclusion}\label{overall-conclusion}
+
+Overall, the null hypotheses were refuted for both questions, with both
+alternative hypotheses being confirmed. The number of completed housing
+related construction projects in the preceding 5 years for an area does
+in fact correlate to the size of homeless adult shelter population.
+Similarly, the size of the adult homeless population does correlate with
+the number of syringes collected from parks and other public disposal
+units.
+
+The direct relationships between total construction projects completed
+and homeless population data may be explained by wealthier and
+gentrifying parts of the city consistently have the attention and
+resources of developers to create more market-rate and luxury housing
+via these construction project. The proliferation of such projects may
+exacerbate the issues surrounding affordable housing. In my view, this
+is confirmed by the the indirect relationship between the five year
+average YOY percent change in construction project and the homeless
+population. Larger YOY increases in completed construction projects may
+imply a sudden increase in completed construction jobs in areas
+typically neglected by high-end real estate developers and development
+general, thus having an indirect relationship with the homeless
+population. A large average YOY increase in completed construction
+projects may also imply city planning aimed at helping areas in need of
+more housing, again helping explain the indirect relationship.
+
+Lastly, the direct relationship between the adult unhoused population
+and the number of recovered syringes from parks and disposal sites does
+suggest that this public health issue may be reduced in part by reducing
+the adult homeless population by increasing the number of housing
+construction projects.
+
+\paragraph{Limitations of Analysis}\label{limitations-of-analysis}
+
+While conclusions can be drawn from this analysis there are several data
+limitations that should be noted. The housing data used in this analysis
+is for housing-related completed construction projects, this data does
+not differentiate between high-end developments nor between construction
+projects that adds housing units to the market, or other types of
+nuance. More granular housing data would be ideal for this type of
+regression analysis, such as total units added to market, total
+affordable housing units added to market, how many rent stabilized units
+were removed from the market through renovation loopholes, etc.
+
+Further limitations stem from the widely varying variables for each
+geographic boundary. While Community District variation and the
+geographic differences in the syringe collection data were accounted for
+by the aggregation up to the borough level, the variance between
+boroughs is not accounted for. Each of the boroughs zoning, parks land,
+and shelter presence varies widely. There was simply not enough years of
+data to analyze these variables at the city-level.
+
+Additionally, the adult homeless population data used in this analysis
+originated at counts from the shelter system. This does not take into
+account the unhoused population that makes no use of the shelter system,
+so there may be a large blind spot not considered in this analysis.
+
+Lastly, several of the variables had floor effects on their
+distributions due to the nature of the variables. Log transformations
+were used, but there still were a large number of zero values for
+several of the variables examined. This analysis, other than logging the
+data, did not accommodate for this by removing outliers, weighing data
+points, or by other means. With this said, as shown by the model
+validity tests for linearity, some patterns are discernible in the data.
+This may mean that these models are invalid and the conditions for
+linearity may not be met. The inclusion of these zero values and some
+outliers is another limitation of this analysis. Future work, should
+attempt to further clean and process the data so as to create more valid
+models.
+
+\subsection{References}\label{references}
+
+\textsuperscript{1} ``Home Prices, Wages, and Rent: Harvard Report
+Reveals Housing Trends.'' NPR, 20 June 2024,
+\href{}{https://www.npr.org/2024/06/20/nx-s1-5005972/home-prices-wages-paychecks-rent-housing-harvard-report\#:\textasciitilde:text=In\%20past\%20decades\%2C\%20it\%20was,Philly\%20is\%20giving\%20renters\%20cash}.
+Accessed 7 Dec.~2024.
+
+In addition to this citation, various internet sources like
+StackOverFlow and other blogs were referenced for R syntax.
+
+\end{document}

@@ -1,0 +1,111 @@
+---
+title: "DATA607_Week1_Assignment"
+author: "John Ferrara"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+## Overview
+This is the the assignment for Week 1 of the Daat 607 course for the Fall 2024 Semester. THe goal for the assignment is to establish a base level of understanding for working with cloud-hosted data sets within R. There are several steps to this assignment and each one is broken down below. 
+
+#### Article Commentary
+Assuming this is the article that goes along with the dataset: https://projects.fivethirtyeight.com/polls/generic-ballot/ 
+I think this data is interesting. I did not realize that 538 actually made their data available publicly like this. Additionally, i never worked with polling data. I'm unfamiliar with the polling grading system that one can see in the "grade" column. Im curious how this grade is obtained. Lastly, I can assuming that the dem/rep columns, are the inital numbers of dems and reps that are polled, but I'm more curious about thge adjusted versions of these columns. I didnt see any data dictionary or metadata that goes with this data.  
+
+### Step 1
+#### Description:
+Take the data, and create one or more code blocks. You should finish with a data frame that contains a
+subset of the columns in your selected dataset. If there is an obvious target (aka predictor or independent)
+variable, you should include this in your set of columns. You should include (or add if necessary)
+meaningful column names and replace (if necessary) any non-intuitive abbreviations used in the data that
+you selected. For example, if you had instead been tasked with working with the UCI mushroom dataset,
+you would include the target column for edible or poisonous, and transform “e” values to “edible.” Your
+deliverable is the R code to perform these transformation tasks. 
+
+Firstly, reading in the data source I initially grabbed from data.538.com. I pulled the "Do Voters Want Democrats Or Republicans In Congress?" dataset.
+```{r x}
+#Importing the relevant lib
+library(readr)
+# Placing the External CSV into a dataframe named x variable
+x <- read.csv('https://raw.githubusercontent.com/jhnboyy/CUNYSPS_DATA607/main/Week1/538_generic_poll_list.csv')
+#Printing the firs4 5 rows of the dataframe
+print(head(x))
+```
+
+Next, step is limiting the columns from the original 21 columns.
+```{r {subset_df}}
+# Now working to get a subset for the assignment. The columns we want to keep are:
+# startdate, enddate, pollster, grade, samplesize, pollid, url,  dem, rep adjusted_dem adjusted_rep
+subset_df <- x[, c("poll_id", "startdate", "enddate", "pollster", "grade", "samplesize", "url", "dem", "rep", "adjusted_dem", "adjusted_rep")]
+#Printing the first 5 rows
+print(head(subset_df))
+```
+
+Then just for the sake of this exercise i want to limit to the polls that have a sample size larger than the median. 
+```{r}
+#Further limiting the df, but filtering by the sample size. Want to grab the median, and then those that are above the median.
+sample_size_med <- median(subset_df$samplesize)
+print(sample_size_med)
+# Need to remove the NA's 
+sample_size_med <- median(subset_df$samplesize, na.rm = TRUE)
+print(sample_size_med)
+#Limiting the df to the rows over that value
+grt_med<-subset_df[subset_df$samplesize > sample_size_med, ]
+print(head(grt_med))
+print(dim(grt_med))
+```
+
+### Step 2
+#### Description:
+Make sure that the original data file is accessible through your code—for example, stored in a GitHub
+repository or AWS S3 bucket and referenced in your code. If the code references data on your local
+machine, then your work is not reproducible! 
+
+``` {r}
+#THis has been completed with this line above:
+x <- read.csv('https://raw.githubusercontent.com/jhnboyy/CUNYSPS_DATA607/main/Week1/538_generic_poll_list.csv')
+
+```
+
+
+### Step 3
+#### Description:
+Start your R Markdown document with a two to three sentence “Overview” or “Introduction” description of
+what the article that you chose is about, and include a link to the article. 
+
+This has been completed please reference the overview section above. 
+
+### Step 4
+#### Description:
+Finish with a “Conclusions” or “Findings and Recommendations” text block that includes what you might do
+to extend, verify, or update the work from the selected article. 
+
+##### Conclusion
+In conclusion, I would build out this data to perhaps weight the latest polls a bit more than past polls, or maybe those polls with registered voters should be weighted more. Additionally, i would want to cut the data to see how the final numbers shift when the higher graded polls are looked at vs the lower graded ones. Lastly, I would also want to look at this for large vs small polls.
+
+### Step 5
+#### Description:
+Each of your text blocks should minimally include at least one header, and additional non-header text.
+
+The code should be sufficiently commented. I also leveraged headers for all of the step by step sections.
+
+### Step 6
+#### Description:
+You’re of course welcome—but not required--to include additional information, such as exploratory data
+analysis graphics (which we will cover later in the course).
+
+Did not do this part, decided to skip.
+
+### Step 7
+#### Description:
+Place your solution into a single R Markdown (.Rmd) file and publish your solution out to rpubs.com. 
+
+Completed. Solution uploaded to rpubs.
+
+### Step 8
+#### Description:
+Post the .Rmd file in your GitHub repository, and provide the appropriate URLs to your GitHub repositor y
+and your rpubs.com file in your assignment link.
+
+The RMD file has been pushed to the Git Repo for this class. (https://github.com/jhnboyy/CUNYSPS_DATA607)
+
