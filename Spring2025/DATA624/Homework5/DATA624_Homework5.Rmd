@@ -1,0 +1,403 @@
+---
+title: "DATA624_Homework5"
+author: "John Ferrara"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(fpp3)
+
+```
+
+
+
+## 1) Consider the the number of pigs slaughtered in Victoria, available in the aus_livestock dataset.
+```{r Exercise1}
+#colnames(aus_livestock)
+#unique(aus_livestock$Animal)
+
+pigs <- aus_livestock |> filter(Animal=="Pigs") |> summarise(Count = sum(Count))
+
+## Initial Plotting 
+pigs |>
+  autoplot(Count) +
+  labs(y = "Count", title = "Livestock Slaughter Counts")
+
+```
+#### a) Use the ETS() function to estimate the equivalent model for simple exponential smoothing. Find the optimal values of α and ℓ0, and generate forecasts for the next four months. 
+Using the ETS modeling method with Simple Exponential Smoothing function, the optimal values for alpha and l0 are 2.229786e-01 and 3.885214e+05, respectively.
+
+```{r Exercise1a}
+
+fit <- pigs |>   model(ETS(Count ~ error("A") + trend("N") + season("N")))
+## Seeing optimal values
+print(tidy(fit))
+
+## Generating and Printing the forecast
+fc <- fit |>  forecast(h = 4) #4 months
+print(fc)
+
+#Plotting  
+fc |>
+   autoplot(pigs) +
+   labs(x="Months", y="Count",
+       title = "Australia Livestock Slaughters - Pigs")
+```
+#### b) Compute a 95% prediction interval for the first forecast using  ^y ± 1.96s  where s is the standard deviation of the residuals. Compare your interval with the interval produced by R.
+The range of the prediction interval with a 95% confidence using the first mean prediction value is 390,388.7 through 506,012.1.
+
+``` {r Exercise1b}
+## Taking the predicted values
+first_predicted_mean_value <- fc$.mean[1] #(y^)
+## Extracting Std. Dev from Counts
+print(fc$Count[1])
+#<distribution[1]>
+#[1] N(448200, 8.7e+08)
+# Manually getting s
+s <- sqrt(8.7e+08)
+print(s)
+## Calculations with the formula
+upper_lim <- first_predicted_mean_value + (1.96*s)
+lower_lim <- first_predicted_mean_value - (1.96*s)
+print(upper_lim)
+print(lower_lim)
+```
+
+
+## 5) Data set global_economy contains the annual Exports from many countries. Select one country to analyse.
+#### a) Plot the Exports series and discuss the main features of the data.
+When looking at the exports for Italy, there is a larger trend of increasing exports over the time covered by the chart. There isnt much seasonality in the chart, however the trend is not constant, there are downturns in the data - specifically in the 1980s there was a larger decreasing trend, which was reversed in the 1990s. Similarly, in 2008 there was a large decrease in exports.
+```{r Exercise5a}
+italy_economy <- global_economy |>
+  filter(Country == "Italy")
+
+italy_economy |>
+  autoplot(Exports) +
+  labs(y = "% of GDP", title = "Exports: Italy")
+
+```
+
+#### b) Use an ETS(A,N,N) model to forecast the series, and plot the forecasts.
+```{r Exercise5b}
+fit <- italy_economy |> model(ETS(Exports ~ error("A") + trend("N") + season("N")))
+
+## Seeing optimal values
+print(tidy(fit))
+
+## Generating and Printing the forecast
+fc <- fit |>  forecast(h = 10) #10 years 
+print(fc)
+
+#Plotting  
+fc |>
+   autoplot(italy_economy) +
+   labs(x="Years", y="Exports",
+       title = "Italy Exports")
+
+```
+
+#### c) Compute the RMSE values for the training data.
+Using the accuracy function the RMSE for the model for the training data is ~1.335.
+```{r Exercise5c}
+accuracy(fit)
+# RMSE 1.335065
+```
+
+#### d) Compare the results to those from an ETS(A,A,N) model. (Remember that the trended model is using one more parameter than the simpler model.) Discuss the merits of the two forecasting methods for this data set.
+When looking at the results of the second model (AAN) versus the first model (ANN), the second model's results are better. All of the Error measurements are closer to zero in the AAN model than the ANN model. This is because there is a trend in the data, and the additive shift in the second model to accomodate that reality allows it to better fit the data.
+```{r Exercise5d}
+fit_2 <- italy_economy |> model(ETS(Exports ~ error("A") + trend("A") + season("N")))
+print(tidy(fit_2))
+
+print(accuracy(fit_2))
+# RMSE is 1.295316,  along with all of the other Error measures are less or closer to zero than the ETA(ANN) model. 
+```
+
+#### e) Compare the forecasts from both methods. Which do you think is best?
+To elaborate on what was partially outlined in my answer to 5d, the second model fits the data better than the first. The shift away from not accommodating any longer term trend in the data model allows the second model, with an additive accomodation, to more accurately fit the initial data set. As mentioned before all of the Error measurements i nthe second model are closer to zero than those in the first, indicating a generally better model.
+
+#### f) Calculate a 95% prediction interval for the first forecast for each model, using the RMSE values and assuming normal errors. Compare your intervals with those produced using R.
+The upper and lower bounds for both model 1 (ANN) and model 2 (AAN) when calculated with the RMSE are as follows:
+- MODEL 1 (ANN): 29.0317 - 33.56106
+- MODEL 2 (AAN): 29.34364 - 33.80507
+
+The same models with the versions generated with r:
+- MODEL 1 (ANN): 28.37038 - 33.62962
+- MODEL 2 (AAN): 29.37038 - 34.62962
+
+The ranges calculated manually with RMSE and those calculated by default with R are slightly different. Those calculated by default with r via forecast have a slightly wider range, while the RMSE ones are calculated to be more narrow. The RMSE is looking back to the errors for past data, while the other value is a forecast. 
+
+```{r Exercise5f}
+# ----- FIRST MODEL
+# getting prediction number (First ANN Model)
+print(tidy(fit))
+fc <- fit |>  forecast(h = 1)
+print(fc)
+first_predicted_mean_value <- fc$.mean[1] #(y^)
+print(fc$Exports[1])
+
+# Manually getting s for first model
+print(accuracy(fit)) #1.335065
+mod_1_RMSE<- accuracy(fit)
+s <- sqrt(mod_1_RMSE$RMSE)
+print(s)
+## Calculations with the formula
+upper_lim <- first_predicted_mean_value + (1.96*s)
+lower_lim <- first_predicted_mean_value - (1.96*s)
+print(upper_lim)#33.56106
+print(lower_lim)#29.0317
+
+#----- SECOND MODEL#
+# getting prediction number (Second AAN Model)
+print(tidy(fit_2))
+fc_2 <- fit_2 |>  forecast(h = 1)
+print(fc_2)
+first_predicted_mean_value <- fc_2$.mean[1] #(y^)
+print(fc_2$Exports[1])
+
+# Manually getting s for first model
+print(accuracy(fit_2)) #1.295316	
+mod_2_RMSE<- accuracy(fit_2)
+s <- sqrt(mod_2_RMSE$RMSE)
+print(s)
+## Calculations with the formula
+upper_lim <- first_predicted_mean_value + (1.96*s)
+lower_lim <- first_predicted_mean_value - (1.96*s)
+print(upper_lim)#33.80507
+print(lower_lim)#29.34364
+
+
+
+## Looking at what r produced in the models:
+#Model 1
+print(fc)#N(31, 1.8)
+value <- 31
+s <- sqrt(1.8)
+lower_bound <- value - (1.96 * s)
+print(lower_bound)#28.37038
+upper_bound <- value + (1.96 * s)
+print(upper_bound)#33.62962
+
+# Model 2
+print(fc_2)#N(32, 1.8)
+value <- 32
+s <- sqrt(1.8)
+lower_bound <- value - (1.96 * s)
+print(lower_bound)#29.37038
+upper_bound <- value + (1.96 * s)
+print(upper_bound)#34.62962
+
+
+```
+
+## 6) Forecast the Chinese GDP from the global_economy data set using an ETS model. Experiment with the various options in the ETS() function to see how much the forecasts change with damped trend, or with a Box-Cox transformation. Try to develop an intuition of what each is doing to the forecasts.
+#### [Hint: use a relatively large value of h when forecasting, so you can clearly see the differences between the various options when plotting the forecasts.]
+For this exercise, I generated three different models. One with No trend of Seasonal accommodations, so it was Simple Exponential Smoothing, the second with an additive trend accommodation (Holt's Linear Model), and then a dampened trend model. Of all of them I think the dampened trend model seems to look the most promising, as the Holt Linear model is, as the textbook states "display[s] a constant trend... indefinitely into the future". Simple Expoential Snoothing does not take into account the trends in the data, and the dampened projection dampens newer data's consistent influence on the data so as to control for overestimating its influence. 
+
+```{r Exercise6}
+
+china_economy <- global_economy |>
+  filter(Country == "China")
+# Initial Plot of the data
+china_economy |>
+  autoplot(GDP) +
+  labs(y = "GDP", title = "GDP: China")
+
+# Starting to Model 
+china_economy |>
+  model(
+    ## NO Trend Accommodation
+    `ANN` = ETS(GDP ~ error("A") +trend("N") + season("N")),
+    ## With Additive Trend Accommodation
+    `AAN` = ETS(GDP ~ error("A") + trend("A") + season("N")),
+    # Dampered Additive Trend Accomodation
+    `AAdN` = ETS(GDP ~ error("A") + trend("Ad") + season("N"))
+  ) |>
+  forecast(h = 20) |>
+  autoplot(china_economy, level = NULL) +
+  labs(title = "China GDP",
+       y = "GDP") +
+  guides(colour = guide_legend(title = "Forecast"))
+
+
+```
+
+## 7) Find an ETS model for the Gas data from aus_production and forecast the next few years. Why is multiplicative seasonality necessary here? Experiment with making the trend damped. Does it improve the forecasts?
+
+Firstly, multiplicative seasonality is necessary here as there is a strong level of seasonal variation from quarter to quarter. This needs to be accomodated for. Additionally, there are changes from seasons to season so we want to avoid absolute values for this measure, so multiplicative seasonality is needed.
+
+Using two different models here to compare,the first considered an additive non-dampened trend with multiplicative seasonality and the second the seasonality via multiplication. Of these models the damped trend model seems to fit better than the non  trend damped model. Taking a look at the Error measures it shows that the non-damped model performed better. 
+
+```{r Exercise7, fig.width=11,fig.height= 8}
+#?aus_production
+aus_gas<- aus_production |> select(Quarter, Gas)
+# Initial Plot of the data
+aus_gas |>
+  autoplot(Gas) +
+  labs(y = "petajoules", title = "Australian Gas Production")
+
+## Firstly there is a trend and there is seasonality here b/c of question we will do an AAN model, AAdM and an AAM 
+
+# Starting to Model 
+aus_gas |>
+  model(
+    ## With Additive Trend Accommodation
+    `AAM` = ETS(Gas ~ error("A") + trend("A") + season("M")),
+    # Dampered Additive Trend Accommodation
+    `AAdM` = ETS(Gas ~ error("A") + trend("Ad") + season("M"))
+  ) |>
+  forecast(h = 20) |> # Four years 
+  autoplot(aus_gas, level = NULL) +
+  labs(title = "Australian Gas Production",
+       y = "petajoules") +
+  guides(colour = guide_legend(title = "Forecast"))
+
+
+
+aam <- aus_gas |> model(ETS(Gas ~ error("A") + trend("A") + season("M")))
+print(tidy(aam))
+print(accuracy(aam))
+
+aadm <- aus_gas |> model(ETS(Gas ~ error("A") + trend("Ad") + season("M")))
+print(tidy(aadm))
+print(accuracy(aadm))
+
+```
+
+## 8) Recall your retail time series data (from Exercise 7 in Section 2.10).
+``` {r exercise7_2.10}
+set.seed(12345678)
+myseries <- aus_retail |>
+  filter(`Series ID` == sample(aus_retail$`Series ID`,1))
+```
+
+#### a) Why is multiplicative seasonality necessary for this series?
+Multiplicative seasonality is necessary for this series because the seasonal variations are changing over time, therefore we want a relative measurment for predicting values, not an absolution one stemming from addition.
+``` {r Exercise8a}
+## Plotting the time series 
+myseries |>
+ autoplot(Turnover) +
+  labs(y = "Turnover", title = "Australian Retail Turnover")
+```
+#### b) Apply Holt-Winters’ multiplicative method to the data. Experiment with making the trend damped.
+``` {r Exercise8b}
+
+aam <- myseries |> model(ETS(Turnover ~ error("A") + trend("A") + season("M")))
+print(tidy(aam))
+print(accuracy(aam))
+
+aadm <- myseries |> model(ETS(Turnover ~ error("A") + trend("Ad") + season("M")))
+print(tidy(aadm))
+print(accuracy(aadm))
+
+# Starting to Model 
+myseries |>
+  model(
+    'AAM' = ETS(Turnover ~ error("A") + trend("A") + season("M")),
+    'AAdM' = ETS(Turnover ~ error("A") + trend("Ad") + season("M"))
+    ) |>
+  forecast(h = 24) |> # 2 years 
+  autoplot(myseries, level = NULL) +
+  labs(title = "Australian Retail Turnover",
+       y = "Turnover") +
+  guides(colour = guide_legend(title = "Forecast"))
+
+```
+#### c) Compare the RMSE of the one-step forecasts from the two methods. Which do you prefer?
+
+While based on the plot and visualization of the data forecast i would say the damped trend looks to be more accurate, the RMSE for these models shows that the lower error value is yielded from the Additive non damped trend accommodation with a RMSE of ~0.599, while the damped model had a RMSE of 0.602. Both values are extremely close. 
+``` {r Exercise8c}
+aam <- myseries |> model(ETS(Turnover ~ error("A") + trend("A") + season("M")))
+print(tidy(aam))
+aam_forecast <- aam |>  forecast(h = 12)
+print(aam_forecast)
+print(accuracy(aam))#RMSE 0.5995194
+
+aadm <- myseries |> model(ETS(Turnover ~ error("A") + trend("Ad") + season("M")))
+print(tidy(aadm))
+aadm_forecast <-aadm |>  forecast(h = 12)
+print(aadm_forecast)
+print(accuracy(aadm)) #RSME 0.6024724
+
+```
+
+#### d) Check that the residuals from the best method look like white noise.
+This plot of residuals looks like mostly white noise, with some variation exceptions towards the more recent / right portion of the chart. That being said, the variations dont have a pattern behind them, so can also be considered white noise. 
+
+``` {r Exercise8d}
+##AAM (Best method based on slightly better RMSE value)
+autoplot(residuals(aam))+
+  labs(title = "Residuals Plot", y = "Residuals")
+```
+
+
+#### e) Now find the test set RMSE, while training the model to the end of 2010. Can you beat the seasonal naïve approach from Exercise 7 in Section 5.11?
+Yes, by using and Additive trend and multiplicative seasonal accomodations the AAM type ETS model was able to obtain a smaller RMSE value than the SNAIVE model from Section 5.
+``` {r Exercise8e}
+lim_2010 <- myseries |> filter(year(Month)<=2010)
+## Taking better performing model 
+
+model_aam <- lim_2010 |> model(ETS(Turnover ~ error("A") + trend("A") + season("M")))
+aam_fc <- model_aam |>  forecast(h = 12)
+print(aam_fc)
+snaive_model <- lim_2010 |> model(SNAIVE(Turnover))
+snaive_fc <- snaive_model |>  forecast(h = 12)
+print(snaive_fc)
+
+
+#PLotting
+lim_2010 |>
+  model('ETS_AAM' = ETS(Turnover ~ error("A") + trend("A") + season("M")),
+    'SNAIVE' = SNAIVE(Turnover)
+    ) |>
+  forecast(h = 24) |> # 2 years 
+  autoplot(lim_2010, level = NULL) +
+  labs(title = "Australian Retail Turnover",
+       y = "Turnover") +
+  guides(colour = guide_legend(title = "Forecast"))
+
+## Looking at accuracy
+print(accuracy(model_aam))#RMSE 0.5115981
+print(accuracy(snaive_model)) #1.213731 RMSE
+
+
+```
+
+
+
+## 9) For the same retail data, try an STL decomposition applied to the Box-Cox transformed series, followed by ETS on the seasonally adjusted data. How does that compare with your best previous forecasts on the test set?
+The RMSE for the season adjusted data with the same model on the limited training data  Also used before is lower, meaning the error is lower so this model is better fitted.
+``` {r Exercise9}
+## BOX COX From Chapter 3
+lambda <- lim_2010 |>  features(Turnover, features = guerrero) |>  pull(lambda_guerrero)
+print(lambda)
+
+stl_decomp <- lim_2010 |>
+  model(
+    STL(box_cox(Turnover, lambda) ~ trend(window = 7) +
+                   season(window = "periodic"),
+    robust = TRUE)) |>
+  components()
+
+## Decomp Plot
+stl_decomp|>  autoplot()
+
+#Takign the season adjusted data out of the decomp
+seasonally_adjusted_data <- stl_decomp |> select(season_adjust)
+
+#MOdeling using AAM from before on adjusted data.
+ets_decomp <- 
+  seasonally_adjusted_data |>
+  model(ETS(season_adjust ~ error("A") + trend("A") + season("M")))
+
+
+## COmparing to model before
+accuracy(ets_decomp)#0.1036053 RMSE
+accuracy(model_aam)#0.5115981 RMSE
+
+
+
+```
