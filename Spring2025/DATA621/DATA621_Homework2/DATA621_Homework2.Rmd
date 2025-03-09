@@ -7,6 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
 ```
 
 ## Overview
@@ -29,18 +30,34 @@ Complete each of the following steps as instructed:
 ### 1)  Download the classification output data set (attached in Blackboard to the assignment).
 
 ```{r Section1}
+# Reading in the data.
+url <- "https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/Spring2025/DATA621/DATA621_Homework2/classification-output-data.csv"
+df <- read.csv(url)
+head(df)
 
 ```
 
 ### 2)  The data set has three key columns we will use:
-- ** class: ** the actual class for the observation
-- ** scored.class: **  the predicted class for the observation (based on a threshold of 0.5)
-- ** scored.probability: ** the predicted probability of success for the observation
+- **class: ** the actual class for the observation
+- **scored.class:**  the predicted class for the observation (based on a threshold of 0.5)
+- **scored.probability:** the predicted probability of success for the observation
 
 Use the table() function to get the raw confusion matrix for this scored dataset. Make sure you understand
 the output. In particular, do the rows represent the actual or predicted class? The columns?
 
 ```{r Section2}
+confusion_matrix <- table(df$class,df$scored.class)
+print(confusion_matrix)
+
+## Output break down (Assuming 0 is positive & 1 is Negative):
+## - True Positives = 119
+## - False Positives = 5
+## - True Negatives = 30
+## - False Negatives = 27
+
+#nrow(df)
+
+### The output of this table function, broken down above, has properly categorized ~82% (149 of 181 rows) of the data, while incorrectly categorizing ~18% (32/181) of the data. Please note these are preliminary numbers, not leveraging the official Accuracy formula. The successful categorizations are 119 True positives, and 30 True Negatives, while the incorrect categorizations are 27 false negatives and 5 false positives. Additionally, the rows represent the predicted values, while the columns are the actual observed values. 
 
 ```
 
@@ -51,6 +68,24 @@ $$
 $$
 
 ```{r Section3}
+## Function for accuracy formula creation
+accuracy_function <- function(df){
+  total_rows<- nrow(df)
+  confusion_matrix <- table(df$class,df$scored.class)
+  cm_df<-data.frame(confusion_matrix)
+  colnames(cm_df)[colnames(cm_df) == "Var2"] <- "Actual"
+  colnames(cm_df)[colnames(cm_df) == "Var1"] <- "Predicted"
+  TP <- cm_df |> filter(Predicted == 0,Actual == 0)|> select(Freq) |> pull(Freq)
+  TN <- cm_df |> filter(Predicted == 1,Actual == 1)|> select(Freq) |> pull(Freq)
+  FP <- cm_df |> filter(Predicted == 0,Actual == 1)|> select(Freq) |> pull(Freq)
+  FN <- cm_df |> filter(Predicted == 1,Actual == 0)|> select(Freq) |> pull(Freq)
+  accuracy <- (TP+TN)/(TP+FN+TN+FP)
+  return(accuracy)
+}
+## Usage Testing
+accuracy<- accuracy_function(df)
+#print(accuracy)
+print(paste(round(accuracy*100,2),"% accurate."))
 
 ```
 
@@ -63,6 +98,25 @@ $$
 Verify that you get an accuracy and an error rate that sums to one.
 
 ```{r Section4}
+## Function Creation
+error_rate_func <- function(df){
+  confusion_matrix <- table(df$class,df$scored.class)
+  cm_df<-data.frame(confusion_matrix)
+  colnames(cm_df)[colnames(cm_df) == "Var2"] <- "Actual"
+  colnames(cm_df)[colnames(cm_df) == "Var1"] <- "Predicted"
+  TP <- cm_df |> filter(Predicted == 0,Actual == 0)|> select(Freq) |> pull(Freq)
+  TN <- cm_df |> filter(Predicted == 1,Actual == 1)|> select(Freq) |> pull(Freq)
+  FP <- cm_df |> filter(Predicted == 0,Actual == 1)|> select(Freq) |> pull(Freq)
+  FN <- cm_df |> filter(Predicted == 1,Actual == 0)|> select(Freq) |> pull(Freq)
+  error_rate <- (FP+FN)/(TP+FP+TN+FN)
+  return(error_rate)
+}
+
+## Testing Usage
+
+error_rate <-error_rate_func(df)
+#print(error_rate)
+print(paste("The error rate of the data is", round((error_rate*100),2),"percent."))
 
 ```
 
@@ -72,7 +126,23 @@ $$
 \text{Precision} = \frac{TP}{TP + FP}
 $$
 ```{r Section5}
+# Function Creation
+precision_function <- function(df){
+  confusion_matrix <- table(df$class,df$scored.class)
+  cm_df<-data.frame(confusion_matrix)
+  colnames(cm_df)[colnames(cm_df) == "Var2"] <- "Actual"
+  colnames(cm_df)[colnames(cm_df) == "Var1"] <- "Predicted"
+  TP <- cm_df |> filter(Predicted == 0,Actual == 0)|> select(Freq) |> pull(Freq)
+  TN <- cm_df |> filter(Predicted == 1,Actual == 1)|> select(Freq) |> pull(Freq)
+  FP <- cm_df |> filter(Predicted == 0,Actual == 1)|> select(Freq) |> pull(Freq)
+  FN <- cm_df |> filter(Predicted == 1,Actual == 0)|> select(Freq) |> pull(Freq)
+  precision <- (TP)/(TP+FP)
+  return(precision)
+}
 
+#Test Usage
+precision <- precision_function(df)
+print(paste("The precision of the predictions in the data is",round((precision*100),2),"percent."))
 ```
 
 ### 6)  Write a function that takes the data set as a dataframe, with actual and predicted classifications identified, and returns the sensitivity of the predictions. Sensitivity is also known as recall.
@@ -82,7 +152,24 @@ $$
 $$
 
 ```{r Section6}
+# Function Creation
+sensitivity_function <- function(df){
+  confusion_matrix <- table(df$class,df$scored.class)
+  cm_df<-data.frame(confusion_matrix)
+  colnames(cm_df)[colnames(cm_df) == "Var2"] <- "Actual"
+  colnames(cm_df)[colnames(cm_df) == "Var1"] <- "Predicted"
+  TP <- cm_df |> filter(Predicted == 0,Actual == 0)|> select(Freq) |> pull(Freq)
+  TN <- cm_df |> filter(Predicted == 1,Actual == 1)|> select(Freq) |> pull(Freq)
+  FP <- cm_df |> filter(Predicted == 0,Actual == 1)|> select(Freq) |> pull(Freq)
+  FN <- cm_df |> filter(Predicted == 1,Actual == 0)|> select(Freq) |> pull(Freq)
+  sensitivity <- (TP)/(TP+FN)
+  return(sensitivity)
+}
 
+#Test Usage
+sensitivity <-sensitivity_function(df)
+#print(sensitivity)
+print(paste("The prediction sensitivity for this data",round((sensitivity*100),2),"percent."))
 ```
 
 ### 7)  Write a function that takes the data set as a dataframe, with actual and predicted classifications identified, and returns the specificity of the predictions.
@@ -92,7 +179,24 @@ $$
 $$
 
 ```{r Section7}
+# Function Creation
+specificity_function <- function(df){
+  confusion_matrix <- table(df$class,df$scored.class)
+  cm_df<-data.frame(confusion_matrix)
+  colnames(cm_df)[colnames(cm_df) == "Var2"] <- "Actual"
+  colnames(cm_df)[colnames(cm_df) == "Var1"] <- "Predicted"
+  TP <- cm_df |> filter(Predicted == 0,Actual == 0)|> select(Freq) |> pull(Freq)
+  TN <- cm_df |> filter(Predicted == 1,Actual == 1)|> select(Freq) |> pull(Freq)
+  FP <- cm_df |> filter(Predicted == 0,Actual == 1)|> select(Freq) |> pull(Freq)
+  FN <- cm_df |> filter(Predicted == 1,Actual == 0)|> select(Freq) |> pull(Freq)
+  specificity <- (TN)/(TN+FP)
+  return(specificity)
+}
 
+#Test Usage
+specificity <-specificity_function(df)
+#print(specificity)
+print(paste("The prediction specificity for this data",round((specificity*100),2),"percent."))
 ```
 
 ### 8) Write a function that takes the data set as a dataframe, with actual and predicted classifications identified, and returns the F1 score of the predictions.
@@ -101,36 +205,100 @@ F1 \text{ Score} = \frac{2 \times \text{Precision} \times \text{Sensitivity}}{\t
 $$
 
 ```{r Section8}
+## Function Creation
+f1_function <- function(df){
+  confusion_matrix <- table(df$class,df$scored.class)
+  cm_df<-data.frame(confusion_matrix)
+  colnames(cm_df)[colnames(cm_df) == "Var2"] <- "Actual"
+  colnames(cm_df)[colnames(cm_df) == "Var1"] <- "Predicted"
+  TP <- cm_df |> filter(Predicted == 0,Actual == 0)|> select(Freq) |> pull(Freq)
+  TN <- cm_df |> filter(Predicted == 1,Actual == 1)|> select(Freq) |> pull(Freq)
+  FP <- cm_df |> filter(Predicted == 0,Actual == 1)|> select(Freq) |> pull(Freq)
+  FN <- cm_df |> filter(Predicted == 1,Actual == 0)|> select(Freq) |> pull(Freq)
+  sensitivity <- (TP)/(TP+FN)
+  precision <- (TP)/(TP+FP)
+  f1_score <- (2*precision*sensitivity)/(precision + sensitivity)
+  return(f1_score)
+} 
+
+## Function Usage
+f1_score <- f1_function(df)
+#print(f1_score)
+print(paste("The F1 score for this data's predictions is", round(f1_score,2)))
 
 ```
 
 ### 9)  Before we move on, let’s consider a question that was asked: What are the bounds on the F1 score? Show that the F1 score will always be between 0 and 1. (Hint: If 0 < 𝑎 < 1 and 0 < 𝑏 < 1 then 𝑎𝑏 < 𝑎.)
 
-```{r Section9}
+An F1 Score will always be between zero and 1. This is because the formula for sensitivity is the True Positive over the total amount of True positives and False negatives. Similarly, the formula for precision is the total number of True Positives over the total number of positives, true and false. Having these two formulas be a proportion under that is less than or equal two one, combined with the F1 score formula it means that the numerator will be double the proportion of the proportion divided by the sum of the same initial proportions for precision and sensitivity. 
 
+```{r Section9}
+## No code needed for this section.
 ```
 
 ### 10) Write a function that generates an ROC curve from a data set with a true classification column (class in our example) and a probability column (scored.probability in our example). Your function should return a list that includes the plot of the ROC curve and a vector that contains the calculated area under the curve (AUC). Note that I recommend using a sequence of thresholds ranging from 0 to 1 at 0.01 intervals.
 
 ```{r Section10}
+### THIS NEEDS TO BE COMPLETED. TOO TIRED TO FINISH NOW.
 
+roc_function <- function(df){
+  confusion_matrix <- table(df$class,df$scored.class)
+  cm_df<-data.frame(confusion_matrix)
+  colnames(cm_df)[colnames(cm_df) == "Var2"] <- "Actual"
+  colnames(cm_df)[colnames(cm_df) == "Var1"] <- "Predicted"
+  TP <- cm_df |> filter(Predicted == 0,Actual == 0)|> select(Freq) |> pull(Freq)
+  TN <- cm_df |> filter(Predicted == 1,Actual == 1)|> select(Freq) |> pull(Freq)
+  FP <- cm_df |> filter(Predicted == 0,Actual == 1)|> select(Freq) |> pull(Freq)
+  FN <- cm_df |> filter(Predicted == 1,Actual == 0)|> select(Freq) |> pull(Freq)
+  sensitivity <- (TP)/(TP+FN)
+  specificity <- (TN)/(TN+FP)
+  x_axis = 1-specificity
+  #ROC Score 
+  roc_score=roc(df$class, df$scored.probability)
+  #Manually Calculating 
+  
+  
+  # Printing the Plot (Dont think i need becuase we wan the result in final list, which will be printed after)
+  #print(plot(roc_score))
+  
+  #Calculating the AUC
+  auc=auc(roc_score)
+  #Placing into a final results list
+  final_list <- list(roc_score, auc)
+  return (final_list)
+}
+
+final_list <- roc_function(df)
+
+roc_score <- final_list[1]
+plot(roc_score)
+auc <- final_list[2]
+print(auc)
 ```
 
-### 11) Use your ** created R functions ** and the provided classification output data set to produce all of the classification metrics discussed above. 
+### 11) Use your **created R functions** and the provided classification output data set to produce all of the classification metrics discussed above. 
 
 ```{r Section11}
 
 ```
 
-### 12)  Investigate the ** caret ** package. In particular, consider the functions confusionMatrix, sensitivity, and specificity. Apply the functions to the data set. How do the results compare with your own functions? 
+### 12)  Investigate the **caret** package. In particular, consider the functions confusionMatrix, sensitivity, and specificity. Apply the functions to the data set. How do the results compare with your own functions? 
 
 ```{r Section12}
 
+
 ```
 
-### 13) Investigate the ** pROC ** package. Use it to generate an ROC curve for the data set. How do the results compare with your own functions?
+### 13) Investigate the **pROC** package. Use it to generate an ROC curve for the data set. How do the results compare with your own functions?
 
 ```{r Section13}
+
+#### NEED TO COMPARE THIS TO THE MANUAL CACULCATION IN SECTION 10 
+
+library(pROC)
+#ROC Score 
+roc_score=roc(df$class, df$scored.probability)
+plot(roc_score)
 
 ```
 
