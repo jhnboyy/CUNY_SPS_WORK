@@ -9,11 +9,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="Group2(John Ferrara, Johnny Rodriguez, Nfn Tenzin Dakar)" />
+<meta name="author" content="John Ferrara" />
 
-<meta name="date" content="2025-03-08" />
+<meta name="date" content="2025-03-14" />
 
-<title>DATA621_Homework2</title>
+<title>DATA624_Homework6</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -350,160 +350,137 @@ display: none;
 
 
 
-<h1 class="title toc-ignore">DATA621_Homework2</h1>
-<h4 class="author">Group2(John Ferrara, Johnny Rodriguez, Nfn Tenzin
-Dakar)</h4>
-<h4 class="date">2025-03-08</h4>
+<h1 class="title toc-ignore">DATA624_Homework6</h1>
+<h4 class="author">John Ferrara</h4>
+<h4 class="date">2025-03-14</h4>
 
 </div>
 
 
-<div id="overview" class="section level2">
-<h2>Overview</h2>
-<p>In this homework assignment, you will work through various
-classification metrics. You will be asked to create functions in R to
-carry out the various calculations. You will also investigate some
-functions in packages that will let you obtain the equivalent results.
-Finally, you will create graphical output that also can be used to
-evaluate the output of classification models, such as binary logistic
-regression.</p>
+<div id="figure-9.32-shows-the-acfs-for-36-random-numbers-360-random-numbers-and-1000-random-numbers." class="section level2">
+<h2>1) Figure 9.32 shows the ACFs for 36 random numbers, 360 random
+numbers and 1,000 random numbers.</h2>
+<p><a href="%22Figure_932.png%22">Figure 9.32</a></p>
+<div id="a-explain-the-differences-among-these-figures.-do-they-all-indicate-that-the-data-are-white-noise" class="section level3">
+<h3>a) Explain the differences among these figures. Do they all indicate
+that the data are white noise?</h3>
 </div>
-<div id="supplemental-material" class="section level2">
-<h2>Supplemental Material</h2>
-<ul>
-<li>Applied Predictive Modeling, Ch. 11 (provided as a PDF file).</li>
-<li>Web tutorials: <a href="http://www.saedsayad.com/model_evaluation_c.htm" class="uri">http://www.saedsayad.com/model_evaluation_c.htm</a></li>
-</ul>
+<div id="b-why-are-the-critical-values-at-different-distances-from-the-mean-of-zero-why-are-the-autocorrelations-different-in-each-figure-when-they-each-refer-to-white-noise" class="section level3">
+<h3>b) Why are the critical values at different distances from the mean
+of zero? Why are the autocorrelations different in each figure when they
+each refer to white noise?</h3>
 </div>
-<div id="deliverables-100-points" class="section level2">
-<h2>Deliverables (100 Points)</h2>
-<ul>
-<li>Upon following the instructions below, use your created R functions
-and the other packages to generate the classification metrics for the
-provided data set. A write-up of your solutions submitted in PDF
-format.</li>
-</ul>
 </div>
-<div id="instructions" class="section level2">
-<h2>Instructions</h2>
-<p>Complete each of the following steps as instructed:</p>
-<div id="download-the-classification-output-data-set-attached-in-blackboard-to-the-assignment." class="section level3">
-<h3>1) Download the classification output data set (attached in
-Blackboard to the assignment).</h3>
-<pre class="r"><code># Reading in the data.
-url &lt;- &quot;https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/Spring2025/DATA621/DATA621_Homework2/classification-output-data.csv&quot;
-df &lt;- read.csv(url)
-head(df)</code></pre>
-<pre><code>##   pregnant glucose diastolic skinfold insulin  bmi pedigree age class
-## 1        7     124        70       33     215 25.5    0.161  37     0
-## 2        2     122        76       27     200 35.9    0.483  26     0
-## 3        3     107        62       13      48 22.9    0.678  23     1
-## 4        1      91        64       24       0 29.2    0.192  21     0
-## 5        4      83        86       19       0 29.3    0.317  34     0
-## 6        1     100        74       12      46 19.5    0.149  28     0
-##   scored.class scored.probability
-## 1            0         0.32845226
-## 2            0         0.27319044
-## 3            0         0.10966039
-## 4            0         0.05599835
-## 5            0         0.10049072
-## 6            0         0.05515460</code></pre>
+<div id="a-classic-example-of-a-non-stationary-series-are-stock-prices.-plot-the-daily-closing-prices-for-amazon-stock-contained-in-gafa_stock-along-with-the-acf-and-pacf.-explain-how-each-plot-shows-that-the-series-is-non-stationary-and-should-be-differenced." class="section level2">
+<h2>2) A classic example of a non-stationary series are stock prices.
+Plot the daily closing prices for Amazon stock (contained in
+gafa_stock), along with the ACF and PACF. Explain how each plot shows
+that the series is non-stationary and should be differenced.</h2>
 </div>
-<div id="the-data-set-has-three-key-columns-we-will-use" class="section level3">
-<h3>2) The data set has three key columns we will use:</h3>
-<ul>
-<li><strong>class: </strong> the actual class for the observation</li>
-<li><strong>scored.class:</strong> the predicted class for the
-observation (based on a threshold of 0.5)</li>
-<li><strong>scored.probability:</strong> the predicted probability of
-success for the observation</li>
-</ul>
-<p>Use the table() function to get the raw confusion matrix for this
-scored dataset. Make sure you understand the output. In particular, do
-the rows represent the actual or predicted class? The columns?</p>
+<div id="for-the-following-series-find-an-appropriate-box-cox-transformation-and-order-of-differencing-in-order-to-obtain-stationary-data." class="section level2">
+<h2>3) For the following series, find an appropriate Box-Cox
+transformation and order of differencing in order to obtain stationary
+data.</h2>
+<div id="a-turkish-gdp-from-global_economy." class="section level3">
+<h3>a) Turkish GDP from global_economy.</h3>
 </div>
-<div id="write-a-function-that-takes-the-data-set-as-a-dataframe-with-actual-and-predicted-classifications-identified-and-returns-the-accuracy-of-the-predictions." class="section level3">
-<h3>3) Write a function that takes the data set as a dataframe, with
-actual and predicted classifications identified, and returns the
-accuracy of the predictions.</h3>
-<p><span class="math display">\[
-\text{Accuracy} = \frac{TP + TN}{TP + FP + TN + FN}
-\]</span></p>
+<div id="b-accommodation-takings-in-the-state-of-tasmania-from-aus_accommodation." class="section level3">
+<h3>b) Accommodation takings in the state of Tasmania from
+aus_accommodation.</h3>
 </div>
-<div id="write-a-function-that-takes-the-data-set-as-a-dataframe-with-actual-and-predicted-classifications-identified-and-returns-the-classification-error-rate-of-the-predictions." class="section level3">
-<h3>4) Write a function that takes the data set as a dataframe, with
-actual and predicted classifications identified, and returns the
-classification error rate of the predictions.</h3>
-<p><span class="math display">\[
-\text{Classification Error Rate} = \frac{FP + FN}{TP + FP + TN + FN}
-\]</span></p>
-<p>Verify that you get an accuracy and an error rate that sums to
-one.</p>
+<div id="c-monthly-sales-from-souvenirs." class="section level3">
+<h3>c) Monthly sales from souvenirs.</h3>
 </div>
-<div id="write-a-function-that-takes-the-data-set-as-a-dataframe-with-actual-and-predicted-classifications-identified-and-returns-the-precision-of-the-predictions." class="section level3">
-<h3>5) Write a function that takes the data set as a dataframe, with
-actual and predicted classifications identified, and returns the
-precision of the predictions.</h3>
-<p><span class="math display">\[
-\text{Precision} = \frac{TP}{TP + FP}
-\]</span></p>
 </div>
-<div id="write-a-function-that-takes-the-data-set-as-a-dataframe-with-actual-and-predicted-classifications-identified-and-returns-the-sensitivity-of-the-predictions.-sensitivity-is-also-known-as-recall." class="section level3">
-<h3>6) Write a function that takes the data set as a dataframe, with
-actual and predicted classifications identified, and returns the
-sensitivity of the predictions. Sensitivity is also known as
-recall.</h3>
-<p><span class="math display">\[
-\text{Sensitivity} = \frac{TP}{TP + FN}
-\]</span></p>
+<div id="for-your-retail-data-from-exercise-7-in-section-2.10-find-the-appropriate-order-of-differencing-after-transformation-if-necessary-to-obtain-stationary-data." class="section level2">
+<h2>5) For your retail data (from Exercise 7 in Section 2.10), find the
+appropriate order of differencing (after transformation if necessary) to
+obtain stationary data.</h2>
 </div>
-<div id="write-a-function-that-takes-the-data-set-as-a-dataframe-with-actual-and-predicted-classifications-identified-and-returns-the-specificity-of-the-predictions." class="section level3">
-<h3>7) Write a function that takes the data set as a dataframe, with
-actual and predicted classifications identified, and returns the
-specificity of the predictions.</h3>
-<p><span class="math display">\[
-\text{Specificity} = \frac{TN}{TN + FP}
-\]</span></p>
+<div id="simulate-and-plot-some-data-from-simple-arima-models." class="section level2">
+<h2>6) Simulate and plot some data from simple ARIMA models.</h2>
+<div id="ause-the-following-r-code-to-generate-data-from-an-ar1-model-with-ϕ1-0.6-and-σ21.-the-process-starts-with-y10." class="section level3">
+<h3>a)Use the following R code to generate data from an AR(1) model with
+ϕ1 = 0.6 and σ2=1. The process starts with y1=0.</h3>
+<pre class="r"><code>#y &lt;- numeric(100)
+#e &lt;- rnorm(100)
+#for(i in 2:100)
+#  y[i] &lt;- 0.6*y[i-1] + e[i]
+#sim &lt;- tsibble(idx = seq_len(100), y = y, index = idx)</code></pre>
 </div>
-<div id="write-a-function-that-takes-the-data-set-as-a-dataframe-with-actual-and-predicted-classifications-identified-and-returns-the-f1-score-of-the-predictions." class="section level3">
-<h3>8) Write a function that takes the data set as a dataframe, with
-actual and predicted classifications identified, and returns the F1
-score of the predictions.</h3>
-<p><span class="math display">\[
-F1 \text{ Score} = \frac{2 \times \text{Precision} \times
-\text{Sensitivity}}{\text{Precision} + \text{Sensitivity}}
-\]</span></p>
+<div id="b-produce-a-time-plot-for-the-series.-how-does-the-plot-change-as-you-change-ϕ1" class="section level3">
+<h3>b) Produce a time plot for the series. How does the plot change as
+you change ϕ1 ?</h3>
 </div>
-<div id="before-we-move-on-lets-consider-a-question-that-was-asked-what-are-the-bounds-on-the-f1-score-show-that-the-f1-score-will-always-be-between-0-and-1.-hint-if-0-𝑎-1-and-0-𝑏-1-then-𝑎𝑏-𝑎." class="section level3">
-<h3>9) Before we move on, let’s consider a question that was asked: What
-are the bounds on the F1 score? Show that the F1 score will always be
-between 0 and 1. (Hint: If 0 &lt; 𝑎 &lt; 1 and 0 &lt; 𝑏 &lt; 1 then 𝑎𝑏
-&lt; 𝑎.)</h3>
+<div id="cwrite-your-own-code-to-generate-data-from-an-ma1-model-with-θ10.6-and-σ21." class="section level3">
+<h3>c)Write your own code to generate data from an MA(1) model with
+θ1=0.6 and σ2=1.</h3>
 </div>
-<div id="write-a-function-that-generates-an-roc-curve-from-a-data-set-with-a-true-classification-column-class-in-our-example-and-a-probability-column-scored.probability-in-our-example.-your-function-should-return-a-list-that-includes-the-plot-of-the-roc-curve-and-a-vector-that-contains-the-calculated-area-under-the-curve-auc.-note-that-i-recommend-using-a-sequence-of-thresholds-ranging-from-0-to-1-at-0.01-intervals." class="section level3">
-<h3>10) Write a function that generates an ROC curve from a data set
-with a true classification column (class in our example) and a
-probability column (scored.probability in our example). Your function
-should return a list that includes the plot of the ROC curve and a
-vector that contains the calculated area under the curve (AUC). Note
-that I recommend using a sequence of thresholds ranging from 0 to 1 at
-0.01 intervals.</h3>
+<div id="dproduce-a-time-plot-for-the-series.-how-does-the-plot-change-as-you-change-θ1" class="section level3">
+<h3>d)Produce a time plot for the series. How does the plot change as
+you change θ1?</h3>
 </div>
-<div id="use-your-created-r-functions-and-the-provided-classification-output-data-set-to-produce-all-of-the-classification-metrics-discussed-above." class="section level3">
-<h3>11) Use your ** created R functions ** and the provided
-classification output data set to produce all of the classification
-metrics discussed above.</h3>
+<div id="e-generate-data-from-an-arma11-model-with-ϕ10.6-θ10.6-and-σ21." class="section level3">
+<h3>e) Generate data from an ARMA(1,1) model with ϕ1=0.6, θ1=0.6 and
+σ2=1.</h3>
 </div>
-<div id="investigate-the-caret-package.-in-particular-consider-the-functions-confusionmatrix-sensitivity-and-specificity.-apply-the-functions-to-the-data-set.-how-do-the-results-compare-with-your-own-functions" class="section level3">
-<h3>12) Investigate the ** caret ** package. In particular, consider the
-functions confusionMatrix, sensitivity, and specificity. Apply the
-functions to the data set. How do the results compare with your own
-functions?</h3>
+<div id="f-generate-data-from-an-ar2-model-with-ϕ10.8-ϕ20.3-and-σ21.-note-that-these-parameters-will-give-a-non-stationary-series." class="section level3">
+<h3>f) Generate data from an AR(2) model with ϕ1=−0.8, ϕ2=0.3 and σ2=1.
+(Note that these parameters will give a non-stationary series.)</h3>
 </div>
-<div id="investigate-the-proc-package.-use-it-to-generate-an-roc-curve-for-the-data-set.-how-do-the-results-compare-with-your-own-functions" class="section level3">
-<h3>13) Investigate the ** pROC ** package. Use it to generate an ROC
-curve for the data set. How do the results compare with your own
-functions?</h3>
+<div id="g-graph-the-latter-two-series-and-compare-them." class="section level3">
+<h3>g) Graph the latter two series and compare them.</h3>
+</div>
+</div>
+<div id="consider-aus_airpassengers-the-total-number-of-passengers-in-millions-from-australian-air-carriers-for-the-period-1970-2011." class="section level2">
+<h2>7) Consider aus_airpassengers, the total number of passengers (in
+millions) from Australian air carriers for the period 1970-2011.</h2>
+<div id="a-use-arima-to-find-an-appropriate-arima-model.-what-model-was-selected.-check-that-the-residuals-look-like-white-noise.-plot-forecasts-for-the-next-10-periods." class="section level3">
+<h3>a) Use ARIMA() to find an appropriate ARIMA model. What model was
+selected. Check that the residuals look like white noise. Plot forecasts
+for the next 10 periods.</h3>
+</div>
+<div id="b-write-the-model-in-terms-of-the-backshift-operator." class="section level3">
+<h3>b) Write the model in terms of the backshift operator.</h3>
+</div>
+<div id="c-plot-forecasts-from-an-arima010-model-with-drift-and-compare-these-to-part-a." class="section level3">
+<h3>c) Plot forecasts from an ARIMA(0,1,0) model with drift and compare
+these to part a.</h3>
+</div>
+<div id="d-plot-forecasts-from-an-arima212-model-with-drift-and-compare-these-to-parts-a-and-c.-remove-the-constant-and-see-what-happens." class="section level3">
+<h3>d) Plot forecasts from an ARIMA(2,1,2) model with drift and compare
+these to parts a and c. Remove the constant and see what happens.</h3>
+</div>
+<div id="e-plot-forecasts-from-an-arima021-model-with-a-constant.-what-happens" class="section level3">
+<h3>e) Plot forecasts from an ARIMA(0,2,1) model with a constant. What
+happens?</h3>
+</div>
+</div>
+<div id="for-the-united-states-gdp-series-from-global_economy" class="section level2">
+<h2>8) For the United States GDP series (from global_economy):</h2>
+<div id="a-if-necessary-find-a-suitable-box-cox-transformation-for-the-data" class="section level3">
+<h3>a) if necessary, find a suitable Box-Cox transformation for the
+data;</h3>
+</div>
+<div id="b-fit-a-suitable-arima-model-to-the-transformed-data-using-arima" class="section level3">
+<h3>b) fit a suitable ARIMA model to the transformed data using
+ARIMA();</h3>
+</div>
+<div id="c-try-some-other-plausible-models-by-experimenting-with-the-orders-chosen" class="section level3">
+<h3>c) try some other plausible models by experimenting with the orders
+chosen;</h3>
+</div>
+<div id="d-choose-what-you-think-is-the-best-model-and-check-the-residual-diagnostics" class="section level3">
+<h3>d) choose what you think is the best model and check the residual
+diagnostics;</h3>
+</div>
+<div id="e-produce-forecasts-of-your-fitted-model.-do-the-forecasts-look-reasonable" class="section level3">
+<h3>e) produce forecasts of your fitted model. Do the forecasts look
+reasonable?</h3>
+</div>
+<div id="f-compare-the-results-with-what-you-would-obtain-using-ets-with-no-transformation." class="section level3">
+<h3>f) compare the results with what you would obtain using ETS() (with
+no transformation).</h3>
 </div>
 </div>
 
