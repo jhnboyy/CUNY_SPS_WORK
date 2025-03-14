@@ -1,0 +1,143 @@
+---
+title: "DATA624_Homework6"
+author: "John Ferrara"
+date: '`r Sys.Date()`'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(fpp3)
+```
+
+## 1) Figure 9.32 shows the ACFs for 36 random numbers, 360 random numbers and 1,000 random numbers.
+
+[Figure 9.32]("Figure_932.png")
+
+
+
+
+
+### a) Explain the differences among these figures. Do they all indicate that the data are white noise?
+
+```{r Exercise1a}
+
+```
+### b) Why are the critical values at different distances from the mean of zero? Why are the autocorrelations different in each figure when they each refer to white noise?
+
+```{r Exercise1b}
+
+```
+
+## 2) A classic example of a non-stationary series are stock prices. Plot the daily closing prices for Amazon stock (contained in gafa_stock), along with the ACF and PACF. Explain how each plot shows that the series is non-stationary and should be differenced.
+
+``` {r Exercise2}
+
+```
+
+## 3) For the following series, find an appropriate Box-Cox transformation and order of differencing in order to obtain stationary data.
+
+### a) Turkish GDP from global_economy.
+```{r Exercise3a}
+
+```
+### b) Accommodation takings in the state of Tasmania from aus_accommodation.
+```{r Exercise3b}
+
+```
+### c) Monthly sales from souvenirs.
+```{r Exercise3c}
+
+```
+
+## 5) For your retail data (from Exercise 7 in Section 2.10), find the appropriate order of differencing (after transformation if necessary) to obtain stationary data.
+``` {r exercise5}
+```
+
+## 6) Simulate and plot some data from simple ARIMA models.
+
+### a)Use the following R code to generate data from an AR(1) model with ϕ1 = 0.6 and  σ2=1. The process starts with  y1=0.
+
+``` {r exercise6a_reference}
+#y <- numeric(100)
+#e <- rnorm(100)
+#for(i in 2:100)
+#  y[i] <- 0.6*y[i-1] + e[i]
+#sim <- tsibble(idx = seq_len(100), y = y, index = idx)
+```
+
+``` {r exercise6a}
+```
+
+### b) Produce a time plot for the series. How does the plot change as you change ϕ1 ?
+``` {r exercise6b}
+```
+
+### c)Write your own code to generate data from an MA(1) model with θ1=0.6 and σ2=1.
+``` {r exercise6c}
+```
+
+### d)Produce a time plot for the series. How does the plot change as you change θ1?
+``` {r exercise6d}
+```
+
+### e) Generate data from an ARMA(1,1) model with ϕ1=0.6, θ1=0.6 and σ2=1.
+``` {r exercise6e}
+```
+
+### f) Generate data from an AR(2) model with ϕ1=−0.8, ϕ2=0.3 and σ2=1. (Note that these parameters will give a non-stationary series.)
+``` {r exercise6f}
+```
+
+### g) Graph the latter two series and compare them.
+``` {r exercise6g}
+```
+
+## 7) Consider aus_airpassengers, the total number of passengers (in millions) from Australian air carriers for the period 1970-2011.
+
+### a) Use ARIMA() to find an appropriate ARIMA model. What model was selected. Check that the residuals look like white noise. Plot forecasts for the next 10 periods.
+``` {r exercise7a}
+```
+
+### b) Write the model in terms of the backshift operator.
+``` {r exercise7b}
+```
+
+### c) Plot forecasts from an ARIMA(0,1,0) model with drift and compare these to part a.
+``` {r exercise7c}
+```
+
+### d) Plot forecasts from an ARIMA(2,1,2) model with drift and compare these to parts a and c. Remove the constant and see what happens.
+``` {r exercise7d}
+```
+
+### e) Plot forecasts from an ARIMA(0,2,1) model with a constant. What happens?
+``` {r exercise7e}
+```
+
+## 8) For the United States GDP series (from global_economy):
+
+### a) if necessary, find a suitable Box-Cox transformation for the data;
+``` {r exercise8a}
+```
+
+### b) fit a suitable ARIMA model to the transformed data using ARIMA();
+``` {r exercise8b}
+```
+
+### c) try some other plausible models by experimenting with the orders chosen;
+``` {r exercise8c}
+```
+
+### d) choose what you think is the best model and check the residual diagnostics;
+``` {r exercise8d}
+```
+
+### e) produce forecasts of your fitted model. Do the forecasts look reasonable?
+``` {r exercise8e}
+```
+
+### f) compare the results with what you would obtain using ETS() (with no transformation).
+``` {r exercise8f}
+```
