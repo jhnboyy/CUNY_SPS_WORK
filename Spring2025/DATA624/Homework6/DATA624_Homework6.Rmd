@@ -1,8 +1,10 @@
 ---
 title: "DATA624_Homework6"
 author: "John Ferrara"
-date: '`r Sys.Date()`'
-output: html_document
+date: "`r Sys.Date()`"
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -527,6 +529,7 @@ report(fit_usgdp2)
 #### d) choose what you think is the best model and check the residual diagnostics;
 ``` {r exercise8d}
 ## Choosing the first model as the numbers when looking at the AIC, the BIC, and the AICc, are the most ideal. The second model i tried not that much different, but got worse results with these benchmarks. 
+
 
 #Looking at residuals
 gg_tsresiduals(fit_usgdp)
