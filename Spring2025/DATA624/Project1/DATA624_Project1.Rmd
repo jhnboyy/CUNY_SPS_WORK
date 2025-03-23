@@ -22,7 +22,7 @@ library(fpp3)
 In part A, I want you to forecast how much cash is taken out of 4 different ATM machines for May 2010.  The data is given in a single file.  The variable ‘Cash’ is provided in hundreds of dollars, other than that it is straight forward. I am being somewhat ambiguous on purpose to make this have a little more business feeling.  Explain and demonstrate your process, techniques used and not used, and your actual forecast.  I am giving you data via an excel file, please provide your written report on your findings, visuals, discussion and your R code via an RPubs link along with the actual.rmd file  Also please submit the forecast which you will put in an Excel readable file.
 
 ## Overview
-There were four different ATMs in the raw dataset. In order to accurately provide forecasts for each individual ATM machine and its respective cash flow the data was parsed so as to separate each of the four ATMs into their own individual datasets. However, before this data was parsed out based on the ATM number several steps were taken to prepare the data for analysis. The dataset was checked for null values. A total of 19 rows out of 1,474 total rows were found to have null values. Of these 19, there were 14 rows that had a null value for the ATM and the Cash value. These rows lacked enough data to be deemed useful towards the analysis and were dropped. The four remaining rows that contained null values were limited to the Cash column. Due to these rows having an ATM value thwey were left in. The 5 remaining null values impacted ATM1 and ATM2. In order to fill in these values, the average of the Cash values for the following and preceeding days were averaged in order to imputes these values. For instance, one of the null values found that impacted ATM 1 was a null cash value on 6/13/2009. The average of the cash values for ATM1 on 6/12/2009 and 6/14/2009 were averaged to impute the null value on 6/13/2009. This technique was used on each of the 5 total null cash values. 
+There were four different ATMs in the raw dataset. In order to accurately provide forecasts for each individual ATM machine and its respective cash flow the data was parsed so as to separate each of the four ATMs into their own individual datasets. However, before this data was parsed out based on the ATM number several steps were taken to prepare the data for analysis. The dataset was checked for null values. A total of 19 rows out of 1,474 total rows were found to have null values. Of these 19, there were 14 rows that had a null value for the ATM and the Cash value. These rows lacked enough data to be deemed useful towards the analysis and were dropped. The four remaining rows that contained null values were limited to the Cash column. Due to these rows having an ATM value they were left in. The 5 remaining null values impacted ATM1 and ATM2. In order to fill in these values, the average of the Cash values for the following and preceeding days were averaged in order to imputes these values. For instance, one of the null values found that impacted ATM 1 was a null cash value on 6/13/2009. The average of the cash values for ATM1 on 6/12/2009 and 6/14/2009 were averaged to impute the null value on 6/13/2009. This technique was used on each of the 5 total null cash values. 
 
 In addition to imputing null values in the data, the dates, having been sourced from and Excel file, needed formatting. In order to convert the dates from the raw excel format research into Excel's data methodology had to be completed in order to identify the origin date that the program uses to count days. It was discovered that while Excel uses 1900/01/01 as base line date, the program also incorrectly considers 1900 a leap year. This mandates the use of a different origin date for proper date conversions. The date used was '1899-12-30'. Using this date the numbers initially read in were successfully converted to dates to use in the forecast analysis. 
 
@@ -34,27 +34,28 @@ The following image is the initial data concerning ATM1 when plotted. As you can
 ![Raw ATM1 Plot](https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/Spring2025/DATA624/Project1/images/atm1_proj_full.png)
 
 
-After checking for the presence of zeros in the Cash column, as this would impact certain transformation types, I proceeded to attempt different modeling techniques to yield an accurate projection. I tried to main modeling methodologies: ETS and ARIMA modeling. There were no zeros in the ATM1 Cash data column, so I manually attempted both additive and multiplicative seasonalities, while also using the function's native ability to identify the best recommended model. The following table breaks down the ETS and ARIMA models I attempted, along with the model I ultimately selected based on performance. 
+After checking for the presence of zeros in the Cash column, as this would impact certain transformation types. I decided to log the data in order to yeild a better performing model. I then proceeded to attempt different modeling techniques to yield an accurate projection. I tried to main modeling methodologies: ETS and ARIMA modeling. There were no zeros in the ATM1 Cash data column, so I manually attempted both additive and multiplicative seasonalities, while also using the function's native ability to identify the best recommended model. The following table breaks down the ETS and ARIMA models I attempted, along with the model I ultimately selected based on performance. 
 
 ###### ATM 1 Model Comparison Table (ETS and ARIMA)
 
 | Model           | Model Type | AIC      | AICc     | BIC      | RMSE     | Status |
 |-----------------|------------|----------|----------|----------|----------|-------|
-| auto_ANA        | ETS        | 4488.413 | 4489.035 | 4527.412 | 23.83524 |       |
-| ANM             | ETS        | 4488.277 | 4488.898 | 4527.276 | 23.83080 |       |
-| MNM             | ETS        | 4566.787 | 4567.408 | 4605.786 | 26.34075 |       |
-| MNA             | ETS        | 4595.487 | 4596.108 | 4634.486 | 23.99628 |       |
-| manual_select2  | ARIMA      | 670.4853 | 670.5531 | 682.1269 | 27.30840 |       |
-| manual_select3  | ARIMA      | 661.1413 | 661.2547 | 676.6635 | 26.75715 |       |
-| auto_step       | ARIMA      | 647.8779 | 647.9117 | 655.6390 | 25.99424 |       |
-| auto_search     | ARIMA      | 646.3709 | 646.4842 | 661.8930 | 26.42130 |       |
+| auto_ANA ETA(ANA)      | ETS        | 4488.413 | 4489.035 | 4527.412 | 23.83524 |Rejected |
+| ANM             | ETS        | 4488.277 | 4488.898 | 4527.276 | 23.83080 |Rejected |
+| MNM             | ETS        | 4566.787 | 4567.408 | 4605.786 | 26.34075 |Rejected|
+| MNA             | ETS        | 4595.487 | 4596.108 | 4634.486 | 23.99628 |Rejected|
+| manual_select2 ARIMA(0,0,0)(2,1,0) | ARIMA      | 670.4853 | 670.5531 | 682.1269 | 27.30840 |Rejected|
+| manual_select3 ARIMA(0,0,0)(3,1,0) | ARIMA      | 661.1413 | 661.2547 | 676.6635 | 26.75715 |Rejected|
+| auto_step   ARIMA(0,0,0)(0,1,1)    | ARIMA      | 647.8779 | 647.9117 | 655.6390 | 25.99424 |Selected|
+| auto_search ARIMA(0,0,2)(0,1,1)    | ARIMA      | 646.3709 | 646.4842 | 661.8930 | 26.42130 |Rejected|
 
 
-Using the selected ARIMA model (), a forecast for ATM1's cash output was made for 30 days after the end of the data, essentially May 2010. The projection image can be seen below, with the detailed daily projected values in the accompanying file in the ATM1 tab. 
+Using the selected ARIMA model (ARIMA(0,0,0)(0,1,1)), a forecast for ATM1's cash output was made for 30 days after the end of the data, essentially May 2010. This was done after last confirmation of the model's residuals to not have any autocorrelations left by visually looking at the residuals and performing a LJung Box test. The projection image can be seen below, with the detailed daily projected values in the accompanying file in the ATM1 tab. 
 
 ![Full ATM1 Projection Forecast Plot](https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/Spring2025/DATA624/Project1/images/atm1_proj_full.png)
 
 ![Limited for Visibility ATM1 Projection Forecast Plot](https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/Spring2025/DATA624/Project1/images/atm1_proj_lim.png)
+Overall, the projection predicts that for the month of may the cash withdrawals will be around $10,000 (as keep in mind the cash column is in hundreds). This does fluctuate a bit, but on 5/1/2010 the predicted value is about 103 for the Cash column, by the 15th of the month the prediction is around 106, and lastly by months end the prediction is ~125. More details can be found in the accompanying Excel file in the PARTA_ATM1 tab. Lastly, all of my code and work for this ATM can be foudn in Appendix A. 
 
 
 ### ATM2
@@ -68,19 +69,19 @@ For this ATM there were 2 zero values in the cash column, which meant without tr
 
 | Model           | Model Type | AIC      | AICc     | BIC      | RMSE     | Status |
 |-----------------|------------|----------|----------|----------|----------|-------|
-| auto            | ETS        | 4525.473 | 4526.095 | 4564.472 | 25.07654 |       |
-| ANA             | ETS        | 4525.473 | 4526.095 | 4564.472 | 25.07654 |       |
-| manual_select2  | ARIMA      | 3351.374 | 3351.441 | 3363.015 | 25.54244 |       |
-| manual_select3  | ARIMA      | 3339.141 | 3339.255 | 3354.664 | 25.01099 |       |
-| auto_step       | ARIMA      | 3318.576 | 3318.816 | 3341.859 | 24.11392 |       |
-| auto_search     | ARIMA      | 3318.576 | 3318.816 | 3341.859 | 24.11392 |       |
+| auto  ETS(ANA)   | ETS        | 4525.473 | 4526.095 | 4564.472 | 25.07654 |Rejected|
+| ANA             | ETS        | 4525.473 | 4526.095 | 4564.472 | 25.07654 |Rejected|
+| manual_select2 ARIMA(0,0,0)(2,1,0) | ARIMA      | 3351.374 | 3351.441 | 3363.015 | 25.54244 |Rejected       |
+| manual_select3 ARIMA(0,0,0)(3,1,0) | ARIMA      | 3339.141 | 3339.255 | 3354.664 | 25.01099 |Rejected |
+| auto_step  ARIMA(2,0,2)(0,1,1)     | ARIMA      | 3318.576 | 3318.816 | 3341.859 | 24.11392 | Selected |
+| auto_search ARIMA(2,0,2)(0,1,1)    | ARIMA      | 3318.576 | 3318.816 | 3341.859 | 24.11392 | Selected |
 
-After selecting the best model based on the numbers in the table, the residuals of the selected model were examined for good measure showing no autocorrelation and using Ljung Box tests, the pvalues confirmed this as well. I proceeded forward to forecast using this model, which can be seen in the image below. 
+After selecting the best model based on the numbers in the table, which was the ARIMA(2,0,2)(0,1,1) model, the residuals of the selected model were examined for good measure showing no autocorrelation and using Ljung Box tests, the p-values confirmed this as well. I proceeded forward to forecast using this model, which can be seen in the image below. 
 
 ![ATM2 Projection Forecast Plot](https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/Spring2025/DATA624/Project1/images/atm2_proj.png)
 
 ![Limited for Visibility ATM2 Projection Forecast Plot](https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/Spring2025/DATA624/Project1/images/atm2_proj_lim.png)
-
+Overall, the forecast predicted that the Cash values for the month of May 2010, would average aroudn 6,000, or 60 (remember Cash is valued in hundreds). The forecast outlined thaton the first of hte month the predicted values is aroudn 66, by mid-month the forecastremains aroudn 66, and by the end of the month the prediction is 72. There are variations in between. More details can be founf in the accompanying Excel file in the PARTA_ATM2 Tab. Lastly, all of my code and work for this ATM can be foudn in Appendix A. 
 
 ### ATM3
 The following images are the plots of the raw data of ATM3. The data set was different as all but three of the data points for the Cash column had zero values. The last three points were the only varying data points available. This led to me using a different modeling technique than ATMs 1, 2 and 4.
@@ -100,7 +101,7 @@ For modeling this data set ETS and ARIMA techniques were not used do it only hav
 | DRIFT  |  5.082060 | Rejected |
 
 ![ATM3 Projection Forecast Plot](https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/Spring2025/DATA624/Project1/images/atm3_proj.png)
-
+Overall, the forecast predicted that the values for May 2010 will be aroudn 85. THere is no variation in this model as it was the NAIVE modeling technique that was used due to the lack of nuanced data values. More details can be found in the accompanying Excel file in the PARTA_ATM3 Tab. Lastly, all of my code and work for this ATM can be foudn in Appendix A. 
 
 ### ATM4 
 
@@ -112,22 +113,57 @@ For ATM4, similar to ATM 1 and 2, the data has no clear trend. However, this dat
 
 ###### ATM 4 Model Comparison Table (ETS and ARIMA)
 
-| Model           | Model Type | AIC      | AICc     | BIC      | RMSE      | Notes |
+| Model           | Model Type | AIC      | AICc     | BIC      | RMSE      | Status |
 |-----------------|------------|----------|----------|----------|-----------|-------|
-| auto            | ETS        | 6690.624 | 6691.246 | 6729.623 | 645.1182  |       |
-| ANM             | ETS        | 6884.976 | 6885.598 | 6923.975 | 635.3199  |       |
-| MNM             | ETS        | 6795.135 | 6795.756 | 6834.134 | 851.0784  |       |
-| MNA             | ETS        | 6690.624 | 6691.246 | 6729.623 | 645.1182  |       |
-| manual_select2  | ARIMA      | 5763.329 | 5763.397 | 5774.971 | 740.9888  |       |
-| manual_select3  | ARIMA      | 5736.843 | 5736.956 | 5752.365 | 710.4476  |       |
-| auto_step       | ARIMA      | 5768.064 | 5768.097 | 5775.864 | 650.0437  |       |
-| auto_search     | ARIMA      | 5768.064 | 5768.097 | 5775.864 | 650.0437  |       |
+| auto  ETS(M,N,A)          | ETS        | 6690.624 | 6691.246 | 6729.623 | 645.1182  | Rejected |
+| ANM             | ETS        | 6884.976 | 6885.598 | 6923.975 | 635.3199  | Rejected |
+| MNM             | ETS        | 6795.135 | 6795.756 | 6834.134 | 851.0784  | Rejected |
+| MNA             | ETS        | 6690.624 | 6691.246 | 6729.623 | 645.1182  | Rejected |
+| manual_select2 ARIMA(0,0,0)(2,1,0) | ARIMA      | 5763.329 | 5763.397 | 5774.971 | 740.9888  | Rejected |
+| manual_select3 ARIMA(0,0,0)(3,1,0) | ARIMA    | 5736.843 | 5736.956 | 5752.365 | 710.4476  | Rejected |
+| auto_step  ARIMA(0,0,0) w/ mean     | ARIMA      | 5768.064 | 5768.097 | 5775.864 | 650.0437  | Selected |
+| auto_search ARIMA(0,0,0) w/ mean    | ARIMA      | 5768.064 | 5768.097 | 5775.864 | 650.0437  | Selected |
 
-After selecting the best model based on the numbers in the table, the residuals of the selected model were examined for good measure showing no autocorrelation and using Ljung Box tests, the pvalues confirmed this as well. I proceeded forward to forecast using this model, which can be seen in the image below. 
+After selecting the best model based on the numbers in the table, which was the ARIMA(0,0,0) w/ mean or basically a simple average of the data. The residuals of the selected model were examined for good measure showing no autocorrelation and using Ljung Box tests, the p-values confirmed this as well. I proceeded forward to forecast using this model, which can be seen in the image below. 
 
-<ProjectionImage>
 
-## Code & Analysis
+![ATM4 Projection Forecast Plot](https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/Spring2025/DATA624/Project1/images/atm4_proj.png)
+
+![Limited for Visibility ATM4 Projection Forecast Plot](https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/Spring2025/DATA624/Project1/images/atm4_proj_lim.png)
+
+Overall, the forecast predicted that the Cash value for the month of May in 2010 would be about 475 hundred. There is no variation in this data as it is a mean of the data itself. More details can be found in the accompanying Excel file in the PARTA_ATM4 Tab. Lastly, all of my code and work for this ATM can be found in Appendix A. 
+
+
+# Part B – FORECASTING POWER (ResidentialCustomerForecastLoad-624.xlsx)
+
+### Description
+Part B consists of a simple dataset of residential power usage for January 1998 until December 2013.  Your assignment is to model these data and a monthly forecast for 2014.  The data is given in a single file.  The variable ‘KWH’ is power consumption in Kilowatt hours, the rest is straight forward.  Add this to your existing files above. 
+
+### Overview
+For Part B, the raw data was read into R, and processed as needed to prep for analysis. In order to prep the data, several steps were taken. Firstly, when initially read in the date values found in the "YYYY-MMM" column were not formatted as dates. This column was formated as a date using yearmonth. It was after this that the rest of the data cleaning could take place. The data was checked for null values that were in need of cleaning or imputation. There was one null found in the KWH values. Similar to Part A, because it was just one null compared to the larger data set, this value was filled in using the sandwiching KWH values. The one null was for September 2008, so the values of KWH for October 2008 and August 2008 were averaged to impute the September 2008 null value. After this was completed the data was placed into a tsibble, plotted and various models were applied ot the data. The image below shows the data plotted with the one imputed value. 
+
+![Part B KWH Data Plotted](https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/Spring2025/DATA624/Project1/images/partb_dataplot.png)
+
+
+
+Based on the experience in Part A, along with the patterns in the data, a Box-Cox lambda transformation value was used to best transform the data. After this, the ARIMA function was used to find the best fit model. Only ARIMA was used as in Part A ARIMA consistently performed better than the ETS models. The models that the function selected through both a stepwise fashion, and the more time intensive method are in the table below. 
+
+### Residential Power Model Comparison Table (ARIMA)
+
+| Model        | Model Type | AIC      | AICc     | BIC      | RMSE      | Notes            |
+|--------------|------------|----------|----------|----------|-----------|------------------|
+| auto_step  ARIMA(0,1,2)(0,0,2)[12]  | ARIMA      | 619.6074 | 619.9317 | 635.8688 | 1,197,100 |                  |
+| auto_search ARIMA(0,1,2)(2,0,0)[12] | ARIMA      | 601.4199 | 601.7443 | 617.6813 | 1,088,172 | Selected model   |
+
+
+After examining the output data for the models in the table above, the "auto_search" model was selected. This model, the ARIMA(0,1,2)(2,0,0)[12], was used to then forecast the KWJ for the next year, or 12 months of 2014. THe forecast visualization can be seen plotted below. 
+
+[PartB KWH Forecast for 2014](https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/Spring2025/DATA624/Project1/images/partb_data_forecast.png)
+
+Overall, the forecast produced by the model outlines that in January 2014 the value for KWH will be ~9,192,398. By mid-year, the value will be the ~7,709,113, and by years end in December the value would be ~7,711,422. As with other ARIMA models there are variations in these values month to month. Lastly, all of my code and work for Part B can be found in Appendix B. 
+
+
+## APPENDIX A - Part A Code & Analysis
 ``` {r reading_in_data}
 # RAW FILE ALSO SITS HERE: https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/main/Spring2025/DATA624/Project1/ATM624Data.xlsx
 #Reading in from local excel 
@@ -329,7 +365,7 @@ arima_atm1 <- atm1 |>
         manual_select3 = ARIMA(log(Cash) ~ pdq(0,0,0) + PDQ(3,1,0)),
         auto_step = ARIMA(log(Cash)), #<ARIMA(0,0,0)(0,1,1)[7]>	
         auto_search = ARIMA(log(Cash), stepwise = FALSE, approx=FALSE) ) 
-
+arima_atm1
 print(arima_atm1 |> report())
 ## Manually selected models are not as good as automated ones according to AIC, AICc and BIC. I think auto_step model is the best, will be using that to forecast. 
 
@@ -379,7 +415,13 @@ print(atm1_forecast |> autoplot(atm1))
 
 
 ## Looking at forecasted values 
-atm1_forecast|> hilo() |> as_tsibble()
+#atm1_forecast|> hilo() |> as_tsibble()
+
+#forecast_table <- atm1_forecast |> hilo() |> as_tsibble()
+
+# Write to CSV
+#write.csv(atm1_forecast, "projection_data/atm1_forecast_values.csv", row.names = FALSE)
+
 
 ```
 ### ATM2 Work
@@ -481,7 +523,13 @@ print(atm2_forecast |>
 #ggsave("images/atm2_proj_lim.png", plot = p, width = 12, height = 8, dpi = 300)
 
 ## Looking at forecasted values 
-atm2_forecast|> hilo() |> as_tsibble()
+#atm2_forecast|> hilo() |> as_tsibble()
+
+#forecast_table <- atm2_forecast |> hilo() |> as_tsibble()
+
+# Write to CSV
+#write.csv(atm2_forecast, "projection_data/atm2_forecast.csv", row.names = FALSE)
+
 ```
 
 ### ATM3 Work
@@ -516,7 +564,9 @@ print(atm3_forecast |>
 #ggsave("images/atm3_proj.png", plot = p, width = 12, height = 8, dpi = 300)
 
 ## Looking at forecasted values 
-atm3_forecast|> hilo() |> as_tsibble()
+#atm3_forecast#|> hilo() |> as_tsibble()
+
+#write.csv(atm3_forecast, "projection_data/atm3_forecast_values.csv", row.names = FALSE)
 
 ```
 
@@ -620,20 +670,18 @@ print(atm4_forecast |>
 
 
 ## Looking at forecasted values 
-atm4_forecast|> hilo() |> as_tsibble()
+#atm4_forecast|> hilo() |> as_tsibble()
+
+#forecast_table <- atm4_forecast |> hilo() |> as_tsibble()
+
+# Write to CSV
+#write.csv(atm4_forecast, "projection_data/atm4_forecast_values.csv", row.names = FALSE)
 
 
 ```
 
 
-# Part B – FORECASINT POWER (ResidentialCustomerForecastLoad-624.xlsx)
-
-### Description
-Part B consists of a simple dataset of residential power usage for January 1998 until December 2013.  Your assignment is to model these data and a monthly forecast for 2014.  The data is given in a single file.  The variable ‘KWH’ is power consumption in Kilowatt hours, the rest is straight forward.  Add this to your existing files above. 
-
-### Overview
-
-### Code and Analysis
+## APPENDIX B - Part B Code & Analysis
 ``` {r reading_data}
 # RAW FILE ALSO SITS HERE: https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/main/Spring2025/DATA624/Project1/ResidentialCustomerForecastLoad-624.xlsx
 res_df<-read_excel('ResidentialCustomerForecastLoad-624.xlsx')
@@ -652,9 +700,12 @@ res_df |> filter(is.na('YYYY-MMM'))
 ## Looking at the one null 
 res_df|> filter(is.na(KWH))
 ## The one null in KWH is in September 2008, checking the before and after
+
 res_df<- res_df |>
     mutate(DATE = yearmonth(`YYYY-MMM`),
            source = if_else(is.na(KWH), "imputed", "original"))
+
+#res_df |> filter( DATE >= yearmonth('2008-Aug') & DATE<=yearmonth('2008-Oct'))
 
 red_df_imp <- res_df |> mutate(KWH = if_else(is.na(KWH) & DATE >= yearmonth('2008-Aug') & DATE<=yearmonth('2008-Oct'),
                                   (lag(KWH) + lead(KWH)) / 2, KWH ))
@@ -668,7 +719,8 @@ red_tsibble <- red_df_imp |>
 
 # plotting
 print(red_tsibble|> autoplot())
-
+#p <- red_tsibble|> autoplot()
+#ggsave("images/partb_dataplot.png", plot = p, width = 12, height = 8, dpi = 300)
 ## Very subtle trend with seasonal variation. One large drop / outlier. 
 
 ## Using Box -Cox for best transformation 
@@ -717,11 +769,16 @@ red_forecast <- red_model |> forecast(h = 12) #12 months
 # KWH forecast  
 print(red_forecast |> 
     autoplot(red_tsibble))
-
+#p <- red_forecast |> 
+    autoplot(red_tsibble)
+#ggsave("images/partb_data_forecast.png", plot = p, width = 12, height = 8, dpi = 300)
 
 ## Looking at forecasted values 
-red_forecast|> hilo() |> as_tsibble()
+#red_forecast|> hilo() |> as_tsibble()
 
+#forecast_table <- red_forecast |> hilo() |> as_tsibble()
+
+#write.csv(red_forecast, "projection_data/red_forecast_values.csv", row.names = FALSE)
 
 ```
  
