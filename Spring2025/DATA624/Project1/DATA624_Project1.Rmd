@@ -50,7 +50,7 @@ After checking for the presence of zeros in the Cash column, as this would impac
 | auto_search ARIMA(0,0,2)(0,1,1)    | ARIMA      | 646.3709 | 646.4842 | 661.8930 | 26.42130 |Rejected|
 
 
-Using the selected ARIMA model (ARIMA(0,0,0)(0,1,1)), a forecast for ATM1's cash output was made for 30 days after the end of the data, essentially May 2010. This was done after last confirmation of the model's residuals to not have any autocorrelations left by visually looking at the residuals and performing a LJung Box test. The projection image can be seen below, with the detailed daily projected values in the accompanying file in the ATM1 tab. 
+Using the selected ARIMA model (ARIMA(0,0,0)(0,1,1)), a forecast for ATM1's cash output was made for 30 days after the end of the data, essentially May 2010. This was done after last confirmation of the model's residuals to not have any autocorrelations or odd patterns present by visually looking at the residuals and performing a LJung Box test to reteive a p-value. The projection image can be seen below, with the detailed daily projected values in the accompanying file in the ATM1 tab. 
 
 ![Full ATM1 Projection Forecast Plot](https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/Spring2025/DATA624/Project1/images/atm1_proj_full.png)
 
@@ -81,7 +81,7 @@ After selecting the best model based on the numbers in the table, which was the 
 ![ATM2 Projection Forecast Plot](https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/Spring2025/DATA624/Project1/images/atm2_proj.png)
 
 ![Limited for Visibility ATM2 Projection Forecast Plot](https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/Spring2025/DATA624/Project1/images/atm2_proj_lim.png)
-Overall, the forecast predicted that the Cash values for the month of May 2010, would average aroudn 6,000, or 60 (remember Cash is valued in hundreds). The forecast outlined thaton the first of hte month the predicted values is aroudn 66, by mid-month the forecastremains aroudn 66, and by the end of the month the prediction is 72. There are variations in between. More details can be founf in the accompanying Excel file in the PARTA_ATM2 Tab. Lastly, all of my code and work for this ATM can be foudn in Appendix A. 
+Overall, the forecast predicted that the Cash values for the month of May 2010, would average aroudn 6,000, or 60 (remember Cash is valued in hundreds). The forecast outlined that on the first of hte month the predicted values is around 66, by mid-month the forecast remains around 66, and by the end of the month the prediction is 72. There are variations in between. More details can be founf in the accompanying Excel file in the PARTA_ATM2 Tab. Lastly, all of my code and work for this ATM can be foudn in Appendix A. 
 
 ### ATM3
 The following images are the plots of the raw data of ATM3. The data set was different as all but three of the data points for the Cash column had zero values. The last three points were the only varying data points available. This led to me using a different modeling technique than ATMs 1, 2 and 4.
@@ -101,7 +101,7 @@ For modeling this data set ETS and ARIMA techniques were not used do it only hav
 | DRIFT  |  5.082060 | Rejected |
 
 ![ATM3 Projection Forecast Plot](https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/Spring2025/DATA624/Project1/images/atm3_proj.png)
-Overall, the forecast predicted that the values for May 2010 will be aroudn 85. THere is no variation in this model as it was the NAIVE modeling technique that was used due to the lack of nuanced data values. More details can be found in the accompanying Excel file in the PARTA_ATM3 Tab. Lastly, all of my code and work for this ATM can be foudn in Appendix A. 
+Overall, the forecast predicted that the values for May 2010 will be around 85. There is no variation in this model as it was the NAIVE modeling technique that was used due to the lack of nuanced data values. The data seems to show that while the ATM was deployed for a while, it is only recently that it began being used. More details can be found in the accompanying Excel file in the PARTA_ATM3 Tab. Lastly, like all predictions these are estimates, and the confidence intervals were withheld from the final output file for conciseness and clarity, but were included in the visualization. All of my code and work for this ATM can be found in Appendix A. 
 
 ### ATM4 
 
@@ -109,7 +109,7 @@ The photo below shows the plotting of the raw ATM4 data.
 
 ![Raw ATM4 Plot](https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/Spring2025/DATA624/Project1/images/raw_atm4.png)
 
-For ATM4, similar to ATM 1 and 2, the data has no clear trend. However, this data also no real pattern to the variations in the data. There was one large outlier that was in the data to note of. With this being said, the process for finding a model for ATM 4 was the same process for ATM1 and ATM2. I used ETS and ARIMA methodologies in order to find the best performing model to forcecast May 2010 values. 
+For ATM4, similar to ATM 1 and 2, the data has no clear trend. However, this data also no real pattern to the variations in the data. There was one large outlier that was in the data to note of, I left it because there was a sufficient amount of other data to model with. With this being said, the process for finding a model for ATM 4 was the same process for ATM1 and ATM2. I used ETS and ARIMA methodologies in order to find the best performing model to forecast May 2010 values. 
 
 ###### ATM 4 Model Comparison Table (ETS and ARIMA)
 
@@ -124,14 +124,14 @@ For ATM4, similar to ATM 1 and 2, the data has no clear trend. However, this dat
 | auto_step  ARIMA(0,0,0) w/ mean     | ARIMA      | 5768.064 | 5768.097 | 5775.864 | 650.0437  | Selected |
 | auto_search ARIMA(0,0,0) w/ mean    | ARIMA      | 5768.064 | 5768.097 | 5775.864 | 650.0437  | Selected |
 
-After selecting the best model based on the numbers in the table, which was the ARIMA(0,0,0) w/ mean or basically a simple average of the data. The residuals of the selected model were examined for good measure showing no autocorrelation and using Ljung Box tests, the p-values confirmed this as well. I proceeded forward to forecast using this model, which can be seen in the image below. 
+After selecting the best model based on the numbers in the table, which was the ARIMA(0,0,0) w/ mean or basically a simple average of the data. The residuals of the selected model were examined for good measure showing odd patterns and using Ljung Box tests, the p-values confirmed no autocorrelation. I proceeded forward to forecast using this model, which can be seen in the image below. 
 
 
 ![ATM4 Projection Forecast Plot](https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/Spring2025/DATA624/Project1/images/atm4_proj.png)
 
 ![Limited for Visibility ATM4 Projection Forecast Plot](https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/Spring2025/DATA624/Project1/images/atm4_proj_lim.png)
 
-Overall, the forecast predicted that the Cash value for the month of May in 2010 would be about 475 hundred. There is no variation in this data as it is a mean of the data itself. More details can be found in the accompanying Excel file in the PARTA_ATM4 Tab. Lastly, all of my code and work for this ATM can be found in Appendix A. 
+Overall, the forecast predicted that the Cash value for the month of May in 2010 would be about 475 hundred. There is no variation in this data as it is a mean of the data itself. There is no weekly seasonlity in this data, and seems to just be random fluctuations on withdrawal usage. More details can be found in the accompanying Excel file in the PARTA_ATM4 Tab. Like all predictions these are estimates, and the confidence intervals were withheld from the final output file for conciseness and clarity, but were included in the visualization. Lastly, all of my code and work for this ATM can be found in Appendix A. 
 
 
 # Part B – FORECASTING POWER (ResidentialCustomerForecastLoad-624.xlsx)
@@ -140,13 +140,11 @@ Overall, the forecast predicted that the Cash value for the month of May in 2010
 Part B consists of a simple dataset of residential power usage for January 1998 until December 2013.  Your assignment is to model these data and a monthly forecast for 2014.  The data is given in a single file.  The variable ‘KWH’ is power consumption in Kilowatt hours, the rest is straight forward.  Add this to your existing files above. 
 
 ### Overview
-For Part B, the raw data was read into R, and processed as needed to prep for analysis. In order to prep the data, several steps were taken. Firstly, when initially read in the date values found in the "YYYY-MMM" column were not formatted as dates. This column was formated as a date using yearmonth. It was after this that the rest of the data cleaning could take place. The data was checked for null values that were in need of cleaning or imputation. There was one null found in the KWH values. Similar to Part A, because it was just one null compared to the larger data set, this value was filled in using the sandwiching KWH values. The one null was for September 2008, so the values of KWH for October 2008 and August 2008 were averaged to impute the September 2008 null value. After this was completed the data was placed into a tsibble, plotted and various models were applied ot the data. The image below shows the data plotted with the one imputed value. 
+For Part B, the raw data was read into R, and processed as needed to prep for analysis. In order to prep the data, several steps were taken. Firstly, when initially read in the date values found in the "YYYY-MMM" column were not formatted as dates. This column was formatted as a date using yearmonth. It was after this that the rest of the data cleaning could take place. The data was checked for null values that were in need of cleaning or imputation. There was one null found in the KWH values. Similar to Part A, because it was just one null compared to the larger data set, this value was filled in using the sandwiching KWH values. The one null was for September 2008, so the values of KWH for October 2008 and August 2008 were averaged to impute the September 2008 null value. After this was completed the data was placed into a tsibble, plotted and various models were applied ot the data. The image below shows the data plotted with the one imputed value. 
 
 ![Part B KWH Data Plotted](https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/Spring2025/DATA624/Project1/images/partb_dataplot.png)
 
-
-
-Based on the experience in Part A, along with the patterns in the data, a Box-Cox lambda transformation value was used to best transform the data. After this, the ARIMA function was used to find the best fit model. Only ARIMA was used as in Part A ARIMA consistently performed better than the ETS models. The models that the function selected through both a stepwise fashion, and the more time intensive method are in the table below. 
+Based on the experience in Part A, along with the patterns in the data, a Box-Cox lambda transformation value was used to best transform the data. The box-Cox yielded a value of 0.11, which is close to logging the data, as the most ideal transformation. After this, the ARIMA function was used to find the best fit model. Only ARIMA was used as in Part A ARIMA consistently performed better than the ETS models. The models that the function selected through both a step wise fashion, and the more time intensive method are in the table below. 
 
 ### Residential Power Model Comparison Table (ARIMA)
 
@@ -156,11 +154,11 @@ Based on the experience in Part A, along with the patterns in the data, a Box-Co
 | auto_search ARIMA(0,1,2)(2,0,0)[12] | ARIMA      | 601.4199 | 601.7443 | 617.6813 | 1,088,172 | Selected model   |
 
 
-After examining the output data for the models in the table above, the "auto_search" model was selected. This model, the ARIMA(0,1,2)(2,0,0)[12], was used to then forecast the KWJ for the next year, or 12 months of 2014. THe forecast visualization can be seen plotted below. 
+After examining the output data for the models in the table above, the "auto_search" model was selected. I conducted one final round of checks on the model, confirming there was no autocorrelation or patterns in the models' residuals by visually plotting them and performing a Ljung Box test to review the p-value. This model, the ARIMA(0,1,2)(2,0,0)[12], was used to then forecast the KWJ for the next year, or 12 months of 2014. THe forecast visualization can be seen plotted below. 
 
-[PartB KWH Forecast for 2014](https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/Spring2025/DATA624/Project1/images/partb_data_forecast.png)
+![PartB KWH Forecast for 2014](https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/Spring2025/DATA624/Project1/images/partb_data_forecast.png)
 
-Overall, the forecast produced by the model outlines that in January 2014 the value for KWH will be ~9,192,398. By mid-year, the value will be the ~7,709,113, and by years end in December the value would be ~7,711,422. As with other ARIMA models there are variations in these values month to month. Lastly, all of my code and work for Part B can be found in Appendix B. 
+Overall, the forecast produced by the model outlines that in January 2014 the value for KWH will be ~9,192,398. By mid-year, the value will be the ~7,709,113, and by years end in December the value would be ~7,711,422. As with other ARIMA models there are variations in these values month to month. This means that power demand seems to peak in January 2014, decline until June where increases over the summer. Once fall comes power demand declined again, but slowly increases again in the winter months. Lastly, like all predictions these are estimates, and the confidence intervals were withheld from the final output file for conciseness and clarity, but were included in the visualization. All of my code and work for Part B can be found in Appendix B. 
 
 
 ## APPENDIX A - Part A Code & Analysis
