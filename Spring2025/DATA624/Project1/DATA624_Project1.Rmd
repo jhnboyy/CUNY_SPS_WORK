@@ -2,33 +2,700 @@
 title: "DATA624_Project1"
 author: "John Ferrara"
 date: "`r Sys.Date()`"
-output: html_document
+output:
+  html_document: default
+  pdf_document:
+    latex_engine: xelatex
 ---
 
 ```{r setup, include=FALSE}
-
+library(dplyr)
+library(tidyverse)
+library(readxl)
+library(tsibble)
+library(fpp3)
 ```
 
-## Part A - ATM FORECAST (ATM624Data.xlsx)
+# Part A - ATM FORECAST (ATM624Data.xlsx)
 
-##### Description
+## Description
 In part A, I want you to forecast how much cash is taken out of 4 different ATM machines for May 2010.  The data is given in a single file.  The variable ‘Cash’ is provided in hundreds of dollars, other than that it is straight forward. I am being somewhat ambiguous on purpose to make this have a little more business feeling.  Explain and demonstrate your process, techniques used and not used, and your actual forecast.  I am giving you data via an excel file, please provide your written report on your findings, visuals, discussion and your R code via an RPubs link along with the actual.rmd file  Also please submit the forecast which you will put in an Excel readable file.
 
-##### Beginning of Work
+## Overview
+There were four different ATMs in the raw dataset. In order to accurately provide forecasts for each individual ATM machine and its respective cash flow the data was parsed so as to separate each of the four ATMs into their own individual datasets. However, before this data was parsed out based on the ATM number several steps were taken to prepare the data for analysis. The dataset was checked for null values. A total of 19 rows out of 1,474 total rows were found to have null values. Of these 19, there were 14 rows that had a null value for the ATM and the Cash value. These rows lacked enough data to be deemed useful towards the analysis and were dropped. The four remaining rows that contained null values were limited to the Cash column. Due to these rows having an ATM value thwey were left in. The 5 remaining null values impacted ATM1 and ATM2. In order to fill in these values, the average of the Cash values for the following and preceeding days were averaged in order to imputes these values. For instance, one of the null values found that impacted ATM 1 was a null cash value on 6/13/2009. The average of the cash values for ATM1 on 6/12/2009 and 6/14/2009 were averaged to impute the null value on 6/13/2009. This technique was used on each of the 5 total null cash values. 
 
+In addition to imputing null values in the data, the dates, having been sourced from and Excel file, needed formatting. In order to convert the dates from the raw excel format research into Excel's data methodology had to be completed in order to identify the origin date that the program uses to count days. It was discovered that while Excel uses 1900/01/01 as base line date, the program also incorrectly considers 1900 a leap year. This mandates the use of a different origin date for proper date conversions. The date used was '1899-12-30'. Using this date the numbers initially read in were successfully converted to dates to use in the forecast analysis. 
+
+These were the main processing methodologies used on the data. The following sections address the methodology for May 2010 cash withdrawal projections for each of the ATMs. 
+
+### ATM1
+The following image is the initial data concerning ATM1 when plotted. As you can see there is no trend but plenty of seasonality on the weekly level. 
+
+![Raw ATM1 Plot]('images/raw_atm1.png')
+
+After checking for the presence of zeros in the Cash column, as this would impact certain transformation types, I proceeded to attempt different modeling techniques to yield an accurate projection. I tried to main modeling methodologies: ETS and ARIMA modeling. There were no zeros in the ATM1 Cash data column, so I manually attempted both additive and multiplicative seasonalities, while also using the function's native ability to identify the best recommended model. The following table breaks down the ETS and ARIMA models I attempted, along with the model I ultimately selected based on performance. 
+
+###### ATM 1 Model Comparison Table (ETS and ARIMA)
+
+| Model           | Model Type | AIC      | AICc     | BIC      | RMSE     | Status |
+|-----------------|------------|----------|----------|----------|----------|-------|
+| auto_ANA        | ETS        | 4488.413 | 4489.035 | 4527.412 | 23.83524 |       |
+| ANM             | ETS        | 4488.277 | 4488.898 | 4527.276 | 23.83080 |       |
+| MNM             | ETS        | 4566.787 | 4567.408 | 4605.786 | 26.34075 |       |
+| MNA             | ETS        | 4595.487 | 4596.108 | 4634.486 | 23.99628 |       |
+| manual_select2  | ARIMA      | 670.4853 | 670.5531 | 682.1269 | 27.30840 |       |
+| manual_select3  | ARIMA      | 661.1413 | 661.2547 | 676.6635 | 26.75715 |       |
+| auto_step       | ARIMA      | 647.8779 | 647.9117 | 655.6390 | 25.99424 |       |
+| auto_search     | ARIMA      | 646.3709 | 646.4842 | 661.8930 | 26.42130 |       |
+
+
+Using the selected ARIMA model (), a forecast for ATM1's cash output was made for 30 days after the end of the data, essentially May 2010. The projection image can be seen below, with the detailed daily projected values in the accompanying file in the ATM1 tab. 
+
+![Full ATM1 Projection Forecast Plot]('./images/atm1_proj_full.png')
+
+![Limited for Visibility ATM1 Projection Forecast Plot]('images/atm1_proj_lim.png')
+
+
+### ATM2
+The following image is the initial data concerning ATM2 when plotted. As you can see, similar to ATM1 there is no trend but plenty of seasonality on the weekly level. 
+
+![Raw ATM2 Plot]('images/raw_atm2.png')
+
+For this ATM there were 2 zero values in the cash column, which meant without transformation muiltiplicative ETS modeling was not possible. I performed the same process as I did with ATM 1, that is generating several ETS and ARIMA models in order to find one that best fit the data. The model types attempted can be seen in the table below. 
+
+###### ATM 2 Model Comparison Table (ETS and ARIMA)
+
+| Model           | Model Type | AIC      | AICc     | BIC      | RMSE     | Status |
+|-----------------|------------|----------|----------|----------|----------|-------|
+| auto            | ETS        | 4525.473 | 4526.095 | 4564.472 | 25.07654 |       |
+| ANA             | ETS        | 4525.473 | 4526.095 | 4564.472 | 25.07654 |       |
+| manual_select2  | ARIMA      | 3351.374 | 3351.441 | 3363.015 | 25.54244 |       |
+| manual_select3  | ARIMA      | 3339.141 | 3339.255 | 3354.664 | 25.01099 |       |
+| auto_step       | ARIMA      | 3318.576 | 3318.816 | 3341.859 | 24.11392 |       |
+| auto_search     | ARIMA      | 3318.576 | 3318.816 | 3341.859 | 24.11392 |       |
+
+After selecting the best model based on the numbers in the table, the residuals of the selected model were examined for good measure showing no autocorrelation and using Ljung Box tests, the pvalues confirmed this as well. I proceeded forward to forecast using this model, which can be seen in the image below. 
+
+<ProjectionImage>
+
+### ATM3
+The following images are the plots of the raw data of ATM3. The data set was different as all but three of the data points for the Cash column had zero values. The last three points were the only varying data points available. This led to me using a different modeling technique than ATMs 1, 2 and 4.
+
+![Raw ATM3 Plot]('images/raw_atm3.png')
+
+![Raw ATM3 Plot Limted for Visualization]('images/raw_atm3_lim.png')
+
+For modeling this data set ETS and ARIMA techniques were not used do it only have 3 non-zero data points towards the end of the timeframe covered by the data. Instead, I applied simple forecasting methods: Naive, Mean, and Drift models. After exampling the RMSE numbers, along with other measurements of error for the models I selected the NAIVE modeling method, and used this model to derive projected values for May 2010. 
+
+###### ATM 3 Model Comparison Table (Simple Models)
+
+| Model  | RMSE     | Notes |
+|--------|-----------|-------|
+| NAIVE  |  5.087423 | Selected |
+| MEAN   |  7.933887 | Rejected |
+| DRIFT  |  5.082060 | Rejected |
+
+<ProjectionImage>
+
+### ATM4
+
+![Raw ATM4 Plot]('images/raw_atm4.png')
+
+###### ATM 4 Model Comparison Table (ETS and ARIMA)
+
+| Model           | Model Type | AIC      | AICc     | BIC      | RMSE      | Notes |
+|-----------------|------------|----------|----------|----------|-----------|-------|
+| auto            | ETS        | 6690.624 | 6691.246 | 6729.623 | 645.1182  |       |
+| ANM             | ETS        | 6884.976 | 6885.598 | 6923.975 | 635.3199  |       |
+| MNM             | ETS        | 6795.135 | 6795.756 | 6834.134 | 851.0784  |       |
+| MNA             | ETS        | 6690.624 | 6691.246 | 6729.623 | 645.1182  |       |
+| manual_select2  | ARIMA      | 5763.329 | 5763.397 | 5774.971 | 740.9888  |       |
+| manual_select3  | ARIMA      | 5736.843 | 5736.956 | 5752.365 | 710.4476  |       |
+| auto_step       | ARIMA      | 5768.064 | 5768.097 | 5775.864 | 650.0437  |       |
+| auto_search     | ARIMA      | 5768.064 | 5768.097 | 5775.864 | 650.0437  |       |
+
+After selecting the best model based on the numbers in the table, the residuals of the selected model were examined for good measure showing no autocorrelation and using Ljung Box tests, the pvalues confirmed this as well. I proceeded forward to forecast using this model, which can be seen in the image below. 
+
+<ProjectionImage>
+
+## Code & Analysis
 ``` {r reading_in_data}
+# RAW FILE ALSO SITS HERE: https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/main/Spring2025/DATA624/Project1/ATM624Data.xlsx
+#Reading in from local excel 
+atm_data <- read_excel("ATM624Data.xlsx")
+print(head(atm_data))
+print(nrow(atm_data))
+## initial Processing notes:
+# - Need to handle date, convert to actual date
+# - Need to ensure the data is a time series. 
+
+```
+### Exploration and Cleaning
+``` {r exploration}
+## Checking for nulls and other issues.
+print(summary(atm_data))
+
+## The cash category has 19 nulls.
+## Min of 0 max of 10,919. Mean of 155. 
+## Data has no nulls, right now is listed as number. 
+## ATM is character, non numeric. Looking at unique vals.
+
+print(unique(atm_data$ATM))
+# There is an 'NA' Value here lets take a look
+
+atm_null <- atm_data |> filter(is.na(ATM))
+
+print(nrow(atm_null))
+# 14 rows where ATM is null.
+
+print(unique(atm_null$Cash))
+# All Cash values are null for where the ATM column is null. These Rows should just be removed? 
+
+## Looking at the additional Cash values that are null with ATM values.
+atm_data |> filter(!is.na(ATM), is.na(Cash))
+## Cash Nulls with ATM values are limited to ATM 1 and ATM 2. We should impute these 4 rows. 
+
+# Dropping the ATM_Nulls
+atm_data <- atm_data |> filter(!is.na(ATM))
 
 ```
  
 
-## Part B – FORECASINT POWER (ResidentialCustomerForecastLoad-624.xlsx)
+``` {r date_fix_imputations}
+## After manually reviwing the data in excel data "DATE" column is actually a time stamp. However, its at midnight for each day so i think a date is good enough. 
+## Also had to google how excel does dates for the origin date. Evidently excel incorrectly treats 1900 as a leap year when it wasnt. (INSANE!)
+## So need to use 1899
+#(Srouce: https://community.alteryx.com/t5/Alteryx-Designer-Desktop-Discussions/Rounding-DateTime-error-when-Importing-Excel/td-p/592023)
+atm_data <-atm_data |> mutate(DATE = as.Date(DATE,origin = "1899-12-30"))
 
-##### Description
-Part B consists of a simple dataset of residential power usage for January 1998 until December 2013.  Your assignment is to model these data and a monthly forecast for 2014.  The data is given in a single file.  The variable ‘KWH’ is power consumption in Kilowatt hours, the rest is straight forward.    Add this to your existing files above. 
+# Null Cash Imputation
+#atm_data |> filter(is.na(Cash))
 
+## Adding A column to Keep tabs on imputations
+atm_data <- atm_data |>mutate(source = if_else(is.na(Cash), "imputed", "original"))
+
+## Firstly Dealing with ATM 1 nulls 
+atm_data |> filter(is.na(Cash), ATM =='ATM1')
+# The nulls are limited 6/13/2009, 6/16/2009, 06/22/2009
+
+## Checking the data for dates in this month for ATM1
+atm_data |> filter(DATE>'2009-06-11',DATE<'2009-06-25' , ATM =='ATM1')
+
+## For ATM 1 there are values sandwiching each of the missing values so were going to just take the average of the "bookend" dates for each missing value. Its only 3 values.
+#atm_data |> filter(DATE>'2009-06-11',DATE<'2009-06-15' , ATM =='ATM1') |> mutate()
+
+atm_data_imputed <- atm_data |> mutate(Cash = if_else(is.na(Cash) & ATM == "ATM1" & DATE > as.Date("2009-06-11") & DATE < as.Date("2009-06-15"),
+                                  (lag(Cash) + lead(Cash)) / 2, Cash ))
+#Confirming
+#atm_data_imputed |> filter(DATE>'2009-06-11',DATE<'2009-06-15' , ATM =='ATM1')
+
+## Dealing with 6/16/2009 Null
+#atm_data_imputed |> filter(DATE>'2009-06-14',DATE<'2009-06-18' , ATM =='ATM1')
+atm_data_imputed <- atm_data_imputed |> mutate(Cash = if_else(is.na(Cash) & ATM == "ATM1" & DATE > as.Date("2009-06-14") & DATE < as.Date("2009-06-18"),
+                                  (lag(Cash) + lead(Cash)) / 2, Cash ))
+#Confirming
+#atm_data_imputed |> filter(DATE>'2009-06-14',DATE<'2009-06-18' , ATM =='ATM1')
+
+# Dealing with the 06/22/2009
+atm_data_imputed <- atm_data_imputed |> mutate(Cash = if_else(is.na(Cash) & ATM == "ATM1" & DATE > as.Date("2009-06-20") & DATE < as.Date("2009-06-24"),
+                                  (lag(Cash) + lead(Cash)) / 2, Cash ))
+
+#atm_data_imputed |> filter(DATE>'2009-06-20',DATE<'2009-06-24' , ATM =='ATM1')
+
+## FINISHED WITH ATM 1 NULLS, MOVING TO ATM2 NULLS
+atm_data_imputed |> filter(is.na(Cash), ATM =='ATM2')
+## ATM 2 Nulls are limited to 06/18/2009 and 06/24/2009
+
+## First instance at 6/18/2009
+#atm_data_imputed |> filter(DATE>'2009-06-16',DATE<'2009-06-20' , ATM =='ATM2')
+atm_data_imputed <- atm_data_imputed |> mutate(Cash = if_else(is.na(Cash) & ATM == "ATM2" & DATE > as.Date("2009-06-16") & DATE < as.Date("2009-06-20"),
+                                  (lag(Cash) + lead(Cash)) / 2, Cash ))
+#Checking
+#atm_data_imputed |> filter(DATE>'2009-06-16',DATE<'2009-06-20' , ATM =='ATM2')
+
+# Second instance at 6/24/2009
+#atm_data_imputed |> filter(DATE>'2009-06-22',DATE<'2009-06-26' , ATM =='ATM2')
+atm_data_imputed <- atm_data_imputed |> mutate(Cash = if_else(is.na(Cash) & ATM == "ATM2" & DATE > as.Date("2009-06-22") & DATE < as.Date("2009-06-26"),
+                                  (lag(Cash) + lead(Cash)) / 2, Cash ))
+#Checking
+#atm_data_imputed |> filter(DATE>'2009-06-22',DATE<'2009-06-26' , ATM =='ATM2')
+
+## Double checking there are no more nulls
+#atm_data_imputed |> filter(is.na(Cash))
+
+## Converting DF to a tsibble with no nulls
+atm_tsibble <- atm_data_imputed |> as_tsibble(index = DATE, key = ATM)
+#autoplot(atm_tsibble)
+```
+
+### Preliminary Analysis
+``` {r prelim_analysis}
+## Our goal is to parse out the cash (in hundreds) from each atm and give a projection for May 2010. Lets start to look at each atm. 
+
+## ATM1 
+atm1 <- atm_tsibble |> filter(ATM =='ATM1')
+print(autoplot(atm1))
+#p <- autoplot(atm1)
+#ggsave("images/raw_atm1.png", plot = p, width = 12, height = 8, dpi = 300)
+
+## Notes: Definitely seasonality here, but seemingly on a weekly or monthly time frame. Other than that variation there isnt really a trend, the data is fairly flat, 
+
+## ATM2 
+atm2 <- atm_tsibble |> filter(ATM =='ATM2')
+print(autoplot(atm2))
+#p <- autoplot(atm2)
+#ggsave("images/raw_atm2.png", plot = p, width = 12, height = 8, dpi = 300)
+## Notes: Similar to ATM 1, no real trend, but there is definitely seasonality on a weekly or monthly timeframe. 
+
+## ATM 3
+atm3 <- atm_tsibble |> filter(ATM =='ATM3')
+print(autoplot(atm3))
+#p <- autoplot(atm3)
+#ggsave("images/raw_atm3.png", plot = p, width = 12, height = 8, dpi = 300)
+## NOTES: ATM 3 has 0 withdrawls for the vast majority of the timeframe looked at in the data. Need to chop this chart down a bit to see the actual values. 
+## Data doesnt start until 4/28, in order to predict this ATM maybe we can use1,2, and 4? 
+lim_atm3 <- atm3 |> filter(DATE>=as.Date('2010-04-26'))
+print(autoplot(lim_atm3))
+#p <- autoplot(atm3 |>  filter(DATE>=as.Date('2010-04-26')))
+#ggsave("images/raw_atm3_lim.png", plot = p, width = 12, height = 8, dpi = 300)
+
+## ATM 4 
+atm4 <- atm_tsibble |> filter(ATM =='ATM4')
+print(autoplot(atm4))
+## notes: Plenty of data, there is one or 2 data points that are severe outliers and will influence any forecast. Other than that there doesnt seem to be any patterns to the data. Also there is no trend in the data. 
+#p <- autoplot(atm4)
+#ggsave("images/raw_atm4.png", plot = p, width = 12, height = 8, dpi = 300)
+
+## Overall Take aways:
+## - ATM 1, 2, 4 have no trend, but have seasonaility
+## - ATM 3 has trend, but also limited to 3 data points. may need to estimate using other atms. 
+
+```
+### ATM1 Work
+``` {r atm1}
+#atm1
+#autoplot(atm1)
+
+#Chcking for zeros
+print(atm1 |> filter(Cash==0)) # No zeros, good for ETS
+
+## Looking at ETS
+auto_ets_atm1 <- atm1 |> model(auto_ANA = ETS(Cash), #ETS(A,N,A) is retrieved as the best automatic fit. 
+                               ANM = ETS(Cash ~ error("A") + trend("N") + season("M")),
+                               MNM = ETS(Cash ~ error("M") + trend("N") + season("M")),
+                               MNA = ETS(Cash ~ error("M") + trend("N") + season("A")))
+
+
+print(auto_ets_atm1 |> report())
+## Two best ETS models are ANM and the AUTO, the ANM is nearly the same, but a little better with the AIC, AICc, and BIC models.
+
+print(auto_ets_atm1 |> accuracy())
+## The RMSE is basically the same for both, i think i may go with the ANM model as opposed to the ANA auto model. 
+
+## Rerunning with just the good models.
+auto_ets_atm1 <- atm1 |> model(auto_ANA = ETS(Cash), #ETS(A,N,A) is retrieved as the best automatic fit. 
+                               ANM = ETS(Cash ~ error("A") + trend("N") + season("M")))
+
+
+##   ------------------------------- Looking at ARIMA Models  -------------------------------
+
+## Checking for Stationarity before modeling. No trend so may not need altering, or at least a small amoutn of altering.
+
+## Need to check stationarity 
+print(gg_tsdisplay(atm1,plot_type ="partial")) 
+# Could probably use a transformation. No zeros so just as log, no +1 needed.
+
+
+print(atm1 |> gg_tsdisplay(difference(log(Cash)),plot_type ="partial")) 
+# Looks much more stationary with log and one seasonal differencing at 7 for weekly seasonality. 
+# ACF Shows some autocorrelation at week-level increments.
+# PACF Shows similar. At increments of 6. So this may be AR if 2 or 3. No non-seasonal outlier. ARIMA(0,0,0)(2,1,0)[7] ?
+
+#
+print(atm1 |> gg_tsdisplay(difference(log(Cash),7),plot_type ="partial"))
+## SUing the PACF side more, there are no non seasonal oputliers, the seasonal outliers are 7,14,21, so 2 or 3 for seasonal. 
+
+arima_atm1 <- atm1 |> 
+  model(manual_select2 = ARIMA(log(Cash) ~ pdq(0,0,0) + PDQ(2,1,0)),
+        manual_select3 = ARIMA(log(Cash) ~ pdq(0,0,0) + PDQ(3,1,0)),
+        auto_step = ARIMA(log(Cash)), #<ARIMA(0,0,0)(0,1,1)[7]>	
+        auto_search = ARIMA(log(Cash), stepwise = FALSE, approx=FALSE) ) 
+
+print(arima_atm1 |> report())
+## Manually selected models are not as good as automated ones according to AIC, AICc and BIC. I think auto_step model is the best, will be using that to forecast. 
+
+print(arima_atm1 |> accuracy())
+## Confirming that auto_step is the best model. RMSE is 25.99
+
+
+## COMPARING ETS AND ARIMA
+### AUTOSTEP ARIMA (<ARIMA(0,0,0)(0,1,1)[7]>) -> 25.99424, AIC = 647.8779, AICc=	647.9117 , BIC=	655.6390
+### ANM ETS -> RMSE=23.83080, AIC = 4488.277	, AICc= 4488.898, BIC=	4527.276	
+  
+
+## OVERALL the RMSE is slightly better on the ANM model, but the AIC,AICc and BIC values for the ARIMA are much better. Will be using ARIMA to forecast. 
+## Running again with only selected model 
+arima_atm1 <- atm1 |> 
+  model(auto_step = ARIMA(log(Cash))) 
+
+arima_atm1
+## Last levels of confirmation checks
+## looking at residuals
+print(gg_tsresiduals(arima_atm1))
+
+# Ljung Box test 
+print(augment(arima_atm1) |> features(.innov, ljung_box, lag=7, dof=1)) # Lag of 7 gets a pval of 0.07, above 0.05 
+## Tryign with mulitples of 7
+print(augment(arima_atm1) |> features(.innov, ljung_box, lag=14, dof=1)) #pval of 0.39
+print(augment(arima_atm1) |> features(.innov, ljung_box, lag=21, dof=1)) #pval of 0.73
+
+# NO autocorrelation left in the residuals so its good. Movbing forward with forecast
+arima_atm1 <- atm1 |> 
+  model(auto_step = ARIMA(log(Cash)))
+
+### With model selected taking a look at the residuals for the 
+atm1_forecast <- arima_atm1 |> 
+  forecast(h = 30) #30 days
+
+# ATM 1 forecast  
+print(atm1_forecast |> 
+    autoplot(atm1|>filter(DATE>=as.Date('2010-01-01'))))
+#p <- atm1_forecast |>     autoplot(atm1|>filter(DATE>=as.Date('2010-01-01')))
+#ggsave("images/atm1_proj_lim.png", plot = p, width = 12, height = 8, dpi = 300)
+
+print(atm1_forecast |> autoplot(atm1))
+#p <- atm1_forecast |>     autoplot(atm1)
+#ggsave("images/atm1_proj_full.png", plot = p, width = 12, height = 8, dpi = 300)
+
+
+
+## Looking at forecasted values 
+atm1_forecast|> hilo() |> as_tsibble()
+
+```
+### ATM2 Work
+```{r atm2}
+#Chcking for zeros
+print(atm2 |> filter(Cash==0)) # Two zero values, would need to consider 
+
+autoplot(atm2)
+
+## Looking at ETS
+auto_ets_atm2 <- atm2 |> model(auto = ETS(Cash), 
+                               ANA = ETS(Cash ~ error("A") + trend("N") + season("A")) #only additive because of 0 values and no trend
+                               )
+
+print(auto_ets_atm2) #ETS(ANA) is retrieved as the best automatic fit. 
+## ANA is best ETS fit. 
+
+## Rerunning with just the good models.
+auto_ets_atm2 <- atm2 |> model(auto_ANA = ETS(Cash))
+
+print(auto_ets_atm2 |> report())
+# AIC =4525.473, AICc= 4526.095, BIC=4564.472 
+
+print(auto_ets_atm2 |> accuracy())
+#RMSE 25.07654	
+
+
+##   ------------------------------- Looking at ARIMA Models  -------------------------------
+
+## Checking for Stationarity before modeling. No trend so may not need altering, or at least a small amount of altering.
+
+print(gg_tsdisplay(atm2,plot_type ="partial")) 
+# Mainly stationary, could probably use a transformation. Two zeros so log +1 woulb e needed needed.
+
+
+print(atm2 |> gg_tsdisplay(difference(Cash,7),plot_type ="partial")) 
+# Looks much more stationary with one seasonal differencing at 7 for weekly seasonality. 
+# ACF Shows some one outlier at 7
+# PACF shows outliers  at 7 14 and 21. Biggest at 7. No non-seasonal outlier. ?
+
+
+arima_atm2 <- atm2 |> 
+  model(manual_select2 = ARIMA(Cash ~ pdq(0,0,0) + PDQ(2,1,0)),
+        manual_select3 = ARIMA(Cash ~ pdq(0,0,0) + PDQ(3,1,0)),
+        auto_step = ARIMA(Cash), # SELECTED: <ARIMA(2,0,2)(0,1,1)[7]>
+
+        auto_search = ARIMA(Cash, stepwise = FALSE, approx=FALSE) )# ALSO SELECTED <ARIMA(2,0,2)(0,1,1)[7]>
  
 
- 
-## Part C – OPTIONAL BONUS (part or all), Waterflow_Pipe1.xlsx and Waterflow_Pipe2.xlsx
+#print(arima_atm2)
+print(arima_atm2 |> report())
+## Manually selected models are not as good as automated ones according to AIC, AICc and BIC. I think auto models are the same, and better.
+## <ARIMA(2,0,2)(0,1,1)[7]> AIC = 3318.576, AICc=3318.816, BIC=3341.859
 
-Part C consists of two data sets.  These are simple 2 columns sets, however they have different time stamps.  Your optional assignment is to time-base sequence the data and aggregate based on hour (example of what this looks like, follows).  Note for multiple recordings within an hour, take the mean.  Then to determine if the data is stationary and can it be forecast.  If so, provide a week forward forecast and present results via Rpubs and .rmd and the forecast in an Excel readable file.   
+print(arima_atm2 |> accuracy())
+## Confirming that auto_step is the best model. RMSE is 24.11
+
+
+## ---- COMPARING ETS AND ARIMA ----
+### AUTOSTEP ARIMA -> 24.11, AIC = 3318.576, AICc=3318.816, BIC=3341.859
+### ANA ETS -> RMSE=25.07654, AIC =4525.473, AICc= 4526.095, BIC=4564.472 	
+  
+
+## OVERALL the ARIMA numbers are much better. Will be using ARIMA to forecast. 
+
+## Running again with only selected model 
+arima_atm2 <- atm2 |> 
+  model(auto_step = ARIMA(Cash), # SELECTED: <ARIMA(2,0,2)(0,1,1)[7]>
+        )
+
+
+## Last levels of confirmation checks
+## looking at residuals
+print(gg_tsresiduals(arima_atm2))
+
+# Ljung Box test 
+print(augment(arima_atm2) |> features(.innov, ljung_box, lag=7, dof=5)) # pval .031
+## Tryign with mulitples of 7
+print(augment(arima_atm2) |> features(.innov, ljung_box, lag=14, dof=5)) #pval of 0.34
+print(augment(arima_atm2) |> features(.innov, ljung_box, lag=21, dof=5)) #pval of 0.40
+
+# NO autocorrelation left in the residuals so its good. Moving forward with forecast
+arima_atm2 <- atm2 |> 
+  model(auto_step = ARIMA(Cash))
+
+### With model selected taking a look at the residuals for the 
+atm2_forecast <- arima_atm2 |> 
+  forecast(h = 30) #30 days
+
+# ATM 2 forecast  
+print(atm2_forecast |> 
+    autoplot(atm2|>filter(DATE>=as.Date('2010-01-01'))))
+
+
+## Looking at forecasted values 
+atm2_forecast|> hilo() |> as_tsibble()
+```
+
+### ATM3 Work
+
+``` {r atm3}
+#Chcking for zeros
+print(atm3 |> filter(Cash==0)) # 362 Zero values. this ATm Projection will need to be different from other 3
+print(atm3 |> filter(Cash!=0)) ## Only Three data points to use here. Different from the other three projections.
+
+autoplot(atm3)
+
+## Simple Modeling options Mean, NAIVe, and DRIFT 
+simple_models <- atm3 |> model(NAIVE = NAIVE(Cash),
+              MEAN = MEAN(Cash),
+              DRIFT = RW(Cash~drift()))
+
+print(simple_models |> report())
+
+print(simple_models |> accuracy())
+# The error measures seem tobe the lowest fro the NAIVE model, so I will use this for the forecast.
+
+## Doing again with just NAIVE
+simple_models <- atm3 |> model(NAIVE = NAIVE(Cash))
+
+### With model selected taking a look at the residuals for the 
+atm3_forecast <- simple_models |> forecast(h = 30) #30 days
+
+# ATM 3 forecast  
+print(atm3_forecast |> 
+    autoplot(atm3))
+
+
+```
+
+### ATM 4 Work
+``` {r atm4}
+#Chcking for zeros
+print(atm4 |> filter(Cash==0)) # No Zeros 
+
+autoplot(atm4) # one large outlier.
+
+## Looking at ETS
+auto_ets_atm4 <- atm4 |> model(auto = ETS(Cash), #ETS(M,N,A) is retrieved as the best automatic fit. 
+                               ANM = ETS(Cash ~ error("A") + trend("N") + season("M")),
+                               MNM = ETS(Cash ~ error("M") + trend("N") + season("M")),
+                               MNA = ETS(Cash ~ error("M") + trend("N") + season("A")))
+
+print(auto_ets_atm4) 
+## ANA is best ETS fit. 
+
+
+
+print(auto_ets_atm4 |> report()) # Best model ETS(M,N,A)
+# AIC =6690.624, AICc= 6691.246, BIC=6729.623 		
+
+print(auto_ets_atm4 |> accuracy())
+#RMSE 645.1182, not lowest but when using above indicotrs too Going with the auto selected model. 	
+
+## Rerunning with just the good models.
+auto_ets_atm2 <- atm4 |> model(auto = ETS(Cash))
+
+
+##   ------------------------------- Looking at ARIMA Models  -------------------------------
+
+## Checking for Stationarity before modeling. No trend so may not need altering, or at least a small amount of altering.
+
+print(gg_tsdisplay(atm4,plot_type ="partial")) 
+# Mainly stationary already. No transformations may be needed, but will check anyway. 
+
+
+print(atm4 |> gg_tsdisplay(difference(Cash,7),plot_type ="partial")) 
+# The 7 day seasonal difference looks much better, so doing that. 
+# ACF Shows some one outlier at 7
+# PACF shows outliers  at 7 14 and 21. Biggest at 7. No non-seasonal outlier.
+
+
+arima_atm4 <- atm4 |> 
+  model(manual_select2 = ARIMA(Cash ~ pdq(0,0,0) + PDQ(2,1,0)),
+        manual_select3 = ARIMA(Cash ~ pdq(0,0,0) + PDQ(3,1,0)),
+        auto_step = ARIMA(Cash), # SELECTED: <ARIMA(0,0,0) w/ mean>
+        auto_search = ARIMA(Cash, stepwise = FALSE, approx=FALSE) )# ALSO SELECTED <<ARIMA(0,0,0) w/ mean>>
+ 
+## Auto Step and Auto search give same model: <ARIMA(0,0,0) w/ mean>
+#print(arima_atm4)
+# So best forecast is just the mean of the data. 
+
+print(arima_atm4 |> report())
+## Manually selected models are not as good as automated ones according to AIC, AICc and BIC. I think auto models are the same, and better.
+## <<ARIMA(0,0,0) w/ mean> AIC = 5768.064, AICc=5768.097, BIC=5775.864 	
+
+print(arima_atm4 |> accuracy())
+## Confirming that auto_step is the best model. RMSE is 650.0437
+
+
+## ---- COMPARING ETS AND ARIMA ----
+### AUTOSTEP ARIMA -> RMSE = 650.0437, AIC = 5768.064, AICc=5768.097, BIC=5775.864 
+### MNA ETS -> RMSE=645.1182, AIC =6690.624, AICc= 6691.246, BIC=6729.623 		
+  
+
+## OVERALL the ARIMA numbers are much better. Will be using ARIMA to forecast. 
+
+## Running again with only selected model 
+arima_atm4 <- atm4 |> 
+  model(auto_step = ARIMA(Cash), # SELECTED: ARIMA(0,0,0) w/ mean>>
+        )
+
+
+## Last levels of confirmation checks
+## looking at residuals
+print(gg_tsresiduals(arima_atm4))
+
+# Ljung Box test 
+print(augment(arima_atm4) |> features(.innov, ljung_box, lag=7, dof=0)) # pval .92
+
+# NO autocorrelation left in the residuals so its good. Moving forward with forecast
+
+
+### With model selected taking a look at the residuals for the 
+atm4_forecast <- arima_atm4 |> 
+  forecast(h = 30) #30 days
+
+# ATM 4 forecast  
+print(atm4_forecast |> 
+    autoplot(atm4|>filter(DATE>=as.Date('2010-01-01'))))
+
+
+## Looking at forecasted values 
+atm4_forecast|> hilo() |> as_tsibble()
+
+
+```
+
+
+# Part B – FORECASINT POWER (ResidentialCustomerForecastLoad-624.xlsx)
+
+### Description
+Part B consists of a simple dataset of residential power usage for January 1998 until December 2013.  Your assignment is to model these data and a monthly forecast for 2014.  The data is given in a single file.  The variable ‘KWH’ is power consumption in Kilowatt hours, the rest is straight forward.  Add this to your existing files above. 
+
+### Overview
+
+### Code and Analysis
+``` {r reading_data}
+# RAW FILE ALSO SITS HERE: https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/main/Spring2025/DATA624/Project1/ResidentialCustomerForecastLoad-624.xlsx
+res_df<-read_excel('ResidentialCustomerForecastLoad-624.xlsx')
+#res_df
+```
+
+``` {r cleaning_exploring}
+
+summary(res_df)
+## There is one null in KWH
+## No Nulls in CaseSequence
+
+res_df |> filter(is.na('YYYY-MMM'))
+## No null in dates
+
+## Looking at the one null 
+res_df|> filter(is.na(KWH))
+## The one null in KWH is in September 2008, checking the before and after
+res_df<- res_df |>
+    mutate(DATE = yearmonth(`YYYY-MMM`),
+           source = if_else(is.na(KWH), "imputed", "original"))
+
+red_df_imp <- res_df |> mutate(KWH = if_else(is.na(KWH) & DATE >= yearmonth('2008-Aug') & DATE<=yearmonth('2008-Oct'),
+                                  (lag(KWH) + lead(KWH)) / 2, KWH ))
+## Checking imp
+#red_df_imp |> filter(DATE>=yearmonth('2008-Aug'),DATE<=yearmonth('2008-Oct'))
+
+## Placing into a Tsible with the Case Sequence removed
+red_tsibble <- red_df_imp |>
+  as_tsibble(index = 'DATE', key = CaseSequence)|>
+  summarize(Total_KWH = sum(KWH))
+
+# plotting
+print(red_tsibble|> autoplot())
+
+## Very subtle trend with seasonal variation. One large drop / outlier. 
+
+## Using Box -Cox for best transformation 
+lambda <- red_tsibble |>
+  features(Total_KWH, features = guerrero) |>
+  pull(lambda_guerrero)
+print(lambda) ## 0.107 Close to a log transformation lambda
+
+## Transformed data looks good
+print(red_tsibble |>  autoplot(box_cox(Total_KWH, lambda)) +  labs(y = "",title = latex2exp::TeX(paste0("BoxCox Transformed Total KWH ",round(lambda,2)))))
+
+## Jumping right into ARIMA models because ARIMA was the better model for nearly all of part 1. 
+## Similiarly only doing the automated best model find, as in part 1 nearly all the time the function was correct. 
+
+
+red_model <- red_tsibble |> 
+  model(auto_step = ARIMA(box_cox(Total_KWH, lambda)), # SELECTED: <ARIMA(0,1,2)(0,0,2)[12]>	
+        auto_search = ARIMA(box_cox(Total_KWH, lambda), stepwise = FALSE, approx=FALSE) )# Selected:<ARIMA(0,1,2)(2,0,0)[12]>	
+## Seeing Selections
+print(red_model)
+
+## Selected to slightly different models, now going to compare both for best one. 
+print(red_model|> report())
+#auto_search (<ARIMA(0,1,2)(2,0,0)[12]>) is better: AIC:601.4199,	AICc:601.7443, 	BIC:617.6813	
+print(red_model|> accuracy())
+## for error measures the auto_search is also beterr with lower error values accross the table. 
+
+## Redoing the model with just the better one in preparation for forecasting. 
+red_model <- red_tsibble |> 
+  model(auto = ARIMA(box_cox(Total_KWH, lambda), stepwise = FALSE, approx=FALSE) )# Selected:<ARIMA(0,1,2)(2,0,0)[12]>	
+
+## Last levels of confirmation checks
+## looking at residuals
+print(gg_tsresiduals(red_model)) # Fine with an outlier or 2
+
+# Ljung Box test 
+print(augment(red_model) |> features(.innov, ljung_box, lag=12, dof=4)) # pval .35
+print(augment(red_model) |> features(.innov, ljung_box, lag=24, dof=4)) # pval .45
+
+# NO autocorrelation left in the residuals so its good. Moving forward with forecast
+
+
+### With model selected taking a look at the residuals for the 
+red_forecast <- red_model |> forecast(h = 12) #12 months
+
+# KWH forecast  
+print(red_forecast |> 
+    autoplot(red_tsibble))
+
+
+## Looking at forecasted values 
+red_forecast|> hilo() |> as_tsibble()
+
+
+```
+ 
