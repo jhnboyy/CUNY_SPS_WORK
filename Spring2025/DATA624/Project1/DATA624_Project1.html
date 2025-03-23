@@ -412,7 +412,7 @@ projections for each of the ATMs.</p>
 As you can see there is no trend but plenty of seasonality on the weekly
 level.</p>
 <div class="float">
-<img role="img" aria-label="Raw ATM1 Plot" src="&#39;images/raw_atm1.png&#39;" alt="Raw ATM1 Plot" />
+<img role="img" aria-label="Raw ATM1 Plot" src="&#39;https://github.com/jhnboyy/CUNY_SPS_WORK/blob/main/Spring2025/DATA624/Project1/images/raw_atm1.png?raw=true&#39;" alt="Raw ATM1 Plot" />
 <div class="figcaption">Raw ATM1 Plot</div>
 </div>
 <p>After checking for the presence of zeros in the Cash column, as this
@@ -551,10 +551,101 @@ without transformation muiltiplicative ETS modeling was not possible. I
 performed the same process as I did with ATM 1, that is generating
 several ETS and ARIMA models in order to find one that best fit the
 data. The model types attempted can be seen in the table below.</p>
-<p><MODEL TABLE></p>
+<div id="atm-2-model-comparison-table-ets-and-arima" class="section level6">
+<h6>ATM 2 Model Comparison Table (ETS and ARIMA)</h6>
+<table style="width:100%;">
+<colgroup>
+<col width="22%" />
+<col width="15%" />
+<col width="13%" />
+<col width="13%" />
+<col width="13%" />
+<col width="13%" />
+<col width="9%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Model</th>
+<th>Model Type</th>
+<th>AIC</th>
+<th>AICc</th>
+<th>BIC</th>
+<th>RMSE</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>auto</td>
+<td>ETS</td>
+<td>4525.473</td>
+<td>4526.095</td>
+<td>4564.472</td>
+<td>25.07654</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>ANA</td>
+<td>ETS</td>
+<td>4525.473</td>
+<td>4526.095</td>
+<td>4564.472</td>
+<td>25.07654</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>manual_select2</td>
+<td>ARIMA</td>
+<td>3351.374</td>
+<td>3351.441</td>
+<td>3363.015</td>
+<td>25.54244</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>manual_select3</td>
+<td>ARIMA</td>
+<td>3339.141</td>
+<td>3339.255</td>
+<td>3354.664</td>
+<td>25.01099</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>auto_step</td>
+<td>ARIMA</td>
+<td>3318.576</td>
+<td>3318.816</td>
+<td>3341.859</td>
+<td>24.11392</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>auto_search</td>
+<td>ARIMA</td>
+<td>3318.576</td>
+<td>3318.816</td>
+<td>3341.859</td>
+<td>24.11392</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>After selecting the best model based on the numbers in the table, the
+residuals of the selected model were examined for good measure showing
+no autocorrelation and using Ljung Box tests, the pvalues confirmed this
+as well. I proceeded forward to forecast using this model, which can be
+seen in the image below.</p>
+<p><ProjectionImage></p>
+</div>
 </div>
 <div id="atm3" class="section level3">
 <h3>ATM3</h3>
+<p>The following images are the plots of the raw data of ATM3. The data
+set was different as all but three of the data points for the Cash
+column had zero values. The last three points were the only varying data
+points available. This led to me using a different modeling technique
+than ATMs 1, 2 and 4.</p>
 <div class="float">
 <img role="img" aria-label="Raw ATM3 Plot" src="&#39;images/raw_atm3.png&#39;" alt="Raw ATM3 Plot" />
 <div class="figcaption">Raw ATM3 Plot</div>
@@ -563,12 +654,161 @@ data. The model types attempted can be seen in the table below.</p>
 <img role="img" aria-label="Raw ATM3 Plot Limted for Visualization" src="&#39;images/raw_atm3_lim.png&#39;" alt="Raw ATM3 Plot Limted for Visualization" />
 <div class="figcaption">Raw ATM3 Plot Limted for Visualization</div>
 </div>
+<p>For modeling this data set ETS and ARIMA techniques were not used do
+it only have 3 non-zero data points towards the end of the timeframe
+covered by the data. Instead, I applied simple forecasting methods:
+Naive, Mean, and Drift models. After exampling the RMSE numbers, along
+with other measurements of error for the models I selected the NAIVE
+modeling method, and used this model to derive projected values for May
+2010.</p>
+<div id="atm-3-model-comparison-table-simple-models" class="section level6">
+<h6>ATM 3 Model Comparison Table (Simple Models)</h6>
+<table>
+<thead>
+<tr class="header">
+<th>Model</th>
+<th>RMSE</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>NAIVE</td>
+<td>5.087423</td>
+<td>Selected</td>
+</tr>
+<tr class="even">
+<td>MEAN</td>
+<td>7.933887</td>
+<td>Rejected</td>
+</tr>
+<tr class="odd">
+<td>DRIFT</td>
+<td>5.082060</td>
+<td>Rejected</td>
+</tr>
+</tbody>
+</table>
+<p><ProjectionImage></p>
+</div>
 </div>
 <div id="atm4" class="section level3">
 <h3>ATM4</h3>
+<p>The photo below shows the plotting of the raw ATM4 data.</p>
 <div class="float">
 <img role="img" aria-label="Raw ATM4 Plot" src="&#39;images/raw_atm4.png&#39;" alt="Raw ATM4 Plot" />
 <div class="figcaption">Raw ATM4 Plot</div>
+</div>
+<p>For ATM4, similar to ATM 1 and 2, the data has no clear trend.
+However, this data also no real pattern to the variations in the data.
+There was one large outlier that was in the data to note of. With this
+being said, the process for finding a model for ATM 4 was the same
+process for ATM1 and ATM2. I used ETS and ARIMA methodologies in order
+to find the best performing model to forcecast May 2010 values.</p>
+<div id="atm-4-model-comparison-table-ets-and-arima" class="section level6">
+<h6>ATM 4 Model Comparison Table (ETS and ARIMA)</h6>
+<table>
+<colgroup>
+<col width="22%" />
+<col width="15%" />
+<col width="12%" />
+<col width="12%" />
+<col width="12%" />
+<col width="14%" />
+<col width="9%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Model</th>
+<th>Model Type</th>
+<th>AIC</th>
+<th>AICc</th>
+<th>BIC</th>
+<th>RMSE</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>auto</td>
+<td>ETS</td>
+<td>6690.624</td>
+<td>6691.246</td>
+<td>6729.623</td>
+<td>645.1182</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>ANM</td>
+<td>ETS</td>
+<td>6884.976</td>
+<td>6885.598</td>
+<td>6923.975</td>
+<td>635.3199</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>MNM</td>
+<td>ETS</td>
+<td>6795.135</td>
+<td>6795.756</td>
+<td>6834.134</td>
+<td>851.0784</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>MNA</td>
+<td>ETS</td>
+<td>6690.624</td>
+<td>6691.246</td>
+<td>6729.623</td>
+<td>645.1182</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>manual_select2</td>
+<td>ARIMA</td>
+<td>5763.329</td>
+<td>5763.397</td>
+<td>5774.971</td>
+<td>740.9888</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>manual_select3</td>
+<td>ARIMA</td>
+<td>5736.843</td>
+<td>5736.956</td>
+<td>5752.365</td>
+<td>710.4476</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>auto_step</td>
+<td>ARIMA</td>
+<td>5768.064</td>
+<td>5768.097</td>
+<td>5775.864</td>
+<td>650.0437</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>auto_search</td>
+<td>ARIMA</td>
+<td>5768.064</td>
+<td>5768.097</td>
+<td>5775.864</td>
+<td>650.0437</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>After selecting the best model based on the numbers in the table, the
+residuals of the selected model were examined for good measure showing
+no autocorrelation and using Ljung Box tests, the pvalues confirmed this
+as well. I proceeded forward to forecast using this model, which can be
+seen in the image below.</p>
+<p><ProjectionImage></p>
 </div>
 </div>
 </div>

@@ -31,7 +31,8 @@ These were the main processing methodologies used on the data. The following sec
 ### ATM1
 The following image is the initial data concerning ATM1 when plotted. As you can see there is no trend but plenty of seasonality on the weekly level. 
 
-![Raw ATM1 Plot]('images/raw_atm1.png')
+![Raw ATM1 Plot](https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/Spring2025/DATA624/Project1/images/atm1_proj_full.png)
+
 
 After checking for the presence of zeros in the Cash column, as this would impact certain transformation types, I proceeded to attempt different modeling techniques to yield an accurate projection. I tried to main modeling methodologies: ETS and ARIMA modeling. There were no zeros in the ATM1 Cash data column, so I manually attempted both additive and multiplicative seasonalities, while also using the function's native ability to identify the best recommended model. The following table breaks down the ETS and ARIMA models I attempted, along with the model I ultimately selected based on performance. 
 
@@ -51,15 +52,15 @@ After checking for the presence of zeros in the Cash column, as this would impac
 
 Using the selected ARIMA model (), a forecast for ATM1's cash output was made for 30 days after the end of the data, essentially May 2010. The projection image can be seen below, with the detailed daily projected values in the accompanying file in the ATM1 tab. 
 
-![Full ATM1 Projection Forecast Plot]('./images/atm1_proj_full.png')
+![Full ATM1 Projection Forecast Plot](https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/Spring2025/DATA624/Project1/images/atm1_proj_full.png)
 
-![Limited for Visibility ATM1 Projection Forecast Plot]('images/atm1_proj_lim.png')
+![Limited for Visibility ATM1 Projection Forecast Plot](https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/Spring2025/DATA624/Project1/images/atm1_proj_lim.png)
 
 
 ### ATM2
 The following image is the initial data concerning ATM2 when plotted. As you can see, similar to ATM1 there is no trend but plenty of seasonality on the weekly level. 
 
-![Raw ATM2 Plot]('images/raw_atm2.png')
+![Raw ATM2 Plot](https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/Spring2025/DATA624/Project1/images/raw_atm2.png)
 
 For this ATM there were 2 zero values in the cash column, which meant without transformation muiltiplicative ETS modeling was not possible. I performed the same process as I did with ATM 1, that is generating several ETS and ARIMA models in order to find one that best fit the data. The model types attempted can be seen in the table below. 
 
@@ -81,25 +82,29 @@ After selecting the best model based on the numbers in the table, the residuals 
 ### ATM3
 The following images are the plots of the raw data of ATM3. The data set was different as all but three of the data points for the Cash column had zero values. The last three points were the only varying data points available. This led to me using a different modeling technique than ATMs 1, 2 and 4.
 
-![Raw ATM3 Plot]('images/raw_atm3.png')
+![Raw ATM3 Plot](https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/Spring2025/DATA624/Project1/images/raw_atm3.png)
 
-![Raw ATM3 Plot Limted for Visualization]('images/raw_atm3_lim.png')
+![Raw ATM3 Plot Limted for Visualization](https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/Spring2025/DATA624/Project1/images/raw_atm3_lim.png)
 
 For modeling this data set ETS and ARIMA techniques were not used do it only have 3 non-zero data points towards the end of the timeframe covered by the data. Instead, I applied simple forecasting methods: Naive, Mean, and Drift models. After exampling the RMSE numbers, along with other measurements of error for the models I selected the NAIVE modeling method, and used this model to derive projected values for May 2010. 
 
 ###### ATM 3 Model Comparison Table (Simple Models)
 
-| Model  | RMSE     | Notes |
-|--------|-----------|-------|
+| Model  | RMSE      | Notes |
+|--------|-----------|----------|
 | NAIVE  |  5.087423 | Selected |
 | MEAN   |  7.933887 | Rejected |
 | DRIFT  |  5.082060 | Rejected |
 
 <ProjectionImage>
 
-### ATM4
+### ATM4 
 
-![Raw ATM4 Plot]('images/raw_atm4.png')
+The photo below shows the plotting of the raw ATM4 data. 
+
+![Raw ATM4 Plot](https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/Spring2025/DATA624/Project1/images/raw_atm4.png)
+
+For ATM4, similar to ATM 1 and 2, the data has no clear trend. However, this data also no real pattern to the variations in the data. There was one large outlier that was in the data to note of. With this being said, the process for finding a model for ATM 4 was the same process for ATM1 and ATM2. I used ETS and ARIMA methodologies in order to find the best performing model to forcecast May 2010 values. 
 
 ###### ATM 4 Model Comparison Table (ETS and ARIMA)
 
@@ -462,8 +467,14 @@ atm2_forecast <- arima_atm2 |>
 
 # ATM 2 forecast  
 print(atm2_forecast |> 
-    autoplot(atm2|>filter(DATE>=as.Date('2010-01-01'))))
+    autoplot(atm2))
+#p <- atm2_forecast |> autoplot(atm2)
+#ggsave("images/atm2_proj.png", plot = p, width = 12, height = 8, dpi = 300)
 
+print(atm2_forecast |> 
+    autoplot(atm2|>filter(DATE>=as.Date('2010-01-01'))))
+#p <- atm2_forecast |> autoplot(atm2|>filter(DATE>=as.Date('2010-01-01')))
+#ggsave("images/atm2_proj_lim.png", plot = p, width = 12, height = 8, dpi = 300)
 
 ## Looking at forecasted values 
 atm2_forecast|> hilo() |> as_tsibble()
@@ -497,7 +508,11 @@ atm3_forecast <- simple_models |> forecast(h = 30) #30 days
 # ATM 3 forecast  
 print(atm3_forecast |> 
     autoplot(atm3))
+#p <- atm3_forecast |> autoplot(atm3)
+#ggsave("images/atm3_proj.png", plot = p, width = 12, height = 8, dpi = 300)
 
+## Looking at forecasted values 
+atm3_forecast|> hilo() |> as_tsibble()
 
 ```
 
@@ -591,6 +606,13 @@ atm4_forecast <- arima_atm4 |>
 # ATM 4 forecast  
 print(atm4_forecast |> 
     autoplot(atm4|>filter(DATE>=as.Date('2010-01-01'))))
+#p <- atm4_forecast |> autoplot(atm4|>filter(DATE>=as.Date('2010-01-01')))
+#ggsave("images/atm4_proj_lim.png", plot = p, width = 12, height = 8, dpi = 300)
+
+print(atm4_forecast |> 
+    autoplot(atm4))
+#p <- atm4_forecast |> autoplot(atm4)
+#ggsave("images/atm4_proj.png", plot = p, width = 12, height = 8, dpi = 300)
 
 
 ## Looking at forecasted values 
