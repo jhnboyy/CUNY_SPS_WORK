@@ -77,7 +77,10 @@ For this ATM there were 2 zero values in the cash column, which meant without tr
 
 After selecting the best model based on the numbers in the table, the residuals of the selected model were examined for good measure showing no autocorrelation and using Ljung Box tests, the pvalues confirmed this as well. I proceeded forward to forecast using this model, which can be seen in the image below. 
 
-<ProjectionImage>
+![ATM2 Projection Forecast Plot](https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/Spring2025/DATA624/Project1/images/atm2_proj.png)
+
+![Limited for Visibility ATM2 Projection Forecast Plot](https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/Spring2025/DATA624/Project1/images/atm2_proj_lim.png)
+
 
 ### ATM3
 The following images are the plots of the raw data of ATM3. The data set was different as all but three of the data points for the Cash column had zero values. The last three points were the only varying data points available. This led to me using a different modeling technique than ATMs 1, 2 and 4.
@@ -96,7 +99,8 @@ For modeling this data set ETS and ARIMA techniques were not used do it only hav
 | MEAN   |  7.933887 | Rejected |
 | DRIFT  |  5.082060 | Rejected |
 
-<ProjectionImage>
+![ATM3 Projection Forecast Plot](https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/Spring2025/DATA624/Project1/images/atm3_proj.png)
+
 
 ### ATM4 
 
