@@ -1,0 +1,20 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Python REPL history
+.python_history
+
+# Jupyter runtime files
+~$*.ipynb
+*.nbconvert.ipynb
+*.nbconvert/
+*.nb.html
+
+
+# Ignore data folder for Assignment7
+Assignment7/data/
