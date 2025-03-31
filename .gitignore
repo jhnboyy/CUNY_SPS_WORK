@@ -18,3 +18,4 @@ __pycache__/
 
 # Ignore data folder for Assignment7
 Assignment7/data/
+*docx
