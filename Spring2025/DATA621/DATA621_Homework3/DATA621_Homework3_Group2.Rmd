@@ -54,7 +54,7 @@ Leveraging both box plots for each variable compared to the target variable, alo
 Firstly, take a look at the ggpairs plot below. This plot revealed several meaningful correlations and patterns. A strong negative correlation exists between zn and both indus and nox. This implies areas zoned for spacious residential use are less likely to host industrial development and experience fewer nitrogen oxide emissions. The zn variable also negatively correlates with age. This could indicate larger residential lots are more common in newer developments. Indus, nox, and age are positively correlated with one another, which could mean that older neighborhoods are more industrial and environmentally burdened. Additionally, a strong negative relationship between the age and rm variables was seen, implying that older buildings are generally smaller than newer ones. The distance to employment centers, covered by the dis variable, negatively correlates with nox, age, and indus. The dis variable, however, has a positive relationship with zn. This may mean that larger residential zoning, are more suburban type developments not near industrialized more urban / downtown environments. Lastly, the lstat variable, which looks at the proportion of lower status of the population, is negatively related to zn, rm and dis. Lstat is positively correlated with indus, nox, and age. This makes sense as older, less industrialized, more suburban areas would tend to be of higher status.
 
 
-![GGPairs Plot Training Data](images/ggpairs_plot.png)
+![GGPairs Plot Training Data](https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/Spring2025/DATA621/DATA621_Homework3/images/ggpairs_plot.png)
 Now looking at the box plots (below) charted for each variable to gauge the relationship to the target variable of crime level, there were take aways here. These takeways can be seen in the following summary table: 
 
 | Variable | Relationship to Crime (Target = 1) | Insight |
@@ -72,17 +72,17 @@ Now looking at the box plots (below) charted for each variable to gauge the rela
 | `medv`   | Slightly lower values → Higher crime        | Lower median owner-occupied home values associated with high crime |
 
 
-![Box Plot for zn and Target Variable](images/Boxplotzn_plot.png)
-![Box Plot for indus and Target Variable](images/Boxplotindus_plot.png)
-![Box Plot for nox and Target Variable](images/Boxplotnox_plot.png)
-![Box Plot for rm and Target Variable](images/Boxplotrm_plot.png)
-![Box Plot for age and Target Variable](images/Boxplotage_plot.png)
-![Box Plot for dis and Target Variable](images/Boxplotdis_plot.png)
-![Box Plot for rad and Target Variable](images/Boxplotrad_plot.png)
-![Box Plot for tax and Target Variable](images/Boxplottax_plot.png)
-![Box Plot for ptratio and Target Variable](images/Boxplotptratio_plot.png)
-![Box Plot for lstat and Target Variable](images/Boxplotlstat_plot.png)
-![Box Plot for medv and Target Variable](images/Boxplotmedv_plot.png)
+![Box Plot for zn and Target Variable](https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/Spring2025/DATA621/DATA621_Homework3/images/Boxplotzn_plot.png)
+![Box Plot for indus and Target Variable](https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/Spring2025/DATA621/DATA621_Homework3/images/Boxplotindus_plot.png)
+![Box Plot for nox and Target Variable](https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/Spring2025/DATA621/DATA621_Homework3/images/Boxplotnox_plot.png)
+![Box Plot for rm and Target Variable](https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/Spring2025/DATA621/DATA621_Homework3/images/Boxplotrm_plot.png)
+![Box Plot for age and Target Variable](https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/Spring2025/DATA621/DATA621_Homework3/images/Boxplotage_plot.png)
+![Box Plot for dis and Target Variable](https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/Spring2025/DATA621/DATA621_Homework3/images/Boxplotdis_plot.png)
+![Box Plot for rad and Target Variable](https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/Spring2025/DATA621/DATA621_Homework3/images/Boxplotrad_plot.png)
+![Box Plot for tax and Target Variable](https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/Spring2025/DATA621/DATA621_Homework3/images/Boxplottax_plot.png)
+![Box Plot for ptratio and Target Variable](https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/Spring2025/DATA621/DATA621_Homework3/images/Boxplotptratio_plot.png)
+![Box Plot for lstat and Target Variable](https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/Spring2025/DATA621/DATA621_Homework3/images/Boxplotlstat_plot.png)
+![Box Plot for medv and Target Variable](https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/Spring2025/DATA621/DATA621_Homework3/images/Boxplotmedv_plot.png)
 
 In summation for data exploration, the target variable covering crime rates seems to have meaningful relationships with several of the predictors in the dataset. Additionally, non-target variables have relationships with one another that should be considered for processing and before modeling. The suggestions from this exploration hint that zoning, environmental quality, infrastructure access, and socioeconomic factors could all play a role in predicting crime levels.
 
