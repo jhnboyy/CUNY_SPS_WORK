@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(dplyr)
 library(ggplot2)
 #library(mice)
-#library(GGally)
+library(GGally)
 #library(moments)
 library(tidyr)
 library(tidyverse)
@@ -43,6 +43,49 @@ Describe the size and the variables in the crime training data set. Consider tha
   b. Bar Chart or Box Plot of the data
   c. Is the data correlated to the target variable (or to other variables?)
   d. Are any of the variables missing and need to be imputed/“fixed”? 
+  
+#### DATA EXPLORATION WRITE UP
+The training dataset consists of 466 observations and 14 variables, including 13 predictors and a binary response variable. The binary response variable, target, indicates that a neighborhood's crime rate exceeds the citywide median (a value of 1) or not ( a value of 0). A null-check confirmed that there are no missing values in the dataset, so no imputation or data cleansing was necessary at this stage.
+
+Basic summary statistics reveal that the variables like zn, tax, and age exhibit wide ranges seemingly from 0 to 100 or more. Columns such as indus, nox, lstat, medv, rad and dis have smaller ranges. Looking specifically at some variable, zn, which is the proportion of residential land zoned for large lots, ranges from 0 to 100. The data has a median of 0 and a mean of 11.58. This shows that many neighborhoods have minimal or no large-lot zoning. Another variable, age , which shows the proportion of homes built before 1940, has a mean of 68.37 and a median of 77.15, suggesting a majority of the housing stock is relatively old. 
+
+Leveraging both box plots for each variable compared to the target variable, along with a larger ggpairs plot, there were relationships between the data columns observed. 
+
+Firstly, take a look at the ggpairs plot below. This plot revealed several meaningful correlations and patterns. A strong negative correlation exists between zn and both indus and nox. This implies areas zoned for spacious residential use are less likely to host industrial development and experience fewer nitrogen oxide emissions. The zn variable also negatively correlates with age. This could indicate larger residential lots are more common in newer developments. Indus, nox, and age are positively correlated with one another, which could mean that older neighborhoods are more industrial and environmentally burdened. Additionally, a strong negative relationship between the age and rm variables was seen, implying that older buildings are generally smaller than newer ones. The distance to employment centers, covered by the dis variable, negatively correlates with nox, age, and indus. The dis variable, however, has a positive relationship with zn. This may mean that larger residential zoning, are more suburban type developments not near industrialized more urban / downtown environments. Lastly, the lstat variable, which looks at the proportion of lower status of the population, is negatively related to zn, rm and dis. Lstat is positively correlated with indus, nox, and age. This makes sense as older, less industrialized, more suburban areas would tend to be of higher status.
+
+
+![GGPairs Plot Training Data](images/ggpairs_plot.png)
+Now looking at the box plots (below) charted for each variable to gauge the relationship to the target variable of crime level, there were take aways here. These takeways can be seen in the following summary table: 
+
+| Variable | Relationship to Crime (Target = 1) | Insight |
+|----------|------------------------------------|---------|
+| `zn`     | Lower values → Higher crime        | Less residential zoning is linked to high crime |
+| `indus`  | Higher values → Higher crime       | More industrial areas tend to have higher crime |
+| `nox`    | Higher values → Higher crime       | Pollution correlates with higher crime rates |
+| `rm`     | No clear pattern                   | Number of rooms not strongly associated |
+| `age`    | Higher values → Higher crime       | Older buildings correlate with higher crime |
+| `dis`    | Lower values → Higher crime        | Areas closer to employment centers have more crime |
+| `rad`    | Higher values → Higher crime       | Greater radial highway access correlated to higher crime |
+| `tax`    | Higher values → Higher crime       | High tax correlated higher crime. |
+| `ptratio`| Slightly higher values → Higher crime | Weak trend, possibly related to school quality |
+| `lstat`  | Slightly higher values → Higher crime       | Larger lower status proportion linked to higher crime |
+| `medv`   | Slightly lower values → Higher crime        | Lower median owner-occupied home values associated with high crime |
+
+
+![Box Plot for zn and Target Variable](images/Boxplotzn_plot.png)
+![Box Plot for indus and Target Variable](images/Boxplotindus_plot.png)
+![Box Plot for nox and Target Variable](images/Boxplotnox_plot.png)
+![Box Plot for rm and Target Variable](images/Boxplotrm_plot.png)
+![Box Plot for age and Target Variable](images/Boxplotage_plot.png)
+![Box Plot for dis and Target Variable](images/Boxplotdis_plot.png)
+![Box Plot for rad and Target Variable](images/Boxplotrad_plot.png)
+![Box Plot for tax and Target Variable](images/Boxplottax_plot.png)
+![Box Plot for ptratio and Target Variable](images/Boxplotptratio_plot.png)
+![Box Plot for lstat and Target Variable](images/Boxplotlstat_plot.png)
+![Box Plot for medv and Target Variable](images/Boxplotmedv_plot.png)
+
+In summation for data exploration, the target variable covering crime rates seems to have meaningful relationships with several of the predictors in the dataset. Additionally, non-target variables have relationships with one another that should be considered for processing and before modeling. The suggestions from this exploration hint that zoning, environmental quality, infrastructure access, and socioeconomic factors could all play a role in predicting crime levels.
+
 
 ### 2. DATA PREPARATION (25 Points)
 Describe how you have transformed the data by changing the original variables or creating new variables. If you did transform the data or create new variables, discuss why you did this. Here are some possible transformations.
@@ -51,6 +94,8 @@ Describe how you have transformed the data by changing the original variables or
   c. Transform data by putting it into buckets
   d. Mathematical transforms such as log or square root (or, use Box-Cox)
   e. Combine variables (such as ratios or adding or multiplying) to create new variables 
+  
+#### DATA PREPARATION WRITE UP
 
 ### 3. BUILD MODELS (25 Points)
 Using the training data, build at least three different binary logistic regression models, using different variables (or the same variables with different transformations). You may select the variables manually, use an approach such as Forward or Stepwise, use a different approach, or use a combination of techniques. Describe the techniques you used. If you manually selected a variable for inclusion into the model or exclusion into the model, indicate why this was done. Be sure to explain how you can make inferences from the model, as well as discuss other relevant model output. Discuss the coefficients in the models, do they make sense? Are you keeping the model even though it is counter intuitive? Why? The boss needs to know. 
@@ -62,7 +107,142 @@ Decide on the criteria for selecting the best binary logistic regression model. 
 ## Appendix A - Code Work
 
 ```{r reading_in_data}
+## Pushed the small amoutn of data to git, so reading in from there.
 
+crime_eval_mod <- read.csv("https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/Spring2025/DATA621/DATA621_Homework3/crime-evaluation-data_modified.csv")
+
+crime_train_mod <- read.csv("https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/Spring2025/DATA621/DATA621_Homework3/crime-training-data_modified.csv")
+```
+
+```{r exploring_the_training_data}
+## Summary of the Training Data
+print(summary(crime_train_mod))
+
+# Double Checking for NA 
+print(colSums(is.na(crime_train_mod))) # No nulls to remove/ impute.
+print(nrow(crime_train_mod)) #466 rows
+
+
+## Looping throuhg all of the continous columns, and plotting with target on the x axis. 
+for (col in c(colnames(crime_train_mod |> dplyr::select(-target,-chas)))) {
+  #print(col)
+  box_plot <- ggplot(crime_train_mod, aes(x = factor(target), y = .data[[col]])) +
+    geom_boxplot(outlier.shape = 1) +
+    labs(
+      x = "Target (0 = No, 1 = Yes)",
+      y = col,
+      title = paste("Boxplot of", col, "by Target")
+    )
+  #print(box_plot)
+  #ggsave(paste0("images/Boxplot",col,"_plot.png"), plot = box_plot, units = "in", dpi = 300)
+
+}
+
+## Based on these box plots, target's relationship with other variables seems as follows: 
+#- zn: Nearly all of the higher zoning values correlate with 0 values of target. Lower Crime, higher zoning value
+#- indus: the higher values for indus generally correlate with higher crime target values. Some exceptions.
+#- nox: higher nox values correlated with high crime target vals. 
+#- rm: not much of an outlying pattern here.
+#- age: slight trend of higher age of area, higher crime target values.
+#- dis: higher values seem to be lower crime, some exceptions.
+#- rad: higher values associated with higher crime.
+#- tax: higher values associated with higher crime, some exceptions.
+#- ptratio: very slight correlation, not too definitive. Higher ptratio, maybe higher crime.
+#- lstat: slight correlation, high crime with higher lstat values
+#- medv: weak correlation lower crime, hiwher medv number. 
+
+```
+
+```{r ggpairs, fig.width = 15, fig.height =20}
+## Taking a look at how the variables relate to one another via ggpairs.
+
+#p <- 
+  ggpairs(crime_train_mod,progress = FALSE) +theme_minimal(base_size=9) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+                                      strip.text.x = element_text(angle = 90, hjust = 1),
+                                     strip.text.y = element_text(angle = 0, hjust = 1))
+
+## Saving Image for reference in PDF #
+#ggsave("images/ggpairs_plot.png", plot = p, width = 15, height = 20, units = "in", dpi = 300)
+
+## The takeaways that i see for the GGpairs chart for iteration / relationships between variables:
+##  - There is a negative relationship between zn(Large residential Lot Zoned Land) and indus (proportion of non retail businesses). Makes sense as the larger the residential land
+##    zoning is, the less likely there will be non retail / industrial type businesses also prominent in the area. 
+##  - Similar negative relationship for NOX and ZN, which makes sense because there is also a direct relationship with indus and nox. Im assuming NOX is an industrial emission.
+##  - Negative relationship btwn zn and age, which would imply that larger residential type living zone is a newer development. Where older development buildings are zoned smaller
+##  - Direct relationship with age and nox as well as indus, which i would guess is that neighborhoods with older building areas, have more industrial development and nox emission
+##  - Steep neg. relationship with age and rm. Older buildings smaller so older buildings, have less rooms.
+##  - Age has negative relationship with zn, and positive one with indus
+##  - dis column, the weighted dist. to employment centers, has a negative relationship with: nox, age, indus. While dis has a positive relationship with zn.
+##  - lstat, lower status population, has neg. relationship with zn, rm and dis. While lstat has pos. relationship with: age, indus, nox, and a slight one with ptratio
+##  - medv, med. value of owner-occupied home, has a neg. relationship with: indus, nox, lstat, and slight neg. with age. medv has positive rel. with: dis, rm, zn.
+
+```
+
+```{r correlation_matrix_check}
+# Cor Matrics with no dummy var chas or binary target 
+cor_matrix <- cor(crime_train_mod |> dplyr::select(-target,-chas), use = "complete.obs")
+print(cor_matrix)
+# This tracks with what i outlined in my notes on the ggpairs plot.
+
+## Looking here in order to find potential agg index variables to make. 
+## Potential colinear type relationships here: 
+# indus -> nox, - dis
+# nox -> -dis, age (age gives diff info though)
+# age -> dis
+# rad -> tax (super high correlation)
+# lstat -> - medv
+```
+
+
+```{r processing}
+## Place those with strong direct relationships and similar measures into an index? 
+summary(crime_train_mod)
+## environmental_index <- scale(indus)+scale(nox)+ scale(rad)?
+## urban_index <- scale(-rm)+scale(age)+scale(dis)
+## economic_index <- scale(lstat)+scale(-medv)+scale(-zn)+scale(-tax)
+
+
+
+```
+
+```{r modeling_start}
+## Based on my notes above:
+## - Strong Negative Relationship w Target:
+##    - zn
+## - Strong Positive Relationship w Target:
+##    - indus, nox, rad, tax
+
+#Seeing waht a baseline model wi
+baseline_model <- glm(target ~ ., data = crime_train_mod, family = binomial)
+print(summary(baseline_model))
+
+## Dropping those with super high p values
+#lstat       
+#rm 
+#chas          
+#indus #multicolinearity risk with NOX       
+baseline_model2 <- glm(target ~ zn+nox+age+dis+rad+tax+ptratio+medv, data = crime_train_mod, family = binomial)
+print(summary(baseline_model2)) 
+## Lower AIC value, slighlty better. 21
+
+
+## Trying Step wise automated version to see results to garner ideas / insight. 
+step_model <- step(glm(target ~ ., data = crime_train_mod, family = binomial), 
+                   direction = "both")
+summary(step_model)
+
+
+```
+
+```{r}
+## Approaching Modeling Questions: 
+## Placing Data into BUckets?
+## Transformations? Box-Cox?
+## Making Ratio variables for model? 
+```
+
+```{r}
 
 ```
 
