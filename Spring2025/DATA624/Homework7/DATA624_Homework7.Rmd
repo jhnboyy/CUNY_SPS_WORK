@@ -1,0 +1,249 @@
+---
+title: "DATA624_Homework7"
+author: "John Ferrara"
+date: "`r Sys.Date()`"
+output: html_document
+---
+```{r setup, include=FALSE}
+library(caret)
+#library(MASS)
+
+```
+
+## Instructions
+In Kuhn and Johnson do problems 6.2 and 6.3. There are only two but they consist of many parts.  Please submit a link to your Rpubs and submit the .rmd file as well.
+
+### Question 6.2
+Developing a model to predict permeability (see Sect. 1.4) could save significant resources for a pharmaceutical company, while at the same time more
+rapidly identifying molecules that have a sufficient permeability to become a drug:
+
+##### (a) Start R and use these commands to load the data:
+``` {r 6.2a_code}
+library(AppliedPredictiveModeling)
+data(permeability)
+```
+The matrix fingerprints contains the 1,107 binary molecular predictors for the 165 compounds, while permeability contains permeability
+response.
+
+##### (b) The fingerprint predictors indicate the presence or absence of substructures of a molecule and are often sparse meaning that relatively few of the molecules contain each substructure. Filter out the predictors that have low frequencies using the nearZeroVar function from the caret package. How many predictors are left for modeling? 
+``` {r 6.2b_code}
+fin_df <- data.frame(fingerprints)
+print(nrow(fin_df))#165 rows
+print(nrow(t(fin_df)))#1107 predictors
+
+
+## Limiting to those predictors that have variance. 
+#Getting those with little variance. 
+no_var <- nearZeroVar(fin_df)
+filtered_fingerprints<- fin_df[,-no_var]
+
+#print(head(filtered_fingerprints))
+print(nrow(filtered_fingerprints))#165 
+print(nrow(t(filtered_fingerprints))) #388
+
+### There are a total of 388 predictors / columns left for the analysis.
+
+```
+
+##### (c) Split the data into a training and a test set, pre-process the data, and tune a PLS model. How many latent variables are optimal and what is the corresponding resampled estimate of R2?
+``` {r 6.2c_code_splitting}
+## Joining the permeability vector to the main df before splitting the training data.
+
+#Confirming it is 165 rows long before adding as columns
+print(length(permeability)) #165
+fin_df <- cbind(filtered_fingerprints, permeability)
+
+## Splitting into training and test. 70 / 30 split
+training_split <- createDataPartition(fin_df$permeability, p = 0.7, list = FALSE)
+training_data <- fin_df[training_split,]
+print(nrow(training_data)) #117
+print(nrow(t(training_data))) #389
+
+test_data <- fin_df[-training_split,]
+print(nrow(test_data)) #48
+print(nrow(t(test_data))) #389
+
+#Data is joined and split into training and test groups.
+
+```
+``` {r 6.2c_code_modeling}
+set.seed(55)
+
+## kfold cross validation
+cros_val <- trainControl(method = "cv", number = 10)
+
+## Now building the pls model with this. Using the pre processing in chapter to center and scale. 
+pls_model <- train(permeability ~ ., data = training_data, method = "pls", preProc = c("center", "scale"),   tuneLength = 20, trControl = cros_val)
+
+print(pls_model)
+
+#### Taking a look at the model results above, the latent variables that are optimal for this model are 2. After running the model on the training data, the lowest error values (RMSE 11.7 | MAE 8.2) was 2 variables and this also had the highest r^2 value at ~0.512. In short a pls model with 2 components is ideal. 
+
+```
+
+
+##### (d) Predict the response for the test set. What is the test set estimate of R2?
+``` {r 6.2d_code}
+## Running it on the test data
+test_preds <- predict(pls_model, newdata = test_data)
+
+print(postResample(pred = test_preds, obs = test_data$permeability))
+      #RMSE   Rsquared        MAE 
+#13.6063581  0.2713528  8.5561909
+
+## The r^2 for the test set is 0.27
+
+```
+
+##### (e) Try building other models discussed in this chapter. Do any have better predictive performance?
+``` {r 6.2e_code}
+
+## Other models discussed in this chapter were: 
+
+# OLS regression
+ols_model <- train(permeability ~ ., data = training_data, method = "lm", preProc = c("center", "scale"), trControl = cros_val)
+print(ols_model)
+# RMSE      Rsquared   MAE     
+#  26.08582  0.2149182  17.51395
+
+test_preds_ols <- predict(ols_model, newdata = test_data)
+print(postResample(pred = test_preds_ols, obs = test_data$permeability))
+#RMSE    Rsquared         MAE 
+#33.36353485  0.09437608 17.42874107
+
+
+# Ridge Regression model
+ridge_model <- train(permeability ~ ., data = training_data, method = "ridge", preProc = c("center", "scale"),   tuneLength = 20, trControl = cros_val)
+print(ridge_model)
+#lambda        RMSE          Rsquared   MAE
+#0.1000000000      12.20011  0.4841976 9.502962e+00
+
+test_preds_ridge <- predict(ridge_model, newdata = test_data)
+print(postResample(pred = test_preds_ridge, obs = test_data$permeability))
+#      RMSE   Rsquared        MAE 
+#13.4624090  0.3555569  9.4449031       
+
+# Lasso Regression model
+lasso_model <- train(permeability ~ ., data = training_data, method = "lasso", preProc = c("center", "scale"),   tuneLength = 20, trControl = cros_val)
+print(lasso_model)
+#fraction   RMSE      Rsquared   MAE     
+#  0.1842105  10.53842  0.5652147  7.571420
+
+test_preds_lasso <- predict(lasso_model, newdata = test_data)
+print(postResample(pred = test_preds_lasso, obs = test_data$permeability))
+#     RMSE   Rsquared        MAE 
+#14.2522321  0.1930075  9.2703352 
+```
+
+##### (f) Would you recommend any of your models to replace the permeability laboratory experiment?
+Of all the models I ran, when performed on the test set the ridge regression model had the highest r^2 for the test data at 0.355, while the PLS had a r^2 of 0.27. I would choose the ridge model here as a result. 
+
+
+### Question 6.3
+A chemical manufacturing process for a pharmaceutical product was discussed in Sect. 1.4. In this problem, the objective is to understand the relationship between biological measurements of the raw materials (predictors), measurements of the manufacturing process (predictors), and the response of product yield. Biological predictors cannot be changed but can be used to assess the quality of the raw material before processing. On the other hand, manufacturing process predictors can be changed in the manufacturing process. Improving product yield by 1 % will boost revenue by approximately one hundred thousand dollars per batch: 
+
+##### (a) Start R and use these commands to load the data:
+``` {r 6.3a_code}
+library(AppliedPredictiveModeling)
+
+data(ChemicalManufacturingProcess)
+```
+The matrix processPredictors contains the 57 predictors (12 describing the input biological material and 45 describing the process predictors) for the 176 manufacturing runs. 'yield' contains the percent yield for each run. 
+
+##### (b) A small percentage of cells in the predictor set contain missing values. Use an imputation function to fill in these missing values (e.g., see Sect. 3.8). 
+
+```{r 6_3_b}
+print(summary(ChemicalManufacturingProcess))
+
+## Columns that contain null/ NA values.
+#ManufacturingProcess01 ManufacturingProcess02 ManufacturingProcess03 ManufacturingProcess04 ManufacturingProcess05 ManufacturingProcess06 ManufacturingProcess07
+#ManufacturingProcess08 ManufacturingProcess10 ManufacturingProcess11 ManufacturingProcess12 ManufacturingProcess14 ManufacturingProcess22 ManufacturingProcess23
+#ManufacturingProcess24 ManufacturingProcess25 ManufacturingProcess26 ManufacturingProcess27 ManufacturingProcess28 ManufacturingProcess29 ManufacturingProcess30
+#ManufacturingProcess31 ManufacturingProcess33 ManufacturingProcess34 ManufacturingProcess35 ManufacturingProcess36 ManufacturingProcess40 ManufacturingProcess41
+
+## Imputing the values. 
+chem_df <- data.frame(ChemicalManufacturingProcess)
+## Keeping it simple with taking the median values of each of the columns, as most columns that have NA only have one NA
+imputed <- preProcess(chem_df, method = "medianImpute")
+chem_df_imputed <- predict(imputed, chem_df)
+
+print(summary(chem_df_imputed)) # No more nulls
+
+```
+
+##### (c) Split the data into a training and a test set, pre-process the data, and tune a model of your choice from this chapter. What is the optimal value of the performance metric?
+
+```{r 6_3_c}
+## Splitting the same way in previous question with 70 / 30 train/test
+training_split <- createDataPartition(chem_df_imputed$Yield, p = 0.7, list = FALSE)
+training_data <- chem_df_imputed[training_split,]
+
+print(nrow(training_data)) #124
+print(nrow(t(training_data))) #58
+
+test_data <- chem_df_imputed[-training_split,]
+print(nrow(test_data)) #52
+print(nrow(t(test_data))) #58
+
+#Data is joined and split into training and test groups.
+
+### Model Start 
+## crossvalidation
+cross_val <- trainControl(method = "cv", number = 10)
+## Choosing PLS as before because a lot of predictors 
+pls_model <- train(Yield ~ ., data = training_data, method = "pls", preProc = c("center", "scale"),   tuneLength = 20, trControl = cros_val)
+
+
+print(pls_model)
+ #ncomp  RMSE      Rsquared   MAE     
+#   3     1.319743  0.5803008  1.050852
+
+## The model chose three components from the PLS predictors as the optimal value. 
+```
+
+##### (d) Predict the response for the test set. What is the value of the performance metric and how does this compare with the resampled performance metric on the training set?
+
+```{r 6_3_d}
+
+## Running it on the test data
+test_preds <- predict(pls_model, newdata = test_data)
+
+print(postResample(pred = test_preds, obs = test_data$Yield))
+# RMSE  Rsquared       MAE 
+#1.9545288 0.2765253 1.1098108
+
+
+## The r^2 opn the test data from the Pls model trained on the trainingdata is lower than the training data. The R^2 on the test data is 0,27 with a RMSE of 1.95, while on the training data it the r^2 was 0.58 with a root mean sqrd error of ~1.3. The model performed more poorly on the test data. 
+```
+
+##### (e) Which predictors are most important in the model you have trained? Do either the biological or process predictors dominate the list? 
+
+```{r 6_3_e}
+# Checking the varibles for what is important
+print(varImp(pls_model))
+
+## The top 6 predictors in this model are the Manufacturing / Process predictors. So the answer would be the process predictors as those that are dominating the list. While there are 3 biological predictors in the top 10 variables, 70% are manufacturing / process predic
+
+```
+
+##### (f) Explore the relationships between each of the top predictors and the response. How could this information be helpful in improving yield in future runs of the manufacturing process?
+
+```{r 6_3_f}
+## Looking at the top 5 predictors. 
+
+print(plot(chem_df_imputed$ManufacturingProcess32, chem_df_imputed$Yield))
+
+print(plot(chem_df_imputed$ManufacturingProcess09, chem_df_imputed$Yield))
+
+print(plot(chem_df_imputed$ManufacturingProcess13, chem_df_imputed$Yield))
+
+print(plot(chem_df_imputed$ManufacturingProcess17, chem_df_imputed$Yield))
+
+print(plot(chem_df_imputed$ManufacturingProcess36, chem_df_imputed$Yield))
+
+print(plot(chem_df_imputed$ManufacturingProcess06, chem_df_imputed$Yield))
+
+	
+## The predictors ManufacturingProcess32, ManufacturingProcess09, and ManufacturingProcess06 all have positive correlations with yield. These would be the processes that if improved would have the strongest return on yield. ManufacturingProcess36 seems to be impacted by another third variable, but also seems to have a bit of a negative relationship with yield.Lastly, ManufacturingProcess13 has little to negative relationship with yield based on the plot. Overall the first three predictors listed would be the most impactful if improved when looking at attempting to increase yield. 
+```
+
