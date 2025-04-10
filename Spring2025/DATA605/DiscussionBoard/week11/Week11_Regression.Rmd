@@ -1,0 +1,113 @@
+---
+title: "DATA605_Week11"
+author: "John Ferrara"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(dplyr)
+library(ggplot2)
+library(tidyverse)
+library(GGally)
+```
+### Assignment
+
+1. Choose a dataset that interests you and build a regression model in R.
+
+   ○ Clearly explain the variables you are using, the context of the data, and the goal of your analysis.  
+   ○ Fit a linear regression model to the data.
+
+2. Conduct a thorough residual analysis.
+
+   ○ Plot residuals versus fitted values to check for patterns.  
+   ○ Check the normality of residuals using histograms or QQ plots.  
+   ○ Assess homoscedasticity (constant variance of residuals).
+
+3. Reflect on the appropriateness of the linear model.
+
+   ○ Was a linear model appropriate for your data? Why or why not?  
+   ○ If not, discuss potential improvements or alternative models you might consider.
+
+
+### Part One - Data Selection, Exploration and Modeling
+
+Decided to use this kaggle dataset found here: https://www.kaggle.com/datasets/yasserh/student-marks-dataset 
+
+The dataset is a simple one for the purpose of demonstrating regression in r and has 3 columns:
+
+ - number_courses: Number of Courses Opted by the student
+ - time_study: Average Time Studied per day by the student
+ - Marks: Marks Obtained by the student
+
+The data has 100 rows for student information, with three columns outlined above. The main columns of interest for this exercise are the marks received and the time studied. 
+
+```{r reading_data_in}
+data <- read.csv("~/Documents/Github/CUNY_SPS_WORK/Spring2025/DATA605/DiscussionBoard/week11/Student_Marks.csv")
+## Getting a look at the data
+print(head(data))
+print(nrow(data))## 100 rows
+```
+
+Taking an exploratory look at the raw data with the goal of making a linear regression model for the relationship between the  time a student studies and the quality of the marks received by the student. Im assuming there will probably be a direct positive correlation. 
+
+```{r}
+## Exploratory GGPairs plot of the data to scope out relationships between variables. 
+p = ggpairs(data,progress = FALSE) +theme_minimal(base_size=9) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+                                      strip.text.x = element_text(angle = 90, hjust = 1),
+                                     strip.text.y = element_text(angle = 0, hjust = 1))
+ggsave("ggpairs_plot.png", plot = p)
+ 
+```
+As expected time studying and marks received have a positive correlation. Going to use this.
+
+
+``` {r}
+model <- lm(Marks ~ time_study, data = data)
+print(summary(model))
+```
+The summary of the model shows p value is small enough for the result to be statistically significant. While the adjusted r^2 is 0.8967 without any transformation. This means that the amount of time a student studies explains 88% of the variation in the marks received by the student. 
+
+```{r}
+p <- ggplot(data = data, aes(x = Marks, y = time_study)) +
+geom_point() +
+stat_smooth(method = "lm", se = FALSE)+
+  labs(x="Average Time Spent by Student Studying",
+       y="Marks Received by Student",
+       )
+
+ggsave("linear_model.png", plot = p)
+```
+The linear regression models seems to fit mildly well. There is some additional "diminishing returns" type of pattern in the orignal data that is not captured by the regression line. But overall decent fit. 
+
+### Part 2: Secondary Residual Plots
+
+``` {r}
+## Checking the Residuals with Secondary Plots
+p<-ggplot(model, aes(x=.fitted, y=.resid)) + 
+  geom_point()+
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  labs(x = "Predicted",y ="Residuals")
+#ggsave("residuals1.png", plot = p)
+```
+
+The residuals are NOT linear, there is an addition pattern in the data that the the model is not capturing. THe data model could benefit from a potential transformation in order to obtain better results. 
+
+```{r}
+# Residual Dist.
+p<-ggplot(data = model, aes(x = .resid)) +geom_histogram(binwidth = 2) + xlab("Residuals")
+ggsave("residuals2.png", plot = p)
+```
+The distribution of the residuals seem pretty normal.There arent any glaringly problematic patterns. 
+
+``` {r}
+#Variability of Constant
+p<-ggplot(data = model, aes(sample = .resid)) +stat_qq()
+ggsave("residuals3.png", plot = p)
+```
+The QQ plot is mostly linear with some variations in the data, so mostly normal. 
+
+### Part 3: Reflection. 
+
+The model could be improved. As mentioned before, most likely with transformations of the raw data to adjust scales, etc. Using a Box-COx type method to get a lambda for transforming the data would improve the results. Perhaps a simple log transformation, or scale transformation of the raw predictors would suffice as well. While the adjusted r^2 is a good number, there is a curve in the plotting of the residuals which indicate a less than ideal model.
