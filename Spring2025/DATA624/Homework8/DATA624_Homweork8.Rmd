@@ -1,0 +1,66 @@
+---
+title: "DATA624_Homework8"
+author: "John Ferrara"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(caret)
+#library(MASS)
+
+```
+
+## Instructions
+In Kuhn and Johnson do problems 7.2 and 7.5. There are only two but they consist of many parts.  Please submit both a link to your Rpubs and the .rmd file.
+
+### Question 7.2
+Friedman (1991) introduced several benchmark data sets create by simulation. One of these simulations used the following nonlinear equation to create data:
+<Embded forumlar image>
+where the x values are random variables uniformly distributed between [0, 1] (there are also 5 other non-informative variables also created in the simulation). The package mlbench contains a function called mlbench.friedman1 that simulates these data:
+
+Code Given(1): 
+```{r}
+library(mlbench)
+set.seed(200)
+trainingData <- mlbench.friedman1(200, sd = 1)
+## We convert the 'x' data from a matrix to a data frame
+## One reason is that this will give the columns names.
+trainingData$x <- data.frame(trainingData$x)
+## Look at the data using
+featurePlot(trainingData$x, trainingData$y)
+## or other methods.
+## This creates a list with a vector 'y' and a matrix
+## of predictors 'x'. Also simulate a large test set to
+## estimate the true error rate with good precision:
+testData <- mlbench.friedman1(5000, sd = 1)
+testData$x <- data.frame(testData$x)
+```
+
+Tune several models on these data. For example:
+
+Code Given(2):
+``` {r}
+library(caret)
+knnModel <- train(x = trainingData$x,
+                  y = trainingData$y,method = "knn",
+                  preProc = c("center", "scale"),
+                  tuneLength = 10)
+knnModel
+```
+
+```{r}
+knnPred <- predict(knnModel, newdata = testData$x)
+## The function 'postResample' can be used to get the test set
+## perforamnce values
+postResample(pred = knnPred, obs = testData$y)
+```
+Which models appear to give the best performance? Does MARS select the informative predictors (those named X1–X5)?
+
+### Question 7.5
+Exercise 6.3 describes data for a chemical manufacturing process. Use the same data imputation, data splitting, and pre-processing steps as before and train several nonlinear regression models.
+
+(a) Which nonlinear regression model gives the optimal resampling and test set performance?
+(b) Which predictors are most important in the optimal nonlinear regression model? Do either the biological or process variables dominate the list? How do the top ten important predictors compare to the top ten predictors from the optimal linear model?
+(c) Explore the relationships between the top predictors and the response for the predictors that are unique to the optimal nonlinear regression model. Do these plots reveal intuition about the biological or process predictors and their relationship with yield?
+
