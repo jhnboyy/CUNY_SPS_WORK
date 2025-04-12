@@ -7,8 +7,8 @@ output: html_document
 
 ```{r setup, include=FALSE}
 library(caret)
-#library(MASS)
-
+library(earth)
+library(kernlab)
 ```
 
 ## Instructions
@@ -16,7 +16,7 @@ In Kuhn and Johnson do problems 7.2 and 7.5. There are only two but they consist
 
 ### Question 7.2
 Friedman (1991) introduced several benchmark data sets create by simulation. One of these simulations used the following nonlinear equation to create data:
-<Embded forumlar image>
+![Formula Reference](https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/Spring2025/DATA624/Homework8/images/formula_7.2.png)
 where the x values are random variables uniformly distributed between [0, 1] (there are also 5 other non-informative variables also created in the simulation). The package mlbench contains a function called mlbench.friedman1 that simulates these data:
 
 Code Given(1): 
@@ -24,15 +24,12 @@ Code Given(1):
 library(mlbench)
 set.seed(200)
 trainingData <- mlbench.friedman1(200, sd = 1)
-## We convert the 'x' data from a matrix to a data frame
-## One reason is that this will give the columns names.
+## We convert the 'x' data from a matrix to a data frame One reason is that this will give the columns names.
 trainingData$x <- data.frame(trainingData$x)
 ## Look at the data using
-featurePlot(trainingData$x, trainingData$y)
+print(featurePlot(trainingData$x, trainingData$y))
 ## or other methods.
-## This creates a list with a vector 'y' and a matrix
-## of predictors 'x'. Also simulate a large test set to
-## estimate the true error rate with good precision:
+## This creates a list with a vector 'y' and a matrix of predictors 'x'. Also simulate a large test set to estimate the true error rate with good precision:
 testData <- mlbench.friedman1(5000, sd = 1)
 testData$x <- data.frame(testData$x)
 ```
@@ -40,10 +37,11 @@ testData$x <- data.frame(testData$x)
 Tune several models on these data. For example:
 
 Code Given(2):
-``` {r}
+``` {r warnings=FALSE }
 library(caret)
 knnModel <- train(x = trainingData$x,
-                  y = trainingData$y,method = "knn",
+                  y = trainingData$y,
+                  method = "knn",
                   preProc = c("center", "scale"),
                   tuneLength = 10)
 knnModel
@@ -51,16 +49,207 @@ knnModel
 
 ```{r}
 knnPred <- predict(knnModel, newdata = testData$x)
-## The function 'postResample' can be used to get the test set
-## perforamnce values
+## The function 'postResample' can be used to get the test set perforamnce values
 postResample(pred = knnPred, obs = testData$y)
 ```
+#### Start of My Model work with the other types mentioned in chapter
+
+Working with MARS Model
+```{r}
+## Setting up the parameters for the MARS model allowing individual predictors, as well as limited dual combinations of them. Allowing large range for pruning.
+marsGrid <- expand.grid(.degree = 1:2,  .nprune = 2:50) 
+set.seed(100)
+marsFit <- train(x = trainingData$x,
+                 y = trainingData$y,
+                 method = "earth",
+                 tuneGrid = marsGrid,
+                 preProc = c("center", "scale"),
+                 trControl = trainControl(method = "cv"))
+
+
+print(summary(marsFit$finalModel))
+
+```
+
+
+```{r}
+#Predictions
+marsPred <- predict(marsFit, newdata = testData$x)
+print(postResample(pred = marsPred, obs = testData$y))
+#     RMSE  Rsquared       MAE 
+#1.2433451 0.9364207 0.9824062 
+```
+
+Working with Neural Network Model 
+```{r}
+### Neural net model, we have 1-10 neurons, keeping inline with text books decay and bagging suggestions,
+set.seed(100)
+netGrid <- expand.grid(.decay = c(0, 0.01, 0.1),.size = 1:10,.bag = FALSE)
+
+nnetTune <- train(trainingData$x, trainingData$y,method = "avNNet",  tuneGrid = netGrid,
+                  trControl = trainControl(method = "cv"),
+                  preProc = c("center", "scale"),
+                  linout = TRUE,
+                  trace = FALSE,maxit = 500)
+
+
+
+print(summary(nnetTune$bestTune))
+print(summary(nnetTune$finalModel))
+print(nnetTune$results)
+print(plot(nnetTune))
+
+### Executing on Test Data 
+nnetPred <- predict(nnetTune, newdata = testData$x)
+print(postResample(pred = nnetPred, obs = testData$y))
+#     RMSE  Rsquared       MAE 
+#2.1917095 0.8121672 1.6442031
+
+```
+
+Working with SVM Model 
+```{r}
+set.seed(100)
+svmRTuned <- train(trainingData$x, trainingData$y, 
+                   method = "svmRadial",
+                   preProc = c("center", "scale"),
+                   tuneLength = 14,
+                   trControl = trainControl(method = "cv"))
+
+
+print(summary(svmRTuned$finalModel))
+print(svmRTuned$results)
+
+
+## Test Data
+svmPred <- predict(svmRTuned, newdata = testData$x)
+postResample(pred = svmPred, obs = testData$y)
+#     RMSE  Rsquared       MAE 
+#2.0202829 0.8327653 1.5675884 
+
+```
 Which models appear to give the best performance? Does MARS select the informative predictors (those named X1–X5)?
+
+##### Answer
+Here are the output results of each of my models: 
+
+| Model             | RMSE     | R²        | MAE       |
+|------------------|----------|-----------|-----------|
+| **MARS**         | **1.2433** | **0.9364** | **0.9824** |
+| **SVM (Radial)** | 2.0203   | 0.8328    | 1.5676    |
+| **Neural Network** | 2.1917 | 0.8122    | 1.6442    |
+
+The MARS model is by far the best with the lowest Root Mean Squared error and the highest R^2. This means this model explains about 93 percent of the variance in the target variable with the least error, as MAE is also the lowest in this model. The runner up would be the SVM model, with the neural network model coming in third place. 
+
+With respect to the MARS model, yes the model chose X variables 1 through 5. The ranking of importance of variable by influence was listed as X1, X4, X2, X5, X3. This generally matches the initially provide formula with the MARS model ignoring the variables that are not relevant. 
+
 
 ### Question 7.5
 Exercise 6.3 describes data for a chemical manufacturing process. Use the same data imputation, data splitting, and pre-processing steps as before and train several nonlinear regression models.
 
-(a) Which nonlinear regression model gives the optimal resampling and test set performance?
-(b) Which predictors are most important in the optimal nonlinear regression model? Do either the biological or process variables dominate the list? How do the top ten important predictors compare to the top ten predictors from the optimal linear model?
-(c) Explore the relationships between the top predictors and the response for the predictors that are unique to the optimal nonlinear regression model. Do these plots reveal intuition about the biological or process predictors and their relationship with yield?
+Training the data as in Exercise 6.3
+``` {r}
+library(AppliedPredictiveModeling)
+data(ChemicalManufacturingProcess)
+
+
+# Prepping the data 
+set.seed(100)
+
+## IMPUTING Keeping it simple with taking the median values of each of the columns, as most columns that have NA only have one NA
+imputed <- preProcess(ChemicalManufacturingProcess, method = "medianImpute")
+chem_df_imputed <- predict(imputed, ChemicalManufacturingProcess)
+
+## Establishing the x and y vars
+X <- chem_df_imputed[, -which(names(chem_df_imputed) == "Yield")]
+y <- chem_df_imputed$Yield
+
+## putting together for working & spltting 
+ChemData <- list(x = X, y = y)
+
+## Splitting 70/30
+splitIndex <- createDataPartition(ChemData$y, p = 0.7, list = FALSE)
+
+ChemtrainingData <- list(x = data.frame(ChemData$x[splitIndex, ]),y = ChemData$y[splitIndex])
+ChemtestData <- list( x = data.frame(ChemData$x[-splitIndex, ]),y = ChemData$y[-splitIndex])
+```
+
+#### (a) Which nonlinear regression model gives the optimal resampling and test set performance?
+```{r warnings=FALSE }
+#Looking at which of the predictor variables create the best fitting non-linear model to predict yield
+set.seed(100)
+
+### Firstly the Neural Net Model
+netGrid <- expand.grid(.decay = c(0, 0.01, 0.1),.size = 1:10,.bag = FALSE)
+
+nnetTune <- train( ChemtrainingData$x, 
+                   ChemtrainingData$y,
+                  method = "avNNet",  tuneGrid = netGrid,
+                  trControl = trainControl(method = "cv"),
+                  preProc = c("center", "scale"),
+                  linout = TRUE,
+                  trace = FALSE,maxit = 500)
+#----Evaluation
+nnetPred <- predict(nnetTune, newdata = ChemtestData$x)
+print(postResample(pred = nnetPred, obs = ChemtestData$y))
+#     RMSE  Rsquared       MAE 
+#1.3745797 0.5428737 1.0879853
+
+### MARS model
+marsGrid <- expand.grid(.degree = 1:2,  .nprune = 2:50) 
+marsFit <- train(x = ChemtrainingData$x,
+                 y = ChemtrainingData$y,
+                 method = "earth",
+                 tuneGrid = marsGrid,
+                 preProc = c("center", "scale"),
+                 trControl = trainControl(method = "cv"))
+#----Evaluation
+marsPred <- predict(marsFit, newdata = ChemtestData$x)
+print(postResample(pred = marsPred, obs = ChemtestData$y))
+#     RMSE  Rsquared       MAE 
+#1.2135116 0.6004976 0.9666867
+
+#KNN Model
+knnModel <- train(x = ChemtrainingData$x,
+                  y = ChemtrainingData$y,
+                  method = "knn",
+                  preProc = c("center", "scale"),
+                  tuneLength = 10)
+#----Evaluation
+knnPred <- predict(knnModel, newdata = ChemtestData$x)
+print(postResample(pred = knnPred, obs = ChemtestData$y))
+#     RMSE  Rsquared       MAE 
+#1.4009888 0.5174132 1.1011325 
+
+##SVM model
+svmRTuned <- train(ChemtrainingData$x, ChemtrainingData$y, 
+                   method = "svmRadial",
+                   preProc = c("center", "scale"),
+                   tuneLength = 14,
+                   trControl = trainControl(method = "cv"))
+
+
+#----Evaluation
+svmPred <- predict(svmRTuned, newdata = ChemtestData$x)
+print(postResample(pred = svmPred, obs = ChemtestData$y))
+#     RMSE  Rsquared       MAE 
+#1.1690926 0.6398953 0.8977043 
+
+```
+
+
+#### (b) Which predictors are most important in the optimal nonlinear regression model? Do either the biological or process variables dominate the list? How do the top ten important predictors compare to the top ten predictors from the optimal linear model?
+
+Of all the models ran on the data, the SVM model is the best performing model. The R^2 from this model was 0.634 and the RMSE was 1.16. The MAE was 0.897. OVerall these were the best numbers. The second place model was the MARS model and it had an RMSE of 1.213, an r^2 of 0.600, and a MAE 0.966. Taking a look at the SVM model, the top ten most important predictors include both biological and process variables. Out of the ten, six were process variables and four were biological. This means that process variables were a bit more dominant in the "most important" predictors. When compared to the results of the linear model from 6.3, there are many more biological variables dominating in the SVM model results. However, the ManufacturingProcess32 predicotr is still number one, and the ManufacturingProcess13 is still in the top 3. 
+
+
+
+```{r}
+## SVM Model results for important variables
+print(varImp(svmRTuned))
+```
+![Linear Model Important Variables](https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/Spring2025/DATA624/Homework8/images/LinearModle_6.3.png)
+#### (c) Explore the relationships between the top predictors and the response for the predictors that are unique to the optimal nonlinear regression model. Do these plots reveal intuition about the biological or process predictors and their relationship with yield?
+```{r}
+```
 
