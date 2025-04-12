@@ -2,7 +2,9 @@
 title: "DATA624_Homework8"
 author: "John Ferrara"
 date: "`r Sys.Date()`"
-output: html_document
+output:
+  html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -249,7 +251,26 @@ Of all the models ran on the data, the SVM model is the best performing model. T
 print(varImp(svmRTuned))
 ```
 ![Linear Model Important Variables](https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/Spring2025/DATA624/Homework8/images/LinearModle_6.3.png)
+
 #### (c) Explore the relationships between the top predictors and the response for the predictors that are unique to the optimal nonlinear regression model. Do these plots reveal intuition about the biological or process predictors and their relationship with yield?
+
+ I looked at BiologicalMaterial06, BiologicalMaterial03 and BiologicalMaterial12. The first two of these variables were in the top ten for both model, but were much higher in the SVM model than the linear model. The third was not in the top 10 of the linear model, but was the 6th most important in the SVM model. When plotted against yield,all of these variables showed some one ambiguous, not so linear patterns. This explains the discrepency in model variable results.
+
+
+
 ```{r}
+library(ggplot2)
+
+vars_to_plot <- c("BiologicalMaterial06", "BiologicalMaterial03", "BiologicalMaterial12")
+
+for (var in vars_to_plot) {
+  print(
+    ggplot(ChemicalManufacturingProcess, aes_string(x = var, y = "Yield")) +
+      geom_point() +
+      #geom_smooth(method = "loess", se = FALSE, color = "blue") +
+      labs(title = paste("Yield vs", var))
+  )
+}
+
 ```
 
