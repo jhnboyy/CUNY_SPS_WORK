@@ -1,0 +1,1333 @@
+---
+title: "DATA 621 - HW4:Auto Insurance Claims"
+author: ""
+date: "2025-04-17"
+header-includes:
+- \usepackage{pdflscape}
+- \newcommand{\blandscape}{\begin{landscape}}
+- \newcommand{\elandscape}{\end{landscape}}
+output:
+  pdf_document: default
+  html_document:
+    code_folding: hide
+urlcolor: blue
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Required Libraries
+
+```{r library, warning=FALSE, message=FALSE, class.source = "fold-show", echo = TRUE}
+
+library(janitor)
+library(kableExtra)
+library(latex2exp)
+library(psych)
+library(scales)
+library(stringr)
+library(ggcorrplot)
+library(tidyverse)
+library(mice)
+library(ggmice)
+library(caret)
+library(bestNormalize)
+library(e1071)
+library(car)
+library(glmnet)
+library(pROC)
+library(Metrics)
+```
+
+## Overview
+
+In this homework assignment, you will explore, analyze and model a data set containing approximately 8000 records representing a customer at an auto insurance company. Each record has two response variables. The first response variable, TARGET_FLAG, is a 1 or a 0. A “1” means that the person was in a car crash. A zero means that the person was not in a car crash. The second response variable is TARGET_AMT. This value is zero if the person did not crash their car. But if they did crash their car, this number will be a value greater than zero. Your objective is to build multiple linear regression and binary logistic regression models on the training data to predict the probability that a person will crash their car and also the amount of money it will cost if the person does crash their car. You can only use the variables given to you (or variables that you derive from the variables
+provided).
+
+## Introduction
+
+In this project, we analyze a dataset comprising around 8,000 entries, each representing a customer from an auto insurance provider. Each entry includes two key outcome variables. The first, **TARGET_FLAG**, is a binary indicator: a value of 1 indicates that the individual was involved in an automobile accident, while a value of 0 signifies no accident. The second variable, **TARGET_AMT**, represents the monetary cost associated with the accident. If no accident occurred, this amount is recorded as zero; otherwise, it reflects a positive dollar value.
+
+Our analysis begins with an in-depth examination of the dataset, focusing on its structure and the nature of its variables. This includes identifying any missing data, assessing skewness in numerical features, and analyzing correlations among variables. Following this exploratory phase, we proceed to data preprocessing—transforming and preparing the dataset to resolve issues identified earlier.
+
+Next, we develop two types of predictive models. First, we construct **logistic regression models** to estimate the likelihood of a customer being involved in a crash. Then, for those predicted to crash, we use **multiple linear regression models** to forecast the potential cost of the crash. To wrap up the project, we assess the performance of each model, determine which ones perform best, and use them to generate predictions on a validation dataset.
+
+<br>
+
+```{r table-def, echo=FALSE, message=FALSE, warnings=FALSE, results='asis'}
+table_def <- "
+| **VARIABLE**     | **DEFINITION**                           | **THEORETICAL EFFECT**                                                                            |
+|:------------------|:-----------------------------------------|:--------------------------------------------------------------------------------------------------|
+| `INDEX`          | Identification Variable (do not use)     | None                                                                                              |
+| `TARGET_FLAG`    | Was Car in a crash? 1=YES 0=NO           | None                                                                                              |
+| `TARGET_AMT`     | If car was in a crash, what was the cost | None                                                                                              |
+| `AGE`            | Age of Driver                            | Very young people tend to be risky. Maybe very old people also.                                   |
+| `BLUEBOOK`       | Value of Vehicle                         | Unknown effect on probability of collision, but probably effect the payout if there is a crash    |
+| `CAR_AGE`        | Vehicle Age                              | Unknown effect on probability of collision, but probably effect the payout if there is a crash    |
+| `CAR_TYPE`       | Type of Car                              | Unknown effect on probability of collision, but probably effect the payout if there is a crash    |
+| `CAR_USE`        | Vehicle Use                              | Commercial vehicles are driven more, so might increase probability of collision                   |
+| `CLM_FREQ`       | # Claims (Past 5 Years)                  | The more claims you filed in the past, the more you are likely to file in the future              |
+| `EDUCATION`      | Max Education Level                      | Unknown effect, but in theory more educated people tend to drive more safely                      |
+| `HOMEKIDS`       | # Children at Home                       | Unknown effect                                                                                    |
+| `HOME_VAL`       | Home Value                               | In theory, home owners tend to drive more responsibly                                             |
+| `INCOME`         | Income                                   | In theory, rich people tend to get into fewer crashes                                             |
+| `JOB`            | Job Category                             | In theory, white collar jobs tend to be safer                                                     |
+| `KIDSDRIV`       | # Driving Children                       | When teenagers drive your car, you are more likely to get into crashes                            |
+| `MSTATUS`        | Marital Status                           | In theory, married people drive more safely                                                       |
+| `MVR_PTS`        | Motor Vehicle Record Points              | If you get lots of traffic tickets, you tend to get into more crashes                             |  
+| `OLDCLAIM`       | Total Claims (Past 5 Years)              | If your total payout over the past five years was high, this suggests future payouts will be high | 
+| `PARENT1`        | Single Parent                            | Unknown effect                                                                                    |
+| `RED_CAR`        | A Red Car                                | Urban legend says that red cars (especially red sports cars) are more risky. Is that true?        |
+| `REVOKED`        | License Revoked (Past 7 Years)           | If your license was revoked in the past 7 years, you probably are a more risky driver.            |
+| `SEX`            | Gender                                   | Urban legend says that women have less crashes then men. Is that true?                            | 
+| `TIF`            | Time in Force                            | People who have been customers for a long time are usually more safe.                             |
+| `TRAVTIME`       | Distance to Work                         | Long drives to work usually suggest greater risk                                                  |
+| `URBANICITY`     | Home/Work Area                           | Unknown                                                                                           |
+| `YOJ`            | Years on Job                             | People who stay at a job for a long time are usually more safe                                    |
+"
+cat(table_def)
+```
+
+<br>
+
+## Data Exploration {.tabset}
+
+### Import Data
+
+Upon importing the training and evaluation datasets, we find that there are 26 columns, each corresponding to one of the variables described earlier. The training dataset contains 8,161 observations, while the evaluation dataset includes 2,141 entries. A preliminary review of the columns reveals that some data cleaning and preprocessing will be necessary before we can accurately compute any summary statistics.
+
+```{r import-data}
+url <- "https://raw.githubusercontent.com/Shriyanshh/DATA-621/refs/heads/main/insurance_training_data.csv"
+eval_url <- "https://raw.githubusercontent.com/Shriyanshh/DATA-621/refs/heads/main/insurance-evaluation-data.csv"
+
+train <- read.csv(url)
+eval <- read.csv(eval_url)
+```
+
+```{r data-glance-train}
+kbl(head(train), caption = "Training Set") |>
+  kable_classic(full_width = F, html_font = "Cambria") |>
+  footnote(general_title = "Dimensions: ",
+          TeX(paste0(nrow(train), " x ", ncol(train)))) %>%
+  kable_styling(latex_options = "HOLD_position")
+```
+
+```{r data-glance-eval}
+kbl(head(eval), caption = "Evaluation Set") |>
+  kable_classic(full_width = F, html_font = "Cambria") |>
+  footnote(general_title = "Dimensions: ",
+          TeX(paste0(nrow(eval), " x ", ncol(eval)))) %>%
+  kable_styling(latex_options = "HOLD_position")
+```
+
+### Data Wrangling
+
+In this section, we begin making initial modifications to the training dataset. Unless stated otherwise, all adjustments made here will also be applied to the evaluation dataset to maintain consistency.
+
+To start, we remove the **INDEX** column, as it does not contribute any meaningful information to our analysis.
+
+```{r drop-index}
+train <- 
+  train |>
+  select(-INDEX)
+
+eval <- 
+  eval |>
+  select(-INDEX)
+
+kbl(head(train), caption = "Training Set") |>
+  kable_classic(full_width = F, html_font = "Cambria") |>
+  footnote("Dropped `INDEX` column:") %>%
+  kable_styling(latex_options = "HOLD_position")
+```
+
+<br>
+
+Next, we observe that the **INCOME**, **HOME_VAL**, **BLUEBOOK**, and **OLDCLAIM** columns are currently formatted as currency strings. To enable proper analysis, these values must be converted into a numeric format.
+
+```{r string-dollar-numeric, echo=FALSE}
+preview <-
+  train |>
+  select(INCOME, HOME_VAL, BLUEBOOK, OLDCLAIM)
+
+kbl(head(preview), caption = "Training Set: Before") |>
+  kable_classic(full_width = F, html_font = "Cambria") |>
+  kable_styling(latex_options = "HOLD_position")
+
+train <-
+  train |>
+  mutate(INCOME = as.numeric(gsub("[^\\d]", "", train$INCOME, perl = TRUE)),
+         HOME_VAL = as.numeric(gsub("[^\\d]", "", train$HOME_VAL, perl = TRUE)),
+         BLUEBOOK = as.numeric(gsub("[^\\d]", "", train$BLUEBOOK, perl = TRUE)),
+         OLDCLAIM = as.numeric(gsub("[^\\d]", "", train$OLDCLAIM, perl = TRUE)))
+
+eval <-
+  eval |>
+  mutate(INCOME = as.numeric(gsub("[^\\d]", "", eval$INCOME, perl = TRUE)),
+         HOME_VAL = as.numeric(gsub("[^\\d]", "", eval$HOME_VAL, perl = TRUE)),
+         BLUEBOOK = as.numeric(gsub("[^\\d]", "", eval$BLUEBOOK, perl = TRUE)),
+         OLDCLAIM = as.numeric(gsub("[^\\d]", "", eval$OLDCLAIM, perl = TRUE)))
+
+preview <-
+  train |>
+  select(INCOME, HOME_VAL, BLUEBOOK, OLDCLAIM)
+
+kbl(head(preview), caption = "Training Set: After") |>
+  kable_classic(full_width = F, html_font = "Cambria") |>
+  kable_styling(latex_options = "HOLD_position")
+```
+
+<br>
+
+We also notice that several columns—**MSTATUS**, **SEX**, **EDUCATION**, **JOB**, **CAR_TYPE**, and **URBANICITY**—contain values with the prefix “z\_” that should be removed for consistency and clarity.
+
+```{r remove-string, echo=FALSE}
+preview <-
+  train |>
+  select(MSTATUS, SEX, EDUCATION, JOB, CAR_TYPE, URBANICITY)
+
+kbl(head(preview), caption = "Training Set: Before") |>
+  kable_classic(full_width = F, html_font = "Cambria") |>
+  kable_styling(latex_options = "HOLD_position")
+
+train <-
+  train |>
+  mutate(MSTATUS = str_remove(MSTATUS, "^z_"),
+         SEX = str_remove(SEX, "^z_"),
+         EDUCATION = str_remove(EDUCATION, "^z_"),
+         JOB = str_remove(JOB, "^z_"),
+         CAR_TYPE = str_remove(CAR_TYPE, "^z_"),
+         URBANICITY = str_remove(URBANICITY, "^z_"))
+
+eval <-
+  eval |>
+  mutate(MSTATUS = str_remove(MSTATUS, "^z_"),
+         SEX = str_remove(SEX, "^z_"),
+         EDUCATION = str_remove(EDUCATION, "^z_"),
+         JOB = str_remove(JOB, "^z_"),
+         CAR_TYPE = str_remove(CAR_TYPE, "^z_"),
+         URBANICITY = str_remove(URBANICITY, "^z_"))
+
+preview <-
+  train |>
+  select(MSTATUS, SEX, EDUCATION, JOB, CAR_TYPE, URBANICITY)
+
+kbl(head(preview), caption = "Training Set: After") |>
+  kable_classic(full_width = F, html_font = "Cambria") |>
+  kable_styling(latex_options = "HOLD_position") 
+```
+
+With the data values now cleaned, the next step is to verify that each variable has the appropriate data type. In particular, we’ll convert certain variables into categorical types (factors), as they represent distinct groups or categories. The specific variables to be converted are:
+
+-   `PARENT1`: Yes/No
+-   `MSTATUS`: Yes/No
+-   `SEX`: M/F
+-   `RED_CAR`: Yes/No (Fix capital punctuation of these values)
+-   `REVOKED`: Yes/No
+-   `EDUCATION`: High School, Bachelors, Masters, PhD (Ordered Factor as each level has an ordered precedence of completing it.)
+
+```{r factors}
+preview <-
+  train |>
+  select(PARENT1, MSTATUS, SEX, RED_CAR, REVOKED, EDUCATION)
+
+kbl(head(preview), caption = "Training Set: Before") |>
+  kable_classic(full_width = F, html_font = "Cambria") |>
+  kable_styling(latex_options = "HOLD_position")
+
+train <-
+  train |>
+  mutate(PARENT1 = as.factor(PARENT1), 
+         MSTATUS = as.factor(MSTATUS), 
+         SEX = as.factor(SEX), 
+         RED_CAR = as.factor(str_to_title(RED_CAR)), 
+         REVOKED = as.factor(REVOKED), 
+         EDUCATION = ordered(as.factor(EDUCATION), levels=c("<High School", "High School", "Bachelors", "Masters", "PhD")))
+
+eval <-
+  eval |>
+  mutate(PARENT1 = as.factor(PARENT1), 
+         MSTATUS = as.factor(MSTATUS), 
+         SEX = as.factor(SEX), 
+         RED_CAR = as.factor(str_to_title(RED_CAR)), 
+         REVOKED = as.factor(REVOKED), 
+         EDUCATION = ordered(as.factor(EDUCATION), levels=c("<High School", "High School", "Bachelors", "Masters", "PhD")))
+
+preview <-
+  train |>
+  select(PARENT1, MSTATUS, SEX, RED_CAR, REVOKED, EDUCATION)
+
+kbl(head(preview), caption = "Training Set: After") |>
+  kable_classic(full_width = F, html_font = "Cambria") |>
+  kable_styling(latex_options = "HOLD_position")
+```
+
+### Summary Statistics
+
+With the dataset in good shape, we are now ready to take a deeper look at the data within.
+
+```{r summary}
+desc_train <- describe(train, omit = TRUE)
+
+kbl(desc_train, digits=2, caption = "Summary Statistics") |>
+  kable_classic(full_width = F, html_font = "Cambria") |>
+  kable_styling(latex_options = "HOLD_position")  %>%
+  kableExtra::landscape()
+```
+
+The typical customer in our dataset is about 44.79 years old. On average, they earn nearly \$62,000 annually, and their homes are valued around \$155,000. For those involved in accidents, the average claim amount is approximately \$1,500.
+
+### Visualizations
+
+Next, we turn our attention to visualizing the data. Since the dataset includes both continuous and categorical variables, we will use different visualization techniques tailored to each type.
+
+```{r cat-cont-variables}
+## Split dataset into categorical and continuous variables
+train_cont <-
+  train |>
+  select(rownames(desc_train))
+
+train_cat <-
+  train |>
+  select(-rownames(desc_train))
+```
+
+**Density**
+
+We can get a better idea of the distributions and skewness by plotting our continuous variables: <br> \blandscape
+
+```{r density, echo=FALSE, warning=FALSE}
+train_cont |>
+  gather(key = "variable", value = "value") |>  
+  ggplot(aes(x = value)) + 
+  geom_histogram(aes(y = after_stat(density)), bins = 20, fill = '#4E79A7', color = 'black') + 
+  stat_density(geom = "line", color = "red") +
+  facet_wrap(~ variable, scales = 'free') +
+  theme(strip.text = element_text(size = 5)) +
+  theme_bw()
+```
+
+The variable AGE appears to follow a normal distribution. When examining our first response variable, TARGET_FLAG, its distribution aligns with the expected shape of a logit function, ranging between 0 and 1. Several other variables—such as BLUEBOOK, INCOME, MVR_PTS, OLDCLAIM, TARGET_AMT, TIF, and TRAVTIME—exhibit noticeable right skewness. This is reasonable, as these values are inherently non-negative and only restricted on the lower end. Additionally, variables like CAR_AGE, HOME_VAL, and YOJ display bimodal distributions. These patterns suggest that some transformations may be necessary, and we might also explore grouping strategies for the bimodal variables.
+
+**Bar Plots**
+
+Our bar plots show us how our categorical data is divided up.
+
+```{r bar, warning=FALSE, fig.height = 5, fig.width = 10}
+train_cat |>
+  gather(key = "variable", value = "value") |>  
+  ggplot(aes(y = value)) + 
+  geom_bar(aes(x = after_stat(count)), bins = 20, fill = '#4E79A7', color = 'black') +
+  facet_wrap(~ variable, scales = 'free') +
+  theme(strip.text = element_text(size = 5)) +
+  theme_bw() +
+  labs(y = "") 
+```
+
+\elandscape
+
+Additional insights from the data reveal that the majority of vehicles are either SUVs or Minivans. In terms of education, most drivers have attained either a High School diploma or a Bachelor’s degree. The dataset also shows that most individuals reside or work in Highly Urban or Urban environments. Furthermore, vehicle usage is primarily for personal rather than commercial purposes.
+
+**Box Plots**
+
+Visualizations can also display the presence of outliers. We expect quite a few outliers, especially when it comes to the value of cars, income of drivers, and home values.
+
+```{r boxplot, warning=FALSE, echo=FALSE}
+train_cont %>%
+  gather(key = "Variable", value = "Value") |>
+  ggplot(aes(x = "", y = Value)) +  
+  geom_boxplot(fill = "#4E79A7") +
+  facet_wrap(~ Variable, scales = "free") + 
+  labs(x = NULL, y = "Value") +  
+  theme(strip.text = element_text(size = 5))
+```
+
+As indicated by the box plots, there are several outliers that need to be addressed. For instance, BLUEBOOK values show that some insured vehicles are significantly more expensive than others. Similarly, HOMEKIDS and KIDSDRIV contain outliers as well—many drivers have no children, and even fewer have children who drive. Interestingly, the interquartile range for HOMEKIDS is noticeably higher than that for KIDSDRIV, which makes sense, as only a portion of the children in a household are of driving age. Given this relationship, it’s reasonable to expect some correlation between these two variables—an idea we explore further in the next section.
+
+**Correlation Matrix**
+
+```{r corr-plot, echo=FALSE}
+q <- cor(train_cont)
+
+ggcorrplot(q, type = "upper", outline.color = "white",
+           ggtheme = theme_classic,
+           colors = c("#F28E2B", "white", "#4E79A7"),
+           lab = TRUE, show.legend = F, tl.cex = 5, lab_size = 3) 
+```
+
+As expected, we have some moderately strong correlations between some of our variables. This will have to be addressed with when we build our models.
+
+-   `KIDSDRIV` and `HOMEKIDS`: As discussed, we expect multicollinearity as if you have children, they may be of age to drive already
+-   `MVR_PTS` and `CLM_FREQ`: The multicollinearity is intuitive as, if you have higher motor vehicle points accumulated from negative driving habits, you may be more likely to have accidents and require to file more claims than the average driver.
+-   `CLM_FREQ` and `OLDCLAIM`: There would be some multicollinearity since those that file more claims are likely to have a higher total claim value over the past 5 years.
+-   `TARGET_AMT` and `TARGET_FLAG`: Perhaps most obviously of all, since we expect TARGET_AMT to be zero if the person did not crash their car, but greater than zero if they did crash their car.
+
+### Missing Values
+
+```{r missing-values, echo=FALSE}
+missing_val <-
+  train %>%
+  summarise(across(everything(), ~ sum(is.na(.x)))) %>%
+  select_if(function(.) last(.) != 0)
+
+kbl(missing_val, caption = "Missing Values Count") |>
+    kable_classic(full_width = F, html_font = "Cambria") %>%
+  kable_styling(latex_options = "HOLD_position")
+```
+
+We can see we have some columns missing values.
+
+-   `AGE`: This column is only missing a few values and, given that it is a normally distributed variable, we have many options to impute them
+-   `YOJ`: We are missing a lot of values for how many year people have been at their job
+-   `INCOME`: We don't have how much money they are making in a year. It could be that they are not working.
+-   `HOME_VAL`: These missing values may be under the assumption they don't own a home and possibly renting. We return to this point in a moment.
+-   `CAR_AGE`: The highest amount of values we don't have is how old the car is.
+
+There is a nuanced point about `HOME_VAL`. As aforementioned, these plausibly represent rentals. However, recall the density plots earlier; there were many 0s for `HOME_VAL`. There cannot realistically be that many houses actually valued at \$0. It is possible, then, that the 0s *also* represent rentals. In that case, we should convert the 0s to missing values, and impute them as we will the other missing values for this column.
+
+```{r}
+train$HOME_VAL[train$HOME_VAL == 0] <- NA
+eval$HOME_VAL[eval$HOME_VAL == 0] <- NA
+```
+
+Plotting the `HOME_VAL` data without the 0s, we get:
+
+```{r, warning=FALSE, message=FALSE, error=FALSE}
+train %>%
+  ggplot(aes(x = HOME_VAL)) + 
+  geom_histogram(aes(y = after_stat(density)), bins = 20, fill = '#4E79A7', color = 'black') + 
+  stat_density(geom = "line", color = "red") +
+  theme_bw()
+```
+
+And we can see a much more normal distribution than before.
+
+We now check if there are any other suspect 0s:
+
+```{r Check Zeros}
+count_zeros <- function(column) {
+  zero_count <- sum(column == 0, na.rm = TRUE)
+  return(zero_count)
+}
+
+zero_counts_train <- sapply(train, count_zeros)
+zero_counts_df <- data.frame("Zero Count" = zero_counts_train)
+
+kbl(zero_counts_df, caption = "Zero Counts in Training Dataset") |>
+  kable_classic(full_width = F, html_font = "Cambria") |>
+  kable_styling(latex_options = "HOLD_position")
+```
+
+There are no other columns containing suspect 0 values. This concludes the largely exploratory phase of our analysis; we move now to consider broader transformations of the data.
+
+## Data Preparation {.tabset}
+
+Although we’ve already carried out some initial data cleaning, this section focuses on more thorough data transformation to optimize the performance of both our multiple linear regression and logistic regression models.
+
+### Missing Values
+
+We pick up from the previous section by addressing missing values. As previously mentioned, the variables with missing data include **CAR_AGE**, **HOME_VAL**, **YOJ**, **INCOME**, and **AGE**. It's important to note that we recently increased the number of missing entries in **HOME_VAL** by treating zero values as **NAs**. The extent of missing data across these columns is illustrated below:
+
+```{r percent missing check}
+percentMiss <- function(x){sum(is.na(x))/length(x)*100} # Creates percentage of missing values
+
+# Cut offs for variable dropping was 25% of values missing - none were dropped
+# Cut offs for sample dropping was 50% of values missing - none were dropped
+
+variable_pMiss <- apply(train,2,percentMiss) # 2 = runs on columns
+sample_pMiss <- apply(train,1,percentMiss) # 1 = runs on rows
+
+#sum(sample_pMiss > 50) 
+
+pMiss <- data.frame(variables = names(variable_pMiss),pMiss = (variable_pMiss), row.names = NULL)
+pMiss <- pMiss %>% arrange(desc(pMiss))
+
+
+pMiss |>
+  ggplot(aes(x = reorder(variables,pMiss), y = pMiss)) + 
+  geom_bar(stat = 'identity', fill = '#4E79A7', color = 'black') +
+  theme(strip.text = element_text(size = 5)) +
+  theme_bw() +
+  scale_x_discrete(guide = guide_axis(angle = 45))+
+  labs(x = 'Variables',y = 'Percent Missing',title = 'Percent of Missing Values by Variable')
+
+```
+
+With the exception of HOME_VAL, the remaining variables have relatively few missing values—each with less than 6% missing. We’ll soon move on to imputing those. However, it’s important to take a closer look at HOME_VAL again. We’ve assumed that missing values in this column likely correspond to renters, which is why we previously replaced zeros with NAs. Given that the absence of a value here is likely informative, it would be inappropriate to impute it. Instead, we’ll treat HOME_VAL as a categorical variable and retain the missing entries as their own category.
+
+```{r changing HOME_VAL to categorical}
+train$HOME_VAL_CAT <- cut(
+  train$HOME_VAL,
+  breaks = c(0, 150000, 200000, 270000, Inf),
+  labels = c("Very Low", "Low", "Medium", "High"),
+  right = FALSE,
+  include.lowest = TRUE
+)
+
+train$HOME_VAL_CAT <- factor(train$HOME_VAL_CAT, levels = c("Very Low", "Low", "Medium", "High", "Missing"))
+train$HOME_VAL_CAT[is.na(train$HOME_VAL)] <- "Missing"
+
+eval$HOME_VAL_CAT <- cut(
+  eval$HOME_VAL,
+  breaks = c(0, 150000, 200000, 270000, Inf),
+  labels = c("Very Low", "Low", "Medium", "High"),
+  right = FALSE,
+  include.lowest = TRUE
+)
+
+eval$HOME_VAL_CAT <- factor(eval$HOME_VAL_CAT, levels = c("Very Low", "Low", "Medium", "High", "Missing"))
+eval$HOME_VAL_CAT[is.na(eval$HOME_VAL)] <- "Missing"
+
+```
+
+After converting, we can do another bar plot:
+
+```{r}
+train %>% 
+ggplot(aes(y = HOME_VAL_CAT)) + 
+  geom_bar(fill = '#4E79A7', color = 'black') +
+  theme_bw() +
+  labs(y = "")
+```
+
+And we see that the data is divided fairly evenly, although "Missing" is the largest category.
+
+Let's investigate patterns potentially underlying the missing values:
+
+```{r missing pattern, echo=TRUE}
+plot_pattern(train, square = TRUE, rotate = TRUE, npat = 6)
+
+```
+
+To begin, we observe that the pattern of missing data is largely concentrated in **HOME_VAL**, which reinforces our earlier assumption that these missing values likely correspond to renters. This lends support to the decision to treat HOME_VAL as a categorical variable. As a result, we can confidently discard the original continuous version of HOME_VAL from our analysis.
+
+```{r}
+train <- train %>%
+  select(-HOME_VAL)
+
+eval <- eval %>%
+  select(-HOME_VAL)
+```
+
+Secondly, and on a broader level, the observed missing data patterns support the use of **MICE** (Multiple Imputation by Chained Equations) for handling missing values. Some variables show co-occurring missingness, indicating possible inter-variable relationships, while others have missing data in isolation. Given this variability, a uniform imputation method would be insufficient. MICE is preferred because it tailors the imputation process to each variable's specific pattern of missingness.
+
+### Imputations
+
+Before we can impute missing values, we perform the train-test split to avoid data leakage:
+
+```{r}
+set.seed(123)
+
+trainIndex <- createDataPartition(y = train$TARGET_FLAG, p = 0.7, list = FALSE, times = 1)
+
+train_data <- train[trainIndex,]
+test_data <- train[-trainIndex,]
+```
+
+We then use MICE to impute. Critically, we ignore the test values when imputing for both sets, to avoid data leakage.
+
+```{r}
+library(mice)
+
+train_data_no_targets <- train_data[, !colnames(train_data) %in% c("TARGET_FLAG", "TARGET_AMT")]
+test_data_no_targets <- test_data[, !colnames(test_data) %in% c("TARGET_FLAG", "TARGET_AMT")]
+eval_data_no_targets <- eval[, !colnames(eval) %in% c("TARGET_FLAG", "TARGET_AMT")]
+
+combined_data <- rbind(train_data_no_targets, test_data_no_targets, eval_data_no_targets)
+
+data_type <- c(rep("train", nrow(train_data)), 
+               rep("test", nrow(test_data)),
+               rep("eval", nrow(eval)))
+
+impute_func <- function(data, data_type) {
+    ini <- mice(data, maxit = 0, ignore = data_type != "train")
+    meth <- ini$meth
+    meth['AGE'] <- 'mean'  # Example: Custom method for 'AGE'
+    
+    imputed_object <- mice(data, method = meth, m = 5, maxit = 30, seed = 500, print = FALSE)
+    imputed_data <- complete(imputed_object, "long")
+    
+    return(list(imputed_object = imputed_object, imputed_data = imputed_data))
+}
+
+results <- impute_func(combined_data, data_type)
+
+reintegrate_targets <- function(imputed_data, original_data, target_vars) {
+    if (!all(target_vars %in% colnames(original_data))) {
+        stop("Target variables not found in the original data")
+    }
+    target_data <- original_data[target_vars]
+    imputed_data_with_targets <- cbind(imputed_data, target_data)
+    return(imputed_data_with_targets)
+}
+
+full_combined_data <- rbind(train_data, test_data, eval)
+
+imputed_data_with_targets <- reintegrate_targets(results$imputed_data, full_combined_data, c("TARGET_FLAG", "TARGET_AMT"))
+
+train_data_imputed <- imputed_data_with_targets[data_type == "train", ]
+test_data_imputed <- imputed_data_with_targets[data_type == "test", ]
+eval_data_imputed <- imputed_data_with_targets[data_type == "eval", ]
+
+train_data_imputed <- train_data_imputed[, !colnames(train_data_imputed) %in% c(".imp", ".id")]
+test_data_imputed <- test_data_imputed[, !colnames(test_data_imputed) %in% c(".imp", ".id")]
+tracking_df <- data.frame(eval_data_imputed)
+eval_data_imputed <- eval_data_imputed[, !colnames(eval_data_imputed) %in% c(".imp", ".id")] 
+
+```
+
+```{r summary stats post imputations}
+generate_summary <- function(data, vars, dataset_name) {
+    summary_stats <- data %>%
+        select(all_of(vars)) %>%
+        summarise(across(everything(), list(
+            min = ~min(., na.rm = TRUE),
+            q1 = ~quantile(., probs = 0.25, na.rm = TRUE),
+            median = ~median(., na.rm = TRUE),
+            mean = ~mean(., na.rm = TRUE),
+            q3 = ~quantile(., probs = 0.75, na.rm = TRUE),
+            max = ~max(., na.rm = TRUE)
+        ))) %>%
+        pivot_longer(cols = everything(), names_to = "Variable_Stat", values_to = "Value") %>%
+        mutate(Dataset = dataset_name)
+    return(summary_stats)
+}
+
+variables <- c("CAR_AGE", "YOJ", "INCOME", "AGE")
+
+summary_full_train <- generate_summary(train_data, variables, "Dataset (Pre-Imputations)")
+summary_train_imputed <- generate_summary(train_data_imputed, variables, "Train Imputed")
+summary_test_imputed <- generate_summary(test_data_imputed, variables, "Test Imputed")
+
+combined_summary <- bind_rows(summary_full_train, summary_train_imputed, summary_test_imputed)
+
+# pivoting wide so it's easier to compare
+final_summary <- combined_summary %>%
+    pivot_wider(names_from = Dataset, values_from = Value) %>% 
+    mutate(across(where(is.numeric), ~format(., scientific = FALSE)))
+
+kbl(final_summary, caption = "Summary Statistics Comparison Across Datasets") %>%
+  kable_classic(full_width = F, html_font = "Cambria") %>%
+  kable_styling(latex_options = "HOLD_position")
+```
+
+The summary statistics are quite promising. For the most part, the values remain consistent across all three datasets, suggesting that the distributions in the imputed datasets closely reflect those of the original. This holds true for both the means and medians. Additionally, it appears that outliers and edge cases have been managed appropriately.
+
+### Outliers and Transformations
+
+During the data exploration phase, we conducted a preliminary review of outliers. While the outlier values appeared to be valid, they do contribute to increased skewness in the data, which can negatively affect both logistic and linear regression models. To address this, we applied various data transformations. In evaluating skewness, we consider values with an absolute skewness above 1 to be **heavily skewed**, those between ±0.5 and ±1 to be **moderately skewed**, and values between 0 and ±0.5 to be **lightly skewed**.
+
+We can assess the most appropriate transformations for each variable using the bestNormalize function.
+
+```{r bestNormalize usage, warning=FALSE, message=FALSE, class.source = "fold-show", echo = FALSE}
+library(bestNormalize)
+
+variables <- c("BLUEBOOK", "INCOME", "MVR_PTS", "OLDCLAIM", "TIF", "TRAVTIME", "YOJ", "CLM_FREQ", "CAR_AGE")
+
+apply_best_normalize <- function(data, variables) {
+  results <- data.frame(Variable = character(), Transformation = character(), stringsAsFactors = FALSE)
+  
+  for (var in variables) {
+    has_negatives <- any(data[[var]] < 0, na.rm = TRUE)
+    BN_object <- bestNormalize(data[[var]], allow.negative = has_negatives)
+    #print(list(BN_object))
+    
+    if (is.list(BN_object$chosen_transform)) {
+      best_method <- attr(BN_object$chosen_transform, "class")[1] 
+    } else {
+      best_method <- "Check Structure"  #In case structure is unexpected
+    }
+    
+    results <- rbind(results, data.frame(Variable = var, Transformation = best_method))
+   # cat("Best transformation for", var, ":", best_method, "\n")
+  }
+  
+  return(results)
+}
+
+BN_results_train <- apply_best_normalize(train_data_imputed, variables)
+
+kbl(BN_results_train, caption = "Best Transformations") %>%
+  kable_classic(full_width = F, html_font = "Cambria") %>%
+  kable_styling(latex_options = "HOLD_position")
+
+```
+
+Once again, it’s crucial to avoid data leakage by ensuring that all transformation parameters are derived solely from the training set. These same parameters should then be applied consistently to the evaluation and test sets.
+
+```{r apply transformations, warning=FALSE, message=FALSE, class.source = "fold-show", echo = FALSE}
+
+calculate_transformations <- function(data) {
+  list(
+    BLUEBOOK_bn = orderNorm(data$BLUEBOOK),
+    INCOME_bn = orderNorm(data$INCOME),
+    MVR_PTS_sqrt = function(x) sqrt(x + 0),  
+    OLDCLAIM_cs = function(x) scale(x),  # this will create a scaled version
+    TIF_yj = yeojohnson(data$TIF),
+    TRAVTIME_bc = boxcox(data$TRAVTIME),  
+    YOJ_sqrt = function(x) sqrt(x + 0),  
+    CLM_FREQ_sqrt = function(x) sqrt(x + 0),  
+    CAR_AGE_yj = yeojohnson(data$CAR_AGE)
+  )
+}
+
+apply_pre_calculated_transformations <- function(data, transforms) {
+  data %>%
+    mutate(
+      BLUEBOOK_transformed = predict(transforms$BLUEBOOK_bn, newdata = BLUEBOOK),
+      INCOME_transformed = predict(transforms$INCOME_bn, newdata = INCOME),
+      MVR_PTS_transformed = transforms$MVR_PTS_sqrt(MVR_PTS),
+      OLDCLAIM_transformed = transforms$OLDCLAIM_cs(OLDCLAIM)[, 1],  # Apply and keep the transformed version
+      OLDCLAIM = OLDCLAIM,  # Keep the original
+      TIF_transformed = predict(transforms$TIF_yj, newdata = TIF),
+      TRAVTIME_transformed = predict(transforms$TRAVTIME_bc, newdata = TRAVTIME),
+      YOJ_transformed = transforms$YOJ_sqrt(YOJ),
+      CLM_FREQ_transformed = transforms$CLM_FREQ_sqrt(CLM_FREQ),
+      CAR_AGE_transformed = predict(transforms$CAR_AGE_yj, newdata = CAR_AGE)
+    )
+}
+
+transform_params <- calculate_transformations(train_data_imputed)
+
+train_data_transformed <- apply_pre_calculated_transformations(train_data_imputed, transform_params)
+test_data_transformed <- apply_pre_calculated_transformations(test_data_imputed, transform_params)
+eval_data_transformed <- apply_pre_calculated_transformations(eval_data_imputed, transform_params)
+
+```
+
+```{r skew before and after}
+
+pre_trans_skew <- summarise(train_data_imputed, 
+                            across(c(BLUEBOOK, INCOME, MVR_PTS, OLDCLAIM, TIF, TRAVTIME, YOJ, CLM_FREQ, CAR_AGE), 
+                                   skewness, 
+                                   na.rm = TRUE)) %>% 
+                            pivot_longer(everything(), names_to = "Variable", values_to = "Pre-Transformation Skew")
+
+post_trans_skew <- summarise(train_data_transformed, 
+                             across(c(BLUEBOOK_transformed, INCOME_transformed, MVR_PTS_transformed, OLDCLAIM_transformed, TIF_transformed, TRAVTIME_transformed, YOJ_transformed, CLM_FREQ_transformed, CAR_AGE_transformed), 
+                                    skewness, 
+                                    na.rm = TRUE)) %>% 
+                             pivot_longer(everything(), names_to = "Variable", values_to = "Post-Transformation Skew")
+
+post_trans_skew$Variable <- sub("_transformed", "", post_trans_skew$Variable)
+
+skewness_comparison <- left_join(pre_trans_skew, post_trans_skew, by = "Variable")
+
+kbl(skewness_comparison, caption = "Pre and Post Transformation Skewness Comparison", digits = 3) %>%
+  kable_classic(full_width = F, html_font = "Cambria") %>%
+  kable_styling(latex_options = "HOLD_position")
+
+
+```
+
+In general, the applied transformations successfully reduced skewness to more acceptable levels across most variables. However, OLDCLAIM—the most skewed variable—showed little to no improvement. Despite this, the overall distribution of the dataset is now significantly closer to normality, which should enhance the performance of our models moving forward.
+
+### Outliers
+
+Despite applying transformations, some outliers still remain. To address this, we will use outlier replacement techniques. As before, it's essential to calculate the replacement thresholds based solely on the training set and apply them consistently across all datasets. This approach ensures we prevent any risk of data leakage.
+
+```{r}
+
+calc_outliers <- function(data, columns) {
+  sapply(columns, function(column) {
+    Q1 <- quantile(data[[column]], 0.25, na.rm = TRUE)
+    Q3 <- quantile(data[[column]], 0.75, na.rm = TRUE)
+    IQR <- Q3 - Q1
+    list(lower = Q1 - 1.5 * IQR, upper = Q3 + 1.5 * IQR)
+  }, simplify = FALSE)
+}
+
+columns_to_check <- c("AGE", "BLUEBOOK", "INCOME", "MVR_PTS", "OLDCLAIM", "TIF", "TRAVTIME", "YOJ", "CLM_FREQ", "CAR_AGE") #continuous 
+limits <- calc_outliers(train_data_transformed, columns_to_check)
+
+#replace outliers with median
+replace_outliers <- function(data, columns, limits) {
+  for(column in columns) {
+    median_value <- median(data[[column]], na.rm = TRUE)
+    lower_limit <- limits[[column]]$lower
+    upper_limit <- limits[[column]]$upper
+    
+    data[[column]] <- ifelse(data[[column]] < lower_limit | data[[column]] > upper_limit,
+                             median_value,
+                             data[[column]])
+  }
+  return(data)
+}
+
+train_data_cleaned <- replace_outliers(train_data_transformed, columns_to_check, limits)
+test_data_cleaned <- replace_outliers(test_data_transformed, columns_to_check, limits)
+eval_data_cleaned <- replace_outliers(eval_data_transformed, columns_to_check, limits)
+
+
+```
+
+### Encoding, Center/Scale/NearZeroVariance
+
+The last step in our data preparation process involves encoding categorical variables using one-hot encoding (OHC). Additionally, we center and scale (CS) all continuous variables to prevent extreme values from skewing the model—using statistics derived solely from the training data to avoid data leakage. We also check continuous variables for near-zero variance (NZV), as such features provide little predictive power. For ordinal variables, we treat them as continuous since the spacing between values is both consistent and meaningful. Both centering/scaling and NZV filtering can be streamlined through a single step in a preprocessing pipeline.
+
+```{r CS NZV and OHC}
+cont_cols <- c('AGE', 'BLUEBOOK', 'INCOME', 'MVR_PTS', 'OLDCLAIM', 'TIF', 'TRAVTIME', 'YOJ', 'KIDSDRIV', 'HOMEKIDS', 'CLM_FREQ', 'CAR_AGE')
+cat_cols <- c('SEX', 'EDUCATION', 'JOB', 'CAR_USE', 'CAR_TYPE', 'URBANICITY', 'HOME_VAL_CAT', 'RED_CAR', 'REVOKED', 'PARENT1', 'MSTATUS')  
+
+preprocess_params <- preProcess(train_data_cleaned[cont_cols], method = c("center", "scale"))
+
+train_data_processed <- predict(preprocess_params, train_data_cleaned)
+test_data_processed <- predict(preprocess_params, test_data_cleaned)
+eval_data_processed <- predict(preprocess_params, eval_data_cleaned)
+
+# exclude OLDCLAIM!
+nzv_params <- preProcess(train_data_processed[, setdiff(cont_cols, "OLDCLAIM")], method = "nzv")
+nzv_features <- predict(nzv_params, train_data_processed[, setdiff(cont_cols, "OLDCLAIM")])
+
+train_data_processed <- cbind(nzv_features, OLDCLAIM = train_data_processed$OLDCLAIM)
+test_data_processed <- cbind(predict(nzv_params, test_data_processed[, setdiff(cont_cols, "OLDCLAIM")]), OLDCLAIM = test_data_processed$OLDCLAIM)
+eval_data_processed <- cbind(predict(nzv_params, eval_data_processed[, setdiff(cont_cols, "OLDCLAIM")]), OLDCLAIM = eval_data_processed$OLDCLAIM)
+
+transformed_columns <- c("BLUEBOOK_transformed", "INCOME_transformed", "MVR_PTS_transformed", 
+                         "OLDCLAIM_transformed", "TIF_transformed", "TRAVTIME_transformed", 
+                         "YOJ_transformed", "CLM_FREQ_transformed", "CAR_AGE_transformed")
+encoded_columns <- c("SEX.F", "SEX.M", "EDUCATION.L", "EDUCATION.Q", "EDUCATION.C", 
+                     "JOBBlue Collar", "JOBClerical", "JOBDoctor", "JOBHome Maker", "JOBLawyer", 
+                     "JOBManager", "JOBProfessional", "JOBStudent", "CAR_USECommercial", 
+                     "CAR_USEPrivate", "CAR_TYPEMinivan", "CAR_TYPEPanel Truck", "CAR_TYPEPickup", 
+                     "CAR_TYPESports Car", "CAR_TYPESUV", "CAR_TYPEVan", "URBANICITYHighly Rural/ Rural", 
+                     "URBANICITYHighly Urban/ Urban", "HOME_VAL_CAT.Very Low", "HOME_VAL_CAT.Low", 
+                     "HOME_VAL_CAT.Medium", "HOME_VAL_CAT.High", "HOME_VAL_CAT.Missing", "RED_CAR.No", 
+                     "RED_CAR.Yes", "REVOKED.No", "REVOKED.Yes", "PARENT1.No", "PARENT1.Yes", 
+                     "MSTATUS.No", "MSTATUS.Yes")
+
+
+dummyVars_obj <- dummyVars(~ ., data = train_data_cleaned[cat_cols], levelsOnly = FALSE)
+train_data_encoded <- predict(dummyVars_obj, newdata = train_data_cleaned[cat_cols])
+test_data_encoded <- predict(dummyVars_obj, newdata = test_data_cleaned[cat_cols])
+eval_data_encoded <- predict(dummyVars_obj, newdata = eval_data_cleaned[cat_cols])
+
+
+train_data_encoded_df <- as.data.frame(train_data_encoded)
+colnames(train_data_encoded_df) <- attr(train_data_encoded, "dimnames")[[2]]
+
+test_data_encoded_df <- as.data.frame(test_data_encoded)
+colnames(test_data_encoded_df) <- attr(test_data_encoded, "dimnames")[[2]]
+
+eval_data_encoded_df <- as.data.frame(eval_data_encoded)
+colnames(eval_data_encoded_df) <- attr(eval_data_encoded, "dimnames")[[2]]
+
+
+
+train_final <- cbind(train_data_processed, train_data_cleaned[transformed_columns], train_data_encoded)
+test_final <- cbind(test_data_processed, test_data_cleaned[transformed_columns], test_data_encoded)
+eval_final <- cbind(eval_data_processed, eval_data_cleaned[transformed_columns], eval_data_encoded)
+
+# Combine
+train_final <- cbind(train_data_processed, train_data_cleaned[transformed_columns], train_data_encoded_df,
+                     TARGET_FLAG = train_data_cleaned$TARGET_FLAG, TARGET_AMT = train_data_cleaned$TARGET_AMT)
+
+test_final <- cbind(test_data_processed, test_data_cleaned[transformed_columns], test_data_encoded_df,
+                    TARGET_FLAG = test_data_cleaned$TARGET_FLAG, TARGET_AMT = test_data_cleaned$TARGET_AMT)
+
+eval_final <- cbind(eval_data_processed, eval_data_cleaned[transformed_columns], eval_data_encoded_df,
+                    TARGET_FLAG = eval_data_cleaned$TARGET_FLAG, TARGET_AMT = eval_data_cleaned$TARGET_AMT)
+
+```
+
+```{r Write Data}
+#write_csv(train_final,"data\\train_final.csv")
+#write_csv(test_final,"data\\test_final.csv")
+#write_csv(eval_final,"data\\eval_final.csv")
+
+```
+
+The dataframes are now fully processed. We are ready to move on to the modeling phase.
+
+## Modeling {.tabset}
+
+With preprocessing complete, we’re now ready to begin modeling. In the first phase, we’ll develop **logistic regression models** to predict the likelihood of a person being involved in a car accident. In the second phase, we’ll construct **multiple linear regression models** to estimate the payout amount in cases where a crash has occurred.
+
+### Logistic regression
+
+As a reminder, our initial objective is to predict whether a driver was involved in a crash. Since our dataset includes both original and transformed versions of some variables, it’s important to ensure we don’t include duplicate information in the model. To maintain clarity and prevent redundancy, we will explicitly categorize the variables being used.
+
+```{r}
+target_columns <- c("TARGET_FLAG", "TARGET_AMT")
+
+original_columns <- c("KIDSDRIV", "AGE", "HOMEKIDS", "YOJ", "INCOME", "PARENT1", "MSTATUS",
+                      "SEX", "EDUCATION", "JOB", "TRAVTIME", "CAR_USE", "BLUEBOOK", "TIF", 
+                      "CAR_TYPE", "RED_CAR", "OLDCLAIM", "CLM_FREQ", "REVOKED", "MVR_PTS", 
+                      "CAR_AGE", "URBANICITY", "HOME_VAL_CAT")
+
+# other categories defined earlier....
+
+# fyi, making df to show in a table
+
+variable_process_df <- data.frame(
+  Variable = c(original_columns, transformed_columns, encoded_columns),
+  Category = c(rep("Original", length(original_columns)), 
+               rep("Transformed", length(transformed_columns)), 
+               rep("Encoded", length(encoded_columns)))
+)
+
+summary_table <- variable_process_df %>%
+  group_by(Category) %>%
+  summarize(Variables = paste(collapse = ", ", Variable))
+
+kbl(summary_table, caption = "Variables Summary") %>%
+  kable_classic(full_width = F, html_font = "Cambria") %>%
+  kable_styling(latex_options = "HOLD_position")
+```
+
+We must also proceed with caution due to the **One-Hot Encoding (OHC)** applied to our categorical variables. This encoding can introduce **multicollinearity**, especially among the resulting dummy variables. For binary categorical variables, we can safely drop one of the two encoded columns, as the remaining one still captures all necessary information. However, for variables with more than two categories, multicollinearity becomes more complex and may require more advanced handling strategies—which we’ll address shortly.
+
+#### Model 1
+
+To begin, we'll construct a straightforward model to establish a baseline understanding of our data. We'll focus on using the **transformed variables**, as they are all continuous and generally more manageable. Additionally, we expect these transformed features to outperform their original versions in terms of model effectiveness.
+
+```{r model 1, echo=TRUE}
+simple_model1 <- glm(TARGET_FLAG ~ ., data = train_final[, c(transformed_columns, encoded_columns, "TARGET_FLAG")], family = "binomial")
+summary(simple_model1)
+```
+
+Given the results, we’ll proceed by eliminating variables that contribute to multicollinearity. For binary variables, we can remove either one of the two encoded columns, as they carry equivalent information. For variables with more than two categories, we’ll drop the one that shows the weakest correlation with the target variable, under the assumption that it will have the least influence on the model’s performance.
+
+```{r cor matrix to remove columns}
+cor_mat <- cor(train_final[, c(encoded_columns, "TARGET_FLAG")])
+#kbl(cor_mat[,"TARGET_FLAG"])
+
+
+kbl(cor_mat[,"TARGET_FLAG"], caption = "Correlations with TARGET FLAG") %>%
+  kable_classic(full_width = F, html_font = "Cambria") %>%
+  kable_styling(latex_options = "HOLD_position")
+```
+
+Again, with the binary columns, we can just remove any one them. Thus, we'll remove:
+
+-   SEX.M
+-   CAR_USEPrivate
+-   `URBANICITYHighly Urban/ Urban`
+-   RED_CAR.Yes
+-   REVOKED.Yes
+-   PARENT1.Yes
+-   MSTATUS.Yes
+
+Of the categorical, but not binary, variables we will remove the least informative:
+
+-   EDUCATION.Q
+-   JOBHome Maker
+-   CAR_TYPEVan
+-   HOME_VAL_CAT.Low
+
+```{r remove multicollinear columns}
+columns_causing_multicollinearity <- c("SEX.M", "CAR_USEPrivate", "URBANICITYHighly Urban/ Urban",
+                                       "RED_CAR.Yes", "REVOKED.Yes", "PARENT1.Yes", "MSTATUS.Yes", 
+                                       "EDUCATION.Q", "JOBHome Maker", "CAR_TYPEVan", "HOME_VAL_CAT.Low")
+
+encoded_columns_filtered <- setdiff(encoded_columns, columns_causing_multicollinearity)
+```
+
+We now rerun the simple model without these columns to get a look at some of the coefficients.
+
+```{r simple model 2, echo=TRUE}
+simple_model2 <- glm(TARGET_FLAG ~ ., data = train_final[, c(transformed_columns, encoded_columns_filtered, "TARGET_FLAG")], family = "binomial")
+summary(simple_model2)
+```
+
+At this point, we’ve eliminated all singularities from the model. However, since the **Deviance** and **AIC** remain unchanged, it's clear that the model itself hasn't improved—only the **stability and interpretability** of the coefficients has, thanks to the removal of perfect multicollinearity. That said, several variables remain statistically insignificant and may be detracting from model performance. Additionally, although perfect multicollinearity has been addressed, some degree of **collinearity** still exists, particularly among the categorical predictors. To further refine the model, we’ll use a combination of the **`vif()` function** and the previously generated **correlation matrix**.
+
+```{r VIF simple_model 2}
+kbl(vif(simple_model2), caption = "VIF Values simple model 2") %>%
+  kable_classic(full_width = F, html_font = "Cambria") %>%
+  kable_styling(latex_options = "HOLD_position")
+```
+
+Given this information, we opt to remove CAR_TYPESUV which has a VIF value of over 6. We will then fit a new model.
+
+```{r model 3, echo=TRUE}
+encoded_columns_filtered2 <- setdiff(encoded_columns_filtered, "CAR_TYPESUV")
+
+transformed_model <- glm(TARGET_FLAG ~ ., data = train_final[, c(transformed_columns, encoded_columns_filtered2, "TARGET_FLAG")], family = "binomial")
+
+summary(transformed_model)
+```
+
+Now let's remove SEX and RED_CAR, both of which are not significant predictors.
+
+```{r removing SEX and RED_CAR}
+
+encoded_columns_filtered3 <- setdiff(encoded_columns_filtered2, c("SEX.F", "RED_CAR.No"))
+
+final_transformed_model <- glm(TARGET_FLAG ~ ., data = train_final[, c(transformed_columns, encoded_columns_filtered3, "TARGET_FLAG")], family = "binomial")
+
+summary(final_transformed_model)
+
+```
+
+At this stage, all predictors in our model are statistically significant, and collinearity is minimal. However, because this model was built using transformed variables, interpretation becomes more complex, and applying it to new data requires replicating the exact same transformation steps. This limitation leads us to the development of our next model.
+
+#### Model 2
+
+Now that we have found the predictors we would like to include in our model, we can try using the non-transformed versions of the variables and recreating the model.
+
+```{r same model with nontransformed variables }
+original_non_cat = c("KIDSDRIV", "AGE", "HOMEKIDS", "YOJ", "INCOME", "TRAVTIME", "BLUEBOOK", "TIF", 
+                       "OLDCLAIM", "CLM_FREQ", "MVR_PTS", 
+                      "CAR_AGE")
+
+nontransformed_model1 <- glm(TARGET_FLAG ~ ., data = train_final[, c(original_non_cat, encoded_columns_filtered3, "TARGET_FLAG")], family = "binomial")
+summary(nontransformed_model1)
+```
+
+HOMEKIDS does not seem very predictive at all; we remove it:
+
+```{r}
+non_cat2 = c("KIDSDRIV", "AGE", "YOJ", "INCOME", "TRAVTIME", "BLUEBOOK", "TIF", 
+                       "OLDCLAIM", "CLM_FREQ", "MVR_PTS", 
+                      "CAR_AGE")
+
+nontransformed_model2 <- glm(TARGET_FLAG ~ ., data = train_final[, c(non_cat2, encoded_columns_filtered3, "TARGET_FLAG")], family = "binomial")
+summary(nontransformed_model2)
+```
+
+And we can safely remove CAR_AGE as well:
+
+```{r}
+non_cat3 = c("KIDSDRIV", "AGE", "YOJ", "INCOME", "TRAVTIME", "BLUEBOOK", "TIF", 
+                       "OLDCLAIM", "CLM_FREQ", "MVR_PTS")
+
+final_nontransformed_model <- glm(TARGET_FLAG ~ ., data = train_final[, c(non_cat3, encoded_columns_filtered3, "TARGET_FLAG")], family = "binomial")
+summary(final_nontransformed_model)
+```
+
+On initial evaluation, the model using non-transformed data performs comparably to the one using transformed variables. We’ll revisit this comparison in more detail later.
+
+Up to this point, we’ve built two models with largely overlapping predictors, relying heavily on manual judgment to decide which variables to include. Moving forward, we’ll implement an **automated variable selection** technique to guide this process more systematically.
+
+#### Model 3
+
+To further streamline the variable selection process, we’ll now turn to an automated approach using Lasso regression. This technique not only performs feature selection by shrinking some coefficients to zero but also helps prevent overfitting, making it well-suited for refining our model.
+
+```{r}
+predictors <- as.matrix(train_final[, c(transformed_columns, encoded_columns)]) #has to be matrix
+train_final$TARGET_FLAG <- as.factor(train_final$TARGET_FLAG)
+response <- train_final$TARGET_FLAG
+
+lasso_model <- glmnet(predictors, response, family = "binomial", alpha = 1)
+
+# We'll use cv.glmnet to perform cross-validation to select lambda (regularization parameter)
+cv_lasso <- cv.glmnet(predictors, response, family = "binomial", alpha = 1, type.measure = "class")
+
+plot(cv_lasso)
+
+# Coefficients at best lambda
+best_lambda <- cv_lasso$lambda.min
+coef(cv_lasso, s = "lambda.min")
+
+print(paste("Best Lambda: ", best_lambda))
+
+```
+
+The results from the model yield some notable insights. For example, the variable CAR_USECommercial shows a strong positive association with crash likelihood—an intuitive finding, as commercial drivers may be less cautious when the vehicle isn’t personally owned, and they may also spend more time on the road. Similarly, URBANICITYHighly Rural/Rural has a strong negative correlation with crashes, which makes sense given the lower traffic density in rural areas, reducing the chance of collisions. As expected, REVOKED.No (i.e., not having a revoked license) is linked to a reduced probability of being involved in a crash.
+
+#### Model Comparison
+
+We now run our three models on the test data and compare the results.
+
+```{r}
+# Model1
+model_transformed_predictions <- predict(final_transformed_model, newdata = test_final, type = "response")
+model_transformed_binary_predictions <- ifelse(model_transformed_predictions >= 0.5, 1, 0)
+
+model_transformed_rmse <- rmse(test_final$TARGET_FLAG, model_transformed_binary_predictions)
+
+# Model2
+model2_predictions <- predict(final_nontransformed_model, newdata = test_final, type = "response")
+model2_binary_predictions <- ifelse(model2_predictions >= 0.5, 1, 0)
+
+model2_rmse <- rmse(test_final$TARGET_FLAG, model2_binary_predictions)
+
+# Lasso Model
+predictors <- test_final[, c(transformed_columns, encoded_columns)]
+predictors_matrix <- as.matrix(predictors)
+
+# predictions using the best lambda
+lasso_model_predictions <- predict(lasso_model, newx = predictors_matrix, s = best_lambda, type = "response")
+lasso_model_binary_predictions <- ifelse(lasso_model_predictions >= 0.5, 1, 0)
+
+# RMSE for Lasso model predictions
+lasso_model_rmse <- rmse(test_final$TARGET_FLAG, lasso_model_binary_predictions)
+
+# Create a dataframe to store the results
+results <- data.frame(Model = c("Model_Transformed", "Model_Untransformed", "Lasso Model"),
+                      RMSE = c(model_transformed_rmse, model2_rmse, lasso_model_rmse))
+
+# AIC
+model_transformed_AIC <- AIC(final_transformed_model)
+model2_AIC <- AIC(final_nontransformed_model)
+lasso_model_AIC <- NA
+
+results$AIC <- c(model_transformed_AIC, model2_AIC, lasso_model_AIC)
+
+# Deviance
+model_transformed_deviance <- deviance(final_transformed_model)
+model2_deviance <- deviance(final_nontransformed_model)
+lasso_model_deviance <- cv_lasso$cvm[cv_lasso$lambda == best_lambda] 
+
+# Add additional evaluation metrics to the results dataframe
+conf_matrix <- table(model_transformed_binary_predictions, test_final$TARGET_FLAG)
+TP <- conf_matrix[2, 2]  
+FP <- conf_matrix[1, 2]  
+FN <- conf_matrix[2, 1] 
+model_transformed_accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+model_transformed_precision <- TP / (TP + FP)
+model_transformed_recall <- TP / (TP + FN)
+model_transformed_f1_score <- 2 * (model_transformed_precision * model_transformed_recall) / (model_transformed_precision + model_transformed_recall)
+model_transformed_roc_auc <- roc(test_final$TARGET_FLAG, model_transformed_predictions)$auc
+
+conf_matrix <- table(model2_binary_predictions, test_final$TARGET_FLAG)
+TP <- conf_matrix[2, 2]  
+FP <- conf_matrix[1, 2]  
+FN <- conf_matrix[2, 1] 
+model2_accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+model2_precision <- TP / (TP + FP)
+model2_recall <- TP / (TP + FN)
+model2_f1_score <- 2 * (model2_precision * model2_recall) / (model2_precision + model2_recall)
+model2_roc_auc <- roc(test_final$TARGET_FLAG, model2_predictions)$auc
+
+conf_matrix <- table(lasso_model_binary_predictions, test_final$TARGET_FLAG)
+TP <- conf_matrix[2, 2]  
+FP <- conf_matrix[1, 2]  
+FN <- conf_matrix[2, 1] 
+lasso_model_accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+lasso_model_precision <- TP / (TP + FP)
+lasso_model_recall <- TP / (TP + FN)
+lasso_model_f1_score <- 2 * (lasso_model_precision * lasso_model_recall) / (lasso_model_precision + lasso_model_recall)
+lasso_model_roc_auc <- roc(test_final$TARGET_FLAG, lasso_model_predictions)$auc
+
+
+
+results$Accuracy <- c(model_transformed_accuracy, model2_accuracy, lasso_model_accuracy)
+results$Precision <- c(model_transformed_precision, model2_precision, lasso_model_precision)
+results$Recall <- c(model_transformed_recall, model2_recall, lasso_model_recall)
+results$F1_Score <- c(model_transformed_f1_score, model2_f1_score, lasso_model_f1_score)
+results$ROC_AUC <- c(model_transformed_roc_auc, model2_roc_auc, lasso_model_roc_auc)
+
+
+kbl(results, caption = "Comparison of Logistic Models") %>%
+  kable_classic(full_width = F, html_font = "Cambria") %>%
+  kable_styling(latex_options = "HOLD_position")
+```
+
+It’s important to note that we haven’t reported the AIC for the Lasso model, as its use of regularization complicates the assumptions underlying AIC calculations. That said, one of the most striking observations is how similar the performance metrics are across all three models.
+
+The untransformed model shows the lowest RMSE, suggesting it yields the smallest prediction error. It also has the lowest AIC, meaning it performs best in terms of balancing model fit and complexity. When it comes to classification metrics—accuracy, precision, and recall—the untransformed model holds a slight lead in accuracy and precision, while the Lasso model edges out in recall. This could be significant in contexts where identifying true positives is especially important.
+
+Interestingly, the second model (non-transformed, manually refined) leads in both F1 score and ROC-AUC, indicating strong overall performance and good class discrimination across various thresholds.
+
+While the differences among the models are relatively small, the second model stands out for its consistency across nearly all metrics. Although it doesn’t have the highest recall, its shortfall compared to the Lasso model is minimal (only 0.0072004), and thus not particularly concerning. Most importantly, the second model is **highly interpretable**, making it the preferred choice—especially in scenarios where understanding the model’s decision-making process is critical.
+
+**Therefore, we select the second model—“final_non-transformed_model”—as our final choice.**
+
+### Multiple Linear Regression
+
+Up to this point, we’ve focused on modeling the likelihood of a car crash and have chosen the most effective model for that task. We now shift our attention to predicting the payout amount in cases where a crash has occurred. To start, we’ll manually select predictors based on their correlation with the response variable and domain knowledge. We’ll then refine this initial model using a stepwise regression approach. Finally, we’ll compare the performance of both models—manual and stepwise—using key evaluation metrics such as RMSE and R-squared to determine which model more accurately predicts TARGET_AMT.
+
+#### Model 1
+
+When selecting variables, it’s reasonable to assume that predictors which were significant in determining whether a crash occurred may also be relevant in estimating the payout following a crash. We’ll now put that intuition to the test by evaluating their effectiveness in this new context.
+
+```{r MLR 1, echo=TRUE}
+#have to add back ticks or it just won't work
+predictors <- c("KIDSDRIV", "AGE", "YOJ", "INCOME", "TRAVTIME", "BLUEBOOK", "TIF",
+                "OLDCLAIM", "CLM_FREQ", "MVR_PTS", "EDUCATION.L", "EDUCATION.C",
+                "`JOBBlue Collar`", "JOBClerical", "JOBDoctor", "JOBLawyer",
+                "JOBManager", "JOBProfessional", "JOBStudent", "CAR_USECommercial",
+                "CAR_TYPEMinivan", "`CAR_TYPEPanel Truck`", "CAR_TYPEPickup",
+                "`CAR_TYPESports Car`", "`URBANICITYHighly Rural/ Rural`",
+                "`HOME_VAL_CAT.Very Low`", "HOME_VAL_CAT.Medium", "HOME_VAL_CAT.High",
+                "HOME_VAL_CAT.Missing", "REVOKED.No", "PARENT1.No", "MSTATUS.No")
+
+formula <- as.formula(paste("TARGET_AMT ~", paste(predictors, collapse=" + ")))
+mlr1 <- lm(formula, data = train_final)
+summary(mlr1)
+
+
+```
+
+While the overall model is statistically significant, the Adjusted R-squared remains quite low, indicating limited explanatory power. However, it’s important to emphasize that our primary interest lies in predicting payouts only when a crash has actually occurred—that is, when **TARGET_FLAG =1**. In all other cases, the payout is simply zero. With this in mind, let’s assess model performance by multiplying the predicted values by the TARGET_FLAG, effectively filtering predictions to only those instances where a payout would apply.
+
+```{r filter based on crash}
+interaction_terms <- paste(predictors, ":TARGET_FLAG", sep="")
+
+formula <- as.formula(paste("TARGET_AMT ~", paste(interaction_terms, collapse=" + ")))
+
+mlr2 <- lm(formula, data = train_final)
+summary(mlr2)
+
+
+
+```
+
+This adjusted model shows a notable improvement and aligns well with intuition—it ensures that only cases predicted as crashes yield a positive **TARGET_AMT**. This logic adds a layer of practical accuracy to our predictions. That said, we’ll now explore whether we can retain this intuitive structure while enhancing the model's performance by refining our set of predictors.
+
+#### Model 2
+
+Once again, we plan to incorporate TARGET_FLAG into our modeling strategy. However, this time we’ll apply an automated stepwise regression approach. This iterative process evaluates predictors based on their statistical significance, systematically adding or removing variables to arrive at the most optimal model fit.
+
+```{r stepwise with interactions only, echo=FALSE, results='hide'}
+stepwise_regression <- function(data, response_var) {
+  
+  predictors_for_stepwise <- c("`AGE`", "`BLUEBOOK`", "`INCOME`", 
+                  "`MVR_PTS`", "`TIF`", "`TRAVTIME`", 
+                  "`YOJ`", "`KIDSDRIV`", "`HOMEKIDS`", 
+                  "`CLM_FREQ`", "`CAR_AGE`", "`OLDCLAIM`", 
+                  "`BLUEBOOK_transformed`", "`INCOME_transformed`", "`MVR_PTS_transformed`", 
+                  "`OLDCLAIM_transformed`", "`TIF_transformed`", "`TRAVTIME_transformed`", 
+                  "`YOJ_transformed`", "`CLM_FREQ_transformed`", "`CAR_AGE_transformed`", 
+                  "`SEX.F`", "`SEX.M`", "`EDUCATION.L`", 
+                  "`EDUCATION.Q`", "`EDUCATION.C`", "`EDUCATION^4`", 
+                  "`JOBBlue Collar`", "`JOBClerical`", "`JOBDoctor`", 
+                  "`JOBHome Maker`", "`JOBLawyer`", "`JOBManager`", 
+                  "`JOBProfessional`", "`JOBStudent`", "`CAR_USECommercial`", 
+                  "`CAR_USEPrivate`", "`CAR_TYPEMinivan`", "`CAR_TYPEPanel Truck`", 
+                  "`CAR_TYPEPickup`", "`CAR_TYPESports Car`", "`CAR_TYPESUV`", 
+                  "`CAR_TYPEVan`", "`URBANICITYHighly Rural/ Rural`", "`URBANICITYHighly Urban/ Urban`", 
+                  "`HOME_VAL_CAT.Very Low`", "`HOME_VAL_CAT.Low`", "`HOME_VAL_CAT.Medium`", 
+                  "`HOME_VAL_CAT.High`", "`HOME_VAL_CAT.Missing`", "`RED_CAR.No`", 
+                  "`RED_CAR.Yes`", "`REVOKED.No`", "`REVOKED.Yes`", 
+                  "`PARENT1.No`", "`PARENT1.Yes`", "`MSTATUS.No`", "`MSTATUS.Yes`")
+
+  interaction_terms <- paste(predictors_for_stepwise, ":TARGET_FLAG", sep="")
+
+  formula <- as.formula(paste(response_var, "~", paste(interaction_terms, collapse=" + ")))
+  initial_model <- lm(formula, data = data)
+
+  step_model <- step(initial_model, direction = "both")
+
+  best_model <- step_model$call[[1]]  # final model formula
+  return(best_model)
+}
+
+best_model_formula <- stepwise_regression(train_final, "TARGET_AMT")
+
+
+
+```
+
+From the stepwise process, we learn that our best model is:
+
+TARGET_AMT \~ AGE:TARGET_FLAG + TARGET_FLAG:INCOME + TARGET_FLAG:TIF + TARGET_FLAG:YOJ + TARGET_FLAG:HOMEKIDS + TARGET_FLAG:CLM_FREQ + TARGET_FLAG:CAR_AGE + TARGET_FLAG:OLDCLAIM + TARGET_FLAG:BLUEBOOK_transformed + TARGET_FLAG:INCOME_transformed + TARGET_FLAG:MVR_PTS_transformed + TARGET_FLAG:TIF_transformed + TARGET_FLAG:YOJ_transformed + TARGET_FLAG:CLM_FREQ_transformed + TARGET_FLAG:CAR_AGE_transformed + TARGET_FLAG:SEX.F + TARGET_FLAG:SEX.M + TARGET_FLAG:EDUCATION.L + TARGET_FLAG:EDUCATION.Q + TARGET_FLAG:`EDUCATION^4` + TARGET_FLAG:`JOBBlue Collar` + TARGET_FLAG:JOBClerical + TARGET_FLAG:JOBDoctor + TARGET_FLAG:`JOBHome Maker` + TARGET_FLAG:JOBLawyer + TARGET_FLAG:JOBManager + TARGET_FLAG:JOBStudent + TARGET_FLAG:CAR_USECommercial + TARGET_FLAG:`CAR_TYPEPanel Truck` + TARGET_FLAG:CAR_TYPEPickup + TARGET_FLAG:`CAR_TYPESports Car` + TARGET_FLAG:CAR_TYPESUV + TARGET_FLAG:`URBANICITYHighly Rural/ Rural` + TARGET_FLAG:HOME_VAL_CAT.Low + TARGET_FLAG:HOME_VAL_CAT.Medium + TARGET_FLAG:HOME_VAL_CAT.High + TARGET_FLAG:REVOKED.No + TARGET_FLAG:PARENT1.No + TARGET_FLAG:MSTATUS.No
+
+Now, this seems quite involved. But it's worth repeating--the constant presence of `TARGET_FLAG` is simply to guarantee that only observations with a `TARGET_FLAG` of 1 will have a non-zero value for `TARGET_AMT.` Let us now print the summary:
+
+```{r}
+
+best_stepwise_formula <- TARGET_AMT ~ AGE:TARGET_FLAG + TARGET_FLAG:INCOME + TARGET_FLAG:TIF + 
+    TARGET_FLAG:YOJ + TARGET_FLAG:HOMEKIDS + TARGET_FLAG:CLM_FREQ + 
+    TARGET_FLAG:CAR_AGE + TARGET_FLAG:OLDCLAIM + TARGET_FLAG:BLUEBOOK_transformed + 
+    TARGET_FLAG:INCOME_transformed + TARGET_FLAG:MVR_PTS_transformed + 
+    TARGET_FLAG:TIF_transformed + TARGET_FLAG:YOJ_transformed + 
+    TARGET_FLAG:CLM_FREQ_transformed + TARGET_FLAG:CAR_AGE_transformed + 
+    TARGET_FLAG:SEX.F + TARGET_FLAG:SEX.M + TARGET_FLAG:EDUCATION.L + 
+    TARGET_FLAG:EDUCATION.Q + TARGET_FLAG:`EDUCATION^4` + TARGET_FLAG:`JOBBlue Collar` + 
+    TARGET_FLAG:JOBClerical + TARGET_FLAG:JOBDoctor + TARGET_FLAG:`JOBHome Maker` + 
+    TARGET_FLAG:JOBLawyer + TARGET_FLAG:JOBManager + TARGET_FLAG:JOBStudent + 
+    TARGET_FLAG:CAR_USECommercial + TARGET_FLAG:`CAR_TYPEPanel Truck` + 
+    TARGET_FLAG:CAR_TYPEPickup + TARGET_FLAG:`CAR_TYPESports Car` + 
+    TARGET_FLAG:CAR_TYPESUV + TARGET_FLAG:`URBANICITYHighly Rural/ Rural` + 
+    TARGET_FLAG:HOME_VAL_CAT.Low + TARGET_FLAG:HOME_VAL_CAT.Medium + 
+    TARGET_FLAG:HOME_VAL_CAT.High + TARGET_FLAG:REVOKED.No + 
+    TARGET_FLAG:PARENT1.No + TARGET_FLAG:MSTATUS.No
+
+best_stepwise <- lm(formula = best_stepwise_formula, data = train_final)
+summary(best_stepwise)
+
+```
+
+#### Model Comparison
+
+We now have two models that share a key similarity but differ in how they were built. Both models incorporate **TARGET_FLAG** to guide predictions of **TARGET_AMT**, a strategy we’ve intentionally preserved due to its clear relevance. The primary distinction lies in the variable selection process: the first model was manually curated using insights from our best logistic regression model, while the second was generated through an automated stepwise regression approach. Naturally, it’s essential to compare their performance to determine which model is more effective.
+
+We summarize key metrics below:
+
+```{r}
+test_final$TARGET_FLAG <- as.factor(test_final$TARGET_FLAG)
+predictions_best_stepwise <- predict(best_stepwise, newdata = test_final)
+predictions_mlr2 <- predict(mlr2, newdata = test_final)
+actual_values <- test_final$TARGET_AMT 
+
+# RMSE
+rmse_best_stepwise <- sqrt(mean((predictions_best_stepwise - actual_values)^2))
+rmse_mlr2 <- sqrt(mean((predictions_mlr2 - actual_values)^2))
+
+# MAE
+mae_best_stepwise <- mean(abs(predictions_best_stepwise - actual_values))
+mae_mlr2 <- mean(abs(predictions_mlr2 - actual_values))
+
+# R-squared
+ss_total <- sum((actual_values - mean(actual_values))^2)
+ss_residual_best_stepwise <- sum((actual_values - predictions_best_stepwise)^2)
+ss_residual_mlr2 <- sum((actual_values - predictions_mlr2)^2)
+r_squared_best_stepwise <- 1 - (ss_residual_best_stepwise / ss_total)
+r_squared_mlr2 <- 1 - (ss_residual_mlr2 / ss_total)
+
+evaluation_metrics <- data.frame(
+  Model = c("Best Stepwise", "MLR2"),
+  RMSE = c(rmse_best_stepwise, rmse_mlr2),
+  MAE = c(mae_best_stepwise, mae_mlr2),
+  R_squared = c(r_squared_best_stepwise, r_squared_mlr2)
+)
+
+kbl(evaluation_metrics, caption = "Multiple Linear Regression Models Comparison") |>
+  kable_classic(full_width = F, html_font = "Cambria") |>
+  kable_styling(latex_options = "HOLD_position")
+
+```
+
+The comparison table offers valuable insight for selecting our final model. While MLR2 has a marginally lower RMSE and a slightly higher R-squared, it's important to emphasize that in this context, RMSE and especially MAE carry more weight than R-squared. Since our primary goal is to minimize financial prediction errors, lower RMSE and MAE values indicate more reliable payout estimates.
+
+Although Best Stepwise slightly underperforms on RMSE and R-squared, it delivers a significantly lower MAE, which reflects the average prediction error. This makes it particularly relevant for applications where accuracy in dollar amounts is crucial. Furthermore, in this case, predictive accuracy outweighs model simplicity, meaning interpretability is not the top priority.
+
+Given these factors, despite MLR2’s slight edge in two metrics, the much stronger MAE performance of Best Stepwise justifies its selection as the final model.
+
+### Predictions
+
+With our final models selected, we’re now prepared to generate predictions using the evaluation dataset. However, this process is slightly more involved, as our second model’s predictions depend on the output of the first. The complete prediction workflow is outlined below:
+
+```{r}
+# TARGET_FLAG 
+eval_final$TARGET_FLAG <- predict(final_nontransformed_model, newdata = eval_final, type = "response")
+eval_final$TARGET_FLAG <- ifelse(eval_final$TARGET_FLAG >= 0.5, 1, 0)
+eval_final$TARGET_FLAG <- factor(eval_final$TARGET_FLAG, levels = c(0, 1))
+
+#  TARGET_AMT
+eval_final$TARGET_AMT <- predict(best_stepwise, newdata = eval_final, type = "response")
+eval_final$TARGET_AMT <- ifelse(eval_final$TARGET_FLAG == "0", 0, eval_final$TARGET_AMT) # just in case
+
+eval_final$.id <- tracking_df$.id #because we used MICE, we need to aggregate now
+
+eval_final$TARGET_FLAG <- as.numeric(as.character(eval_final$TARGET_FLAG))
+eval_final$TARGET_AMT <- as.numeric(as.character(eval_final$TARGET_AMT))
+
+eval_aggregated <- eval_final %>%
+  group_by(.id) %>%
+  summarise(
+    Median_TARGET_FLAG = median(TARGET_FLAG, na.rm = TRUE),
+    Median_TARGET_AMT = ifelse(Median_TARGET_FLAG == 0, 0, median(TARGET_AMT, na.rm = TRUE))
+  )
+
+eval_predictions_only <- data.frame(
+  Index = rownames(eval_aggregated),
+  TARGET_FLAG = eval_aggregated$Median_TARGET_FLAG,
+  TARGET_AMT = eval_aggregated$Median_TARGET_AMT
+)
+
+write.csv(eval_predictions_only, "Eval_Final_Predictions_Only.csv", row.names = FALSE)
+
+kbl(eval_predictions_only[11:20, ], caption = "Sample 10 Predictions for Evaluation Dataset") |>
+  kable_classic(full_width = F, html_font = "Cambria") |>
+  kable_styling(latex_options = "HOLD_position")
+
+```
+
+## Conclusion
+
+In this project, our objective was twofold: to predict whether a car crash would occur and, if so, to estimate the resulting payout. Achieving this required extensive data exploration, cleaning, and transformation. To predict crash occurrences, we built several binary logistic regression models and selected the most effective one. We then incorporated these predictions into our payout estimation by using interaction terms, ensuring payouts were only predicted when a crash was likely. For improved accuracy, we applied stepwise regression to develop our highest-performing payout model. Finally, we generated predictions using both models sequentially. These models provide valuable insights that could help insurance companies design policies that are not only equitable, but also financially sound and risk-conscious.
