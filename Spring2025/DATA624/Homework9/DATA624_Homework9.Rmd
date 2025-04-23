@@ -1,0 +1,58 @@
+---
+title: "DATA624_Homework9"
+author: "John Ferrara"
+date: "`r Sys.Date()`"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+library(caret)
+library(earth)
+library(kernlab)
+```
+
+## Instructions
+Do problems 8.1, 8.2, 8.3, and 8.7 in Kuhn and Johnson.  Please submit the Rpubs link along with the .rmd file.
+
+### Question 8.1
+
+#### 8.1. Recreate the simulated data from Exercise 7.2:
+
+```{r}
+library(mlbench)
+set.seed(200)
+simulated <- mlbench.friedman1(200, sd = 1)
+simulated <- cbind(simulated$x, simulated$y)
+simulated <- as.data.frame(simulated)
+colnames(simulated)[ncol(simulated)] <- "y"
+```
+
+###### (a) Fit a random forest model to all of the predictors, then estimate the variable importance scores:
+``` {r}
+library(randomForest)
+library(caret)
+model1 <- randomForest(y ~ ., data = simulated, importance = TRUE, ntree = 1000)
+rfImp1 <- varImp(model1, scale = FALSE)
+```
+
+Did the random forest model significantly use the uninformative predictors (V6 – V10)?
+
+##### (b) Now add an additional predictor that is highly correlated with one of the informative predictors. For example:
+``` {r}
+simulated$duplicate1 <- simulated$V1 + rnorm(200) * .1
+cor(simulated$duplicate1, simulated$V1)
+```
+
+Fit another random forest model to these data. Did the importance score for V1 change? What happens when you add another predictor that is also highly correlated with V1?
+
+##### (c) Use the cforest function in the party package to fit a random forest model using conditional inference trees. The party package function varimp can calculate predictor importance. The conditional argument of that function toggles between the traditional importance measure and the modified version described in Strobl et al. (2007). Do these importances show the same pattern as the traditional random forest model?
+
+##### (d) Repeat this process with different tree models, such as boosted trees and Cubist. Does the same pattern occur?
+
+### Question 8.2
+
+### Question 8.3
+
+### Question 8.7
