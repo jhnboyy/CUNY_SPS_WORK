@@ -109,7 +109,8 @@ kbl(head(train), caption = "Training Set") |>
   kable_classic(full_width = F, html_font = "Cambria") |>
   footnote(general_title = "Dimensions: ",
           TeX(paste0(nrow(train), " x ", ncol(train)))) %>%
-  kable_styling(latex_options = "HOLD_position")
+  kable_styling(latex_options = "HOLD_position") %>%
+  kableExtra::landscape()
 ```
 
 ```{r data-glance-eval}
@@ -117,7 +118,8 @@ kbl(head(eval), caption = "Evaluation Set") |>
   kable_classic(full_width = F, html_font = "Cambria") |>
   footnote(general_title = "Dimensions: ",
           TeX(paste0(nrow(eval), " x ", ncol(eval)))) %>%
-  kable_styling(latex_options = "HOLD_position")
+  kable_styling(latex_options = "HOLD_position") %>%
+  kableExtra::landscape()
 ```
 
 ### Data Wrangling
@@ -138,7 +140,8 @@ eval <-
 kbl(head(train), caption = "Training Set") |>
   kable_classic(full_width = F, html_font = "Cambria") |>
   footnote("Dropped `INDEX` column:") %>%
-  kable_styling(latex_options = "HOLD_position")
+  kable_styling(latex_options = "HOLD_position") %>%
+  kableExtra::landscape()
 ```
 
 <br>
@@ -867,7 +870,8 @@ summary_table <- variable_process_df %>%
 
 kbl(summary_table, caption = "Variables Summary") %>%
   kable_classic(full_width = F, html_font = "Cambria") %>%
-  kable_styling(latex_options = "HOLD_position")
+  kable_styling(latex_options = "HOLD_position") %>%
+  kableExtra::landscape()
 ```
 
 We must also proceed with caution due to the **One-Hot Encoding (OHC)** applied to our categorical variables. This encoding can introduce **multicollinearity**, especially among the resulting dummy variables. For binary categorical variables, we can safely drop one of the two encoded columns, as the remaining one still captures all necessary information. However, for variables with more than two categories, multicollinearity becomes more complex and may require more advanced handling strategies—which we’ll address shortly.
@@ -1107,7 +1111,8 @@ results$ROC_AUC <- c(model_transformed_roc_auc, model2_roc_auc, lasso_model_roc_
 
 kbl(results, caption = "Comparison of Logistic Models") %>%
   kable_classic(full_width = F, html_font = "Cambria") %>%
-  kable_styling(latex_options = "HOLD_position")
+  kable_styling(latex_options = "HOLD_position") %>%
+  kableExtra::landscape()
 ```
 
 It’s important to note that we haven’t reported the AIC for the Lasso model, as its use of regularization complicates the assumptions underlying AIC calculations. That said, one of the most striking observations is how similar the performance metrics are across all three models.
@@ -1319,6 +1324,7 @@ write.csv(eval_predictions_only, "Eval_Final_Predictions_Only.csv", row.names = 
 kbl(eval_predictions_only[11:20, ], caption = "Sample 10 Predictions for Evaluation Dataset") |>
   kable_classic(full_width = F, html_font = "Cambria") |>
   kable_styling(latex_options = "HOLD_position")
+
 
 ```
 
