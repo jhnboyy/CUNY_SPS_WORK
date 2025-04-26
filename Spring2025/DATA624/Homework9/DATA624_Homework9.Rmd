@@ -21,38 +21,239 @@ Do problems 8.1, 8.2, 8.3, and 8.7 in Kuhn and Johnson.  Please submit the Rpubs
 #### 8.1. Recreate the simulated data from Exercise 7.2:
 
 ```{r}
+#install.packages("mlbench")
 library(mlbench)
 set.seed(200)
 simulated <- mlbench.friedman1(200, sd = 1)
 simulated <- cbind(simulated$x, simulated$y)
 simulated <- as.data.frame(simulated)
 colnames(simulated)[ncol(simulated)] <- "y"
+
+
+print(head(simulated))
 ```
 
-###### (a) Fit a random forest model to all of the predictors, then estimate the variable importance scores:
+##### (a) Fit a random forest model to all of the predictors, then estimate the variable importance scores:
 ``` {r}
+#install.packages("randomForest")
+
 library(randomForest)
 library(caret)
 model1 <- randomForest(y ~ ., data = simulated, importance = TRUE, ntree = 1000)
+print(model1)
 rfImp1 <- varImp(model1, scale = FALSE)
+print(rfImp1)
 ```
 
-Did the random forest model significantly use the uninformative predictors (V6 – V10)?
+##### Did the random forest model significantly use the uninformative predictors (V6 – V10)?
+
+The random forest model here did in fact use the informative predictors, but NOT significantly. Based on the output of the varImp function, the uninformative predictors have either a super low value of importance or a negative value of importance meaning that these predictors were essentially useless in helping to predict the target variable.
 
 ##### (b) Now add an additional predictor that is highly correlated with one of the informative predictors. For example:
 ``` {r}
 simulated$duplicate1 <- simulated$V1 + rnorm(200) * .1
-cor(simulated$duplicate1, simulated$V1)
+cor(simulated$duplicate1, simulated$V1) ### 0.9460206
 ```
 
-Fit another random forest model to these data. Did the importance score for V1 change? What happens when you add another predictor that is also highly correlated with V1?
+##### Fit another random forest model to these data. Did the importance score for V1 change? What happens when you add another predictor that is also highly correlated with V1?
+```{r}
+model2 <- randomForest(y ~ ., data = simulated, importance = TRUE, ntree = 1000)
+print(model2)
+rfImp2 <- varImp(model2, scale = FALSE)
+print(rfImp2)
+```
+After adding another variable that is highly correlated to the value of v1 has lessened the importance score of the initial v1 score. The predictor's importance score decreased to 5.69119973 from 8.732235404 in the first model. The duplicate1 variable had an importance value of 4.28331581. Its interesting that the combination of both duplicate1 and v1 in the second model have scores that total in the ballpark of what the first V1 score was.
 
 ##### (c) Use the cforest function in the party package to fit a random forest model using conditional inference trees. The party package function varimp can calculate predictor importance. The conditional argument of that function toggles between the traditional importance measure and the modified version described in Strobl et al. (2007). Do these importances show the same pattern as the traditional random forest model?
 
+``` {r}
+#install.packages("partykit")
+library(party)
+#library(partykit)
+
+ctrl <- cforest_control(mtry = 2, ntree = 1000)
+model_cforest <- cforest(y ~ ., data = simulated, controls = ctrl)
+
+imp_noncond <- varimp(model_cforest, conditional = FALSE)
+imp_cond <- varimp(model_cforest, conditional = TRUE)
+
+
+print(imp_noncond)
+#        V1          V2          V3          V4          V5          V6          V7          V8          V9         V10  duplicate1 
+# 3.12828455  3.52526015  0.07843721  3.94416785  1.08432299 -0.03204551 -0.01399208 -0.04295751  0.04787140 -0.05415470  3.35948570
+
+print(imp_cond)
+#          V1            V2            V3            V4            V5            V6            V7            V8            V9           V10    duplicate1 
+# 1.424172e+00  2.643533e+00  3.660300e-02  2.783233e+00  6.099108e-01  3.714634e-05 -2.293399e-02 -2.379747e-02  1.457397e-02 -1.512565e-02  1.444891e+00 
+
+```
+The outputs of both model's importance ranking scores are different from one another. THe change in the boolean conditional input impacts these scores. Essentially, when the conditional is ser to true the correlation between the predictor variables is considered. THis is why duplicate1 and v1 have lower imporatns scores in the version where conditional is set to true. THe model is controlling for the correlation between these two identidal variables. 
+
 ##### (d) Repeat this process with different tree models, such as boosted trees and Cubist. Does the same pattern occur?
+``` {r}
+##Splitting x'x from y
+
+## With DUPE
+y_wd <- simulated$y
+X_wd<- simulated[, !(names(simulated) %in% "y")]
+
+y_nd <- simulated$y
+X_nd <- simulated[, !(names(simulated) %in% c("y", "duplicate1"))]
+
+## Doing with Boosted Trees
+library(gbm)
+gbmModel_wd <- gbm.fit(X_wd, y_wd, distribution = "gaussian")
+print(summary(gbmModel_wd))
+
+
+gbmModel_nd <- gbm.fit(X_nd, y_nd, distribution = "gaussian")
+print(summary(gbmModel_nd))
+
+#### Similar to previous models, when i run the boosted tree model with and without the duplicate column the importance for the predictor variables shifts. When the duplicate1 column is kept within the model the importance of V1 is the most important with duplicate1 in second place. Both variables have respective importance values of 40.49 and 29.16. When the duplicate predictor variable is removed, v1 has an importance value of 61.29 and is in first place. Second place is v2 with an importance value of 23.14. Lastly, this function and lib did not seem to have a conditional input to toggle for this question, so i simply did with and without the duplicate1 variable.
+
+
+
+## Doing with Cubist
+library(Cubist)
+cubistMod_wd <- cubist(X_wd, y_wd)
+
+## WITH DUPE
+imp_noncond <- varimp(cubistMod_wd, conditional = FALSE)
+print(imp_noncond)
+#         V1          V2          V3          V4          V5          V6          V7          V8          V9         V10  duplicate1 
+# 3.12828455  3.52526015  0.07843721  3.94416785  1.08432299 -0.03204551 -0.01399208 -0.04295751  0.04787140 -0.05415470  3.35948570 
+
+imp_cond <- varimp(cubistMod_wd, conditional = TRUE)
+print(imp_cond)
+#          V1            V2            V3            V4            V5            V6            V7            V8            V9           V10    duplicate1 
+# 1.424172e+00  2.643533e+00  3.660300e-02  2.783233e+00  6.099108e-01  3.714634e-05 -2.293399e-02 -2.379747e-02  1.457397e-02 -1.512565e-02  1.444891e+00
+
+
+## NO DUPE 
+cubistMod_nd <- cubist(X_nd, y_nd)
+
+imp_noncond <- varimp(cubistMod_nd, conditional = FALSE)
+print(imp_noncond)
+
+#         V1          V2          V3          V4          V5          V6          V7          V8          V9         V10  duplicate1 
+# 3.12828455  3.52526015  0.07843721  3.94416785  1.08432299 -0.03204551 -0.01399208 -0.04295751  0.04787140 -0.05415470  3.35948570
+
+imp_cond <- varimp(cubistMod_nd, conditional = TRUE)
+print(imp_cond)
+#    V1            V2            V3            V4            V5            V6            V7            V8            V9           V10    duplicate1 
+# 1.424172e+00  2.643533e+00  3.660300e-02  2.783233e+00  6.099108e-01  3.714634e-05 -2.293399e-02 -2.379747e-02  1.457397e-02 -1.512565e-02  1.444891e+00 
+
+
+
+#### Firstly, for the cubist model that maintained the duplicate1 variable in the model. This model when having the conditional input set to False and then changed to True, the same thing happened. The v1 and duplicate1 importance scores whent from 3.12 and 3.59, respectively, to 1.42 and 1.44. THis shows the intervariable correlations were considered. Second, when the duplicate1 predictor values were removed from the df before running the model the importance scores were different. Initially when the importance scores were run with the conditional input on False, the importance scores for nearly all the variables were higher than when the conditional input was True. Lets take V1, a variable we know is important for the predictor variable, it went from 3.12 to 1.47. 
+
+
+
+```
 
 ### Question 8.2
+##### Use a simulation to show tree bias with different granularities.
+
+```{r}
+library(rpart)
+
+set.seed(123)
+n <- 500
+
+## TO answer this question we are making a data set with several different variables, a continousi variable, and then tw ocategorical variables. THe two catefgorical variables have different numbers of categories. 
+
+# Continuous Predtictor
+X1 <- rnorm(n)                     
+#XCategorical with 3 different categories
+X2 <- sample(letters[1:3], n, replace = TRUE)  
+# Categorical variable with 10 differet categfories
+X3 <- sample(letters[1:10], n, replace = TRUE) 
+#generating the target var
+y <- rnorm(n)
+
+data <- data.frame(X1 = X1, X2 = as.factor(X2), X3 = as.factor(X3), y = y)
+
+# Makinf a simlr 
+tree_model <- rpart(y ~ ., data = data)
+
+# Plot variable importance
+print(varImp(tree_model))
+
+
+
+```
+In the predictorvariable importance output on can see the different levels of importance that were given to the completely made up variables THew more granularity or splits the model is able to do the more importance is assumed for the variable. THis is a bias based on how the tree models work, however, it is important to note here that there is no correlaiton in the data as well. Its all random, yet these more granular categories and the continuous values are ranked as more important.
 
 ### Question 8.3
+In stochastic gradient boosting the bagging fraction and learning rate will govern the construction of the trees as they are guided by the gradient. Although the optimal values of these parameters should be obtained through the tuning process, it is helpful to understand how the magnitudes of these parameters affect magnitudes of variable importance. Figure 8.24 provides the variable importance plots for boosting using two extreme values for the bagging fraction (0.1 and 0.9) and the learning rate (0.1 and 0.9) for the solubility data. The left-hand plot has both parameters set to 0.1, and the right-hand plot has both set to 0.9:
+
+##### (a) Why does the model on the right focus its importance on just the first few of predictors, whereas the model on the left spreads importance across more predictors?
+In looking at the two models displayed in Figure 8.24, the model on the right and the model on the left both models have different imporance scores the variables. As mentioned the model on the left has lower bagging and learning rate values than the model on the right. THis means, this results in more randomness in the samples being taken from the larger dataset as well as the importance scores coming out more "hollistically" accurate. Meaning, that when the larger values for learning rate and bagging are used the importance scores tend to be high amongst a few select varaibles, while with lower scores the model takes its time with more smaller random samples for figuring out the relationships. 
+
+
+##### (b) Which model do you think would be more predictive of other samples?
+
+The model with the smaller learning rate and bagging fraction would be more predictive of other samples, as it is taking smaller samples of the larger dataset in order to get a more well-rounded sense of what patterns are truly present. This approach may make the model slightly more sensitive to noise in the data, but overall it is more reflective of the true structure of other samples.
+
+##### (c) How would increasing interaction depth affect the slope of predictor importance for either model in Fig. 8.24?
+Increasing the interaction depth the model is able to consider more variables, this lends itself to being able to see how more variables influence the outcome overall, as opposed to a super shallow tree which limited this type of information. With that being said, the depth of the tree can also open up the model to being overfit on the data. 
 
 ### Question 8.7
+
+Refer to Exercises 6.3 and 7.5 which describe a chemical manufacturing process. Use the same data imputation, data splitting, and pre-processing steps as before and train several tree-based models:
+```{r}
+## Data from 6.3
+library(AppliedPredictiveModeling)
+data(ChemicalManufacturingProcess)
+     
+## Taking code from last hw
+imputed <- preProcess(ChemicalManufacturingProcess, method = "medianImpute")
+chem_df_imputed <- predict(imputed, ChemicalManufacturingProcess)
+
+## Establishing the x and y vars
+X <- chem_df_imputed[, -which(names(chem_df_imputed) == "Yield")]
+y <- chem_df_imputed$Yield
+
+## putting together for working & spltting 
+ChemData <- list(x = X, y = y)
+
+## Splitting 70/30
+splitIndex <- createDataPartition(ChemData$y, p = 0.7, list = FALSE)
+
+ChemtrainingData <- list(x = data.frame(ChemData$x[splitIndex, ]),y = ChemData$y[splitIndex])
+ChemtestData <- list( x = data.frame(ChemData$x[-splitIndex, ]),y = ChemData$y[-splitIndex])
+
+### Beginning of Tree modeling
+train_control <- trainControl(method = "cv", number = 5)
+
+## RANDOM FOREST
+set.seed(123)
+rf_model <- train(x = chemtrainingData$x,  y = chemtrainingData$y,  method = "rf",  trControl = train_control,  importance = TRUE)
+print(rf_model)
+
+# Decision Tree
+set.seed(123)
+dt_model <- train(  x = chemtrainingData$x,  y = chemtrainingData$y,  method = "rpart",  trControl = train_control
+)
+print(cart_model)
+
+#Boosted tree
+set.seed(123)
+gbm_model <- train(
+  x = chemtrainingData$x,
+  y = chemtrainingData$y,
+  method = "gbm",
+  trControl = train_control,
+  verbose = FALSE
+)
+print(gbm_model)
+
+
+
+```
+##### (a) Which tree-based regression model gives the optimal resampling and test set performance?
+
+
+##### (b) Which predictors are most important in the optimal tree-based regression model? Do either the biological or process variables dominate the list? How do the top 10 important predictors compare to the top 10 predictors from the optimal linear and nonlinear models?
+
+##### (c) Plot the optimal single tree with the distribution of yield in the terminal nodes. Does this view of the data provide additional knowledge about the biological or process predictors and their relationship with yield?
