@@ -3,14 +3,12 @@ title: "DATA624_Homework9"
 author: "John Ferrara"
 date: "`r Sys.Date()`"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
 library(caret)
-library(earth)
-library(kernlab)
 ```
 
 ## Instructions
@@ -220,8 +218,8 @@ ChemData <- list(x = X, y = y)
 ## Splitting 70/30
 splitIndex <- createDataPartition(ChemData$y, p = 0.7, list = FALSE)
 
-ChemtrainingData <- list(x = data.frame(ChemData$x[splitIndex, ]),y = ChemData$y[splitIndex])
-ChemtestData <- list( x = data.frame(ChemData$x[-splitIndex, ]),y = ChemData$y[-splitIndex])
+chemtrainingData <- list(x = data.frame(ChemData$x[splitIndex, ]),y = ChemData$y[splitIndex])
+chemtestData <- list( x = data.frame(ChemData$x[-splitIndex, ]),y = ChemData$y[-splitIndex])
 
 ### Beginning of Tree modeling
 train_control <- trainControl(method = "cv", number = 5)
@@ -233,27 +231,61 @@ print(rf_model)
 
 # Decision Tree
 set.seed(123)
-dt_model <- train(  x = chemtrainingData$x,  y = chemtrainingData$y,  method = "rpart",  trControl = train_control
-)
-print(cart_model)
+dt_model <- train(  x = chemtrainingData$x,  y = chemtrainingData$y,  method = "rpart",  trControl = train_control)
+print(dt_model)
 
 #Boosted tree
 set.seed(123)
-gbm_model <- train(
-  x = chemtrainingData$x,
-  y = chemtrainingData$y,
-  method = "gbm",
-  trControl = train_control,
-  verbose = FALSE
-)
+gbm_model <- train(  x = chemtrainingData$x,  y = chemtrainingData$y,  method = "gbm",  trControl = train_control,  verbose = FALSE)
 print(gbm_model)
 
 
 
+#### MODEL EVALUATION
+# Random Forest Predictions
+rf_preds <- predict(rf_model, newdata = chemtestData$x)
+rf_rmse <- RMSE(rf_preds, chemtestData$y)
+
+# Decision Tree Predictions
+dt_preds <- predict(dt_model, newdata = chemtestData$x)
+dt_rmse <- RMSE(dt_preds, chemtestData$y)
+
+# Boosted Tree Predictions
+gbm_preds <- predict(gbm_model, newdata = chemtestData$x)
+gbm_rmse <- RMSE(gbm_preds, chemtestData$y)
+
+# Print RMSE results
+print(paste("Random Forest RMSE:", rf_rmse)) # 0.770559334916787
+print(paste("Decision Tree (CART) RMSE:", dt_rmse))#1.16107886521949
+print(paste("Boosted Tree (GBM) RMSE:", gbm_rmse))#0.872160081853729
+
 ```
 ##### (a) Which tree-based regression model gives the optimal resampling and test set performance?
+In this instance of the three models that I built the Random Forest provided the best results with the lowest RMSE. The RMSE for this model was 0.77.
 
 
 ##### (b) Which predictors are most important in the optimal tree-based regression model? Do either the biological or process variables dominate the list? How do the top 10 important predictors compare to the top 10 predictors from the optimal linear and nonlinear models?
 
+The top predictors from the linear model and non-linear model were:
+
+![Linear Model Important Variables](https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/Spring2025/DATA624/Homework8/images/LinearModle_6.3.png)
+
+![Non-Linear Model Important Variables](https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/Spring2025/DATA624/Homework9/NonLinearVarImp.png)
+
+According to the random foreat model in this homwork, the most important variables are the manufactuing variables, as they make out 7 of the top 10 variables listed in order of descending importance. However, ti should be of note that the top 4 variables are 50/50 biological and manufacuring. The top two slots as manufacutring variables, while the 3rd and 4th slots are biologuial.  THis is different from the linear model results, which had the top 6 most important5 variables being manufacturing. THe non linear model had four out of the top 5 variables as manufacturing. The tree model actualy is the one that has more biological variable importance ranked than the other two.
+
+
+```{r}
+rf_varimp <- varImp(rf_model)
+print(rf_varimp)
+```
+
 ##### (c) Plot the optimal single tree with the distribution of yield in the terminal nodes. Does this view of the data provide additional knowledge about the biological or process predictors and their relationship with yield?
+```{r}
+library(rpart.plot)
+
+print(rpart.plot(dt_model$finalModel))
+
+### The single decision tree shows that ManufacturingProcess32 and BiologicalMaterial12 are important predictors. The diagrtam provides information on the split points in the data as well as the precentages of the data that fall on each side of such splits. So in that sense this does show more information about the predictors and their relationships with yield. The diagram makes the tree much easier to visualize.
+
+```
