@@ -3,8 +3,8 @@ title: "DATA624_Homework9"
 author: "John Ferrara"
 date: "`r Sys.Date()`"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -116,28 +116,27 @@ library(Cubist)
 cubistMod_wd <- cubist(X_wd, y_wd)
 
 ## WITH DUPE
-imp_noncond <- varimp(cubistMod_wd, conditional = FALSE)
-print(imp_noncond)
+#imp_noncond <- varimp(cubistMod_wd, conditional = FALSE)
+#print(imp_noncond)
 #         V1          V2          V3          V4          V5          V6          V7          V8          V9         V10  duplicate1 
 # 3.12828455  3.52526015  0.07843721  3.94416785  1.08432299 -0.03204551 -0.01399208 -0.04295751  0.04787140 -0.05415470  3.35948570 
 
-imp_cond <- varimp(cubistMod_wd, conditional = TRUE)
-print(imp_cond)
+#imp_cond <- varimp(cubistMod_wd, conditional = TRUE)
+#print(imp_cond)
 #          V1            V2            V3            V4            V5            V6            V7            V8            V9           V10    duplicate1 
 # 1.424172e+00  2.643533e+00  3.660300e-02  2.783233e+00  6.099108e-01  3.714634e-05 -2.293399e-02 -2.379747e-02  1.457397e-02 -1.512565e-02  1.444891e+00
 
 
 ## NO DUPE 
-cubistMod_nd <- cubist(X_nd, y_nd)
-
-imp_noncond <- varimp(cubistMod_nd, conditional = FALSE)
-print(imp_noncond)
+#cubistMod_nd <- cubist(X_nd, y_nd)
+#imp_noncond <- varimp(cubistMod_nd, conditional = FALSE)
+#print(imp_noncond)
 
 #         V1          V2          V3          V4          V5          V6          V7          V8          V9         V10  duplicate1 
 # 3.12828455  3.52526015  0.07843721  3.94416785  1.08432299 -0.03204551 -0.01399208 -0.04295751  0.04787140 -0.05415470  3.35948570
 
-imp_cond <- varimp(cubistMod_nd, conditional = TRUE)
-print(imp_cond)
+#imp_cond <- varimp(cubistMod_nd, conditional = TRUE)
+#print(imp_cond)
 #    V1            V2            V3            V4            V5            V6            V7            V8            V9           V10    duplicate1 
 # 1.424172e+00  2.643533e+00  3.660300e-02  2.783233e+00  6.099108e-01  3.714634e-05 -2.293399e-02 -2.379747e-02  1.457397e-02 -1.512565e-02  1.444891e+00 
 
