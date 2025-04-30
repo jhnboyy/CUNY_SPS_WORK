@@ -7,7 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-#install.packages("corrplot")
+install.packages("kernlab")
 library(readxl)
 library(httr)
 library(dplyr)
@@ -18,7 +18,10 @@ library(GGally)
 library(ggplot2)
 library(reshape2) 
 library(corrplot)
-
+library(caret)
+library(earth)
+library(kernlab)
+library(randomForest)
 #library(moments)
 #library(tidyr)
 #library(tidyverse)
@@ -26,7 +29,7 @@ library(corrplot)
 
 ```
 
-##Project #2 (Team) Assignment
+## Project #2 (Team) Assignment
 
 This is role playing.  I am your new boss.  I am in charge of production at ABC Beverage and you are a team of data scientists reporting to me.  My leadership has told me that new regulations are requiring us to understand our manufacturing process, the predictive factors and be able to report to them our predictive model of PH.
 
@@ -34,9 +37,15 @@ Please use the historical data set I am providing.  Build and report the factors
 
 Please submit both Rpubs links and .rmd files or other readable formats for technical and non-technical reports.  Also submit the excel file showing the prediction of your models for pH.
 
-## Reading In the Data
+## Objective and Data Overview 
 
+The goal of this project was to use the data provided via Excel format in order to help model which predictor variables were ideal for keeping track of and predicting the PH variable for the hypothetical company ABC Beverage. This analysis was conducted in the context of a hypothetical new regulatory requirement, which mandates a better understanding and control of key production metrics, including beverage acidity (PH).
 
+There were two datasets provided. The first, used for training and modeling, contained 2,571 observations and 33 variables, including the target variable PH. This dataset served as the foundation for all of the exploratory analysis, data cleaning, and model development. The second dataset, intended for implementing the yielded predictions, included 267 observations with all of the same predictor variables. However, this dataset lacked values for PH.
+
+The datasets covered a wide range of operational metrics from the beverage production process, with variables representing temperatures, pressures, flow rates, brand identifiers, and more. The ultimate goal was to generate a predictive model that could estimate PH based on these variables, supporting both compliance needs and improved operational oversight.
+
+### Reading In the Data
 ```{r}
 ## Reading in the data 
 training <- read_excel("./data/StudentData.xlsx")
@@ -48,13 +57,18 @@ print(head(test))
 
 
 ```
+## Data Cleaning and Preparation
 
-## Exploratory WOrk and Data Processing
+Exploratory analysis began with the creation of summary statistics, correlation matrices, and a series of pairwise plots using GGally. All of these methods were leveraged to get a better sense of the data, and the relationships between variables. The correlation matrix revealed several strong linear relationships among the variables. For instance, Carb Temp and Carb Pressure, as well as Density and Balling, were found to be highly correlated. This indicates potential multicollinearity within the dataset. However, no corrective steps were taken due to the intended use of modeling techniques such as PLS manage these types of relationships between predictors. While some variables showed skewed or mnon-normal distributions, this was not considered problematic, especially for due to the choice of modeling approaches. 
 
+As part of the data preparation, there were null values in the data that needed to be handled. Firstly, any rows in the training set where the target variable PH was missing were removed, as these rows could not contribute to model training. Additionally, rows with four or more missing values were dropped from both the training and testing datasets to avoid introducing too much uncertainty into the imputation process. For the remaining missing values, a multiple imputation strategy was implemented using MICE. The numeric variables were imputed using Predictive Mean Matching and the singular categorical variable, Brand Code, was imputed separately using a Classification and Regression Tree method. This process resulted in fully imputed datasets for both training and test sets, enabling a complete and consistent modeling pipeline.
 
+Lastly, in order to obtain solid results, the training data was split 80/20 for triaing testing. As mentioned before, the prediction testing dataset received, had no PH values. THerefore in order to test multiple models, a smaller test set was needed to help select a model. Data was also centered and scaled prior to modeling, but within the modeling functions, to account for differing measurement units.
+
+### Exploratory Work and Data Processing
 
 ```{r , fig.width=14, fig.height=12}
-## EBginning to look at the training data
+## Beginning to look at the training data
 print(summary(training))
 ## All column have some null values in them, so imputation will be needed. the two columns that dont have null values are "Pressure Vacuum" and "Air PRessurer" 
 ## upon first glance for the manufacutring process, there is no immediate way of identifying what will be important. Going to do GGpairs plot in order to view the variables, The instructions state that "PH" is the target variable.
@@ -76,6 +90,7 @@ print(length(names(training))) ## 33 different columns with PH as target, so 32 
 
 ## Overall this means that most of the columns have 1% or less of null values. Next step would be to look and see if the null values are together. In other words do 20 rows of incomplete data accoutn for most of the predictor variable nulls? 
 ```
+
 
 ```{r}
 
@@ -105,7 +120,6 @@ print(missing_summary)
 ## Looking at the break down for the multiple nulls. If there are 4 or more columns with a null value in a row, going to drop. We can imput the others, as the number of rows with <=3 null values increases fast.
 
 ## Executing the drop of those rows here, using the row index?
-missing_per_row <- rowSums(is.na(training_nonullPH))
 training_cleaned <- training_nonullPH[missing_per_row < 4, ]
 
 print(nrow(training_cleaned)) #2547, dropped 20 rows from the data. Will impute the rest of the data. 
@@ -126,7 +140,31 @@ str(training_cleaned$`Brand Code`)
 ```
 
 
+```{r}
+## Doing the same type of processinfg for the Test data. Seeing if there are nulls etc. 
+print(nrow(test)) # 267 Rows 
 
+print(summary(test))
+## Columns with highest number of nulls 
+# - MFR 31 nulls 
+# - Filler Speed. 10 NUlls 
+
+## As it should be the PH variable is all null because this is what were predicting.
+## Checking if these nulls are grouped together in a small number of rows? 
+missing_per_row_test <- rowSums(is.na(test))
+missing_summary_test <- as.data.frame(table(missing_per_row_test))
+colnames(missing_summary_test) <- c("Missing_Count", "Row_Count")
+print(missing_summary_test)
+
+## Same rule of thumb for test data, if there are 4 or more nulls in a row they get dropped. Its a total of 6 rows that get dropped which is fine. 
+test_cleaned <- test[missing_per_row_test < 4, ]
+
+print(nrow(test_cleaned)) ## 261 rows left, so 6 rows dropped. 
+
+# Brand COde needs to be converted from char. 
+test_cleaned$`Brand Code` <- as.factor(test_cleaned$`Brand Code`)
+
+```
 
 ```{r, message=FALSE, warning=FALSE }
 print(summary(training_cleaned))
@@ -155,7 +193,37 @@ summary(working_data)
 unique(working_data$'Brand Code')
 print(working_data |> filter(is.na(working_data$'Brand Code')))
 
+## Lastly, dropping Row ID because irrelevant for the model.
+working_data <- working_data %>% select(-`RowID`)
+
 ```
+
+
+```{r}
+## Now imputing the test data to help predicitons.
+init_test <- mice(test_cleaned, maxit = 0)
+meth_test <- init_test$method  
+
+print(meth_test)
+meth_test$'Brand Code' <- "cart" # We want the categorical tree for this variable, not  a continuous numeric var. 
+print(meth_test)
+
+imputed_data_test <- mice(test_cleaned, method = meth_test, m = 10, seed = 100)
+summary(imputed_data_test)
+
+## Taking one fo the imputed datasets for now, if i want to use all of them alter i will. 
+working_data_test <- complete(imputed_data_test, 1)
+
+### Successfully got rid of all nulls. 
+summary(working_data_test)
+
+## Confirming it worked, specifically for brand code. 
+unique(working_data_test$'Brand Code')
+print(working_data_test |> filter(is.na(working_data_test$'Brand Code')))
+
+```
+
+
 
 
 
@@ -163,21 +231,21 @@ print(working_data |> filter(is.na(working_data$'Brand Code')))
 ## Taking a quick look at the relationships in the  data. 
 numeric_data <- working_data %>% select_if(is.numeric)
 cor_matrix <- cor(numeric_data, use = "pairwise.complete.obs")
-#cor_matrix
+#
 #chart 
-corrplot(cor_matrix, method = "color")
+print(corrplot(cor_matrix, method = "color"))
 
 ```
 
 ```{r, message=FALSE, warning=FALSE, fig.width=20, fig.height=20}
 # ---------------------- THIE PART MAY BE CUT, NOT SURE IF THE NUMBER IF VISUALS HERE IS WORTH IT ----------------------------------------------------
 
-## Making pairs plot to get some prelimiinary insights into the predictor variables and their relationships
+## Making pairs plot to get some prelimiinary insights into the predictor variables and their relationships. 
 #print(ggpairs(training_cleaned))
 
-# using column names to loopthrough and create smaller more readable pairs plots to example. However, notes that this will NOT ensure that every variable is comparied to every other. IF they are not 
-# plotted together, then they arent compared.
-column_names <- names(training_cleaned)
+# using column names to loop through and create smaller more readable pairs plots to example. However, notes that this will NOT ensure that every variable is compared to every other. IF they are not 
+# plotted together, then they arent compared. This is to just get more of a sense fo the data overall. so decisions can be made. 
+column_names <- names(working_data)
 chunk_size <- 7
 step_size <- chunk_size - 1  
 starts <- seq(1, length(column_names) - step_size, by = step_size)
@@ -187,7 +255,7 @@ for (start in starts) {
   end <- min(start + chunk_size - 1, length(column_names))
   vars_subset <- column_names[start:end]
   cat("\n\n### Plot for variables:", paste(vars_subset, collapse = ", "), "\n")
-  print(ggpairs(training_cleaned[, vars_subset],progress = FALSE) )
+  print(ggpairs(working_data[, vars_subset],progress = FALSE) )
 }
 
 
@@ -195,9 +263,12 @@ for (start in starts) {
 # - Carb Temp and Carb Pressure; Multicolinearity flag
 # - Hyrdpressure1 and Mnf Flow, direct relationship. Maybe muilticolinearity flag? 
 # - Density and Balling, potential Multicolinearity. 
-# - 
+#-- Some Variables dont have normal distributuions, but not too relevant for PLS regression. However, we should scale and center this data because of the multiple scales that the different vairables are on.
 
-#- Distributions that dont seem normal:Carb Volume, PSC
+# However, these correlations dont matter much if we use a PLS regression, or some other non linear type regressions. Well Check PLS, then maybe do some aggregation of the directly related variables. 
+
+
+
 ```
 
 
@@ -209,15 +280,109 @@ for (start in starts) {
 ```{r,  fig.width=20, fig.height=20}
 
 
-## Beginning to Model this data, 
+## Beginning to Model this data. PLS first.
 
+## Need to split the training data, there are no PH values in the test data imported
+split_index <- createDataPartition(working_data$PH, p = 0.8, list = FALSE)
+
+train_data_split <- working_data[split_index, ]
+test_data_split  <- working_data[-split_index, ]
+
+
+## Crossvalidation set up first.
+cross_val <- trainControl(method = "cv", number = 10)
+
+
+#running PLS as before because a lot of predictors 
+pls_model <- train(PH ~ ., data = train_data_split, method = "pls", preProc = c("center", "scale"),   tuneLength = 20, trControl = cross_val)
+
+## Taking a look at the best model from the list
+print(pls_model)
+print(plot(pls_model))
+## Taking Ncomp 11
+## RMSE:0.1331814   R^2:0.4020757   MAE:  0.103935
+
+
+#test_preds <- predict(pls_model, newdata = working_data_test, ncomp=22)
+test_preds_pls <- predict(pls_model, newdata = test_data_split)
+print(postResample(pred = test_preds_pls, obs = test_data_split$PH))
+
+#     RMSE  Rsquared       MAE 
+#0.1353367 0.3866006 0.1041878 
+
+## Running it on the test data
+#test_preds <- predict(pls_model, newdata = working_data_test, ncomp=22)
+
+
+## Trying another model or two before we use these predictions 
+#working_data_test$PH_Predicted <- test_preds
 
 
 
 ```
 
-## Conclusion
 
+
+
+```{r}
+## Results from the PLS Model were: 
+#- RMSE: 0.1326951 
+#- R^2:  0.4077471 
+#- MAE:  0.1033471
+
+## Giving additional models a try: 
+
+
+
+## Trying MARS Model 
+
+set.seed(100)
+marsGrid <- expand.grid(.degree = 1:2,  .nprune = 2:50) 
+marsFit <- train(PH ~ .,data = train_data_split,
+                 method = "earth",
+                 tuneGrid = marsGrid,
+                 preProc = c("center", "scale"),
+                 trControl = cross_val)
+
+
+print(summary(marsFit$finalModel))
+
+test_preds_mars <- predict(marsFit, newdata = test_data_split)
+print(postResample(pred = test_preds_mars, obs = test_data_split$PH))
+# Results
+#
+#
+
+## Trying SVM model
+set.seed(100)
+svmRTuned <- train(PH ~ .,data = train_data_split,
+                   method = "svmRadial",
+                   preProc = c("center", "scale"),
+                   tuneLength = 30,
+                   trControl = cross_val)
+
+
+print(summary(svmRTuned$finalModel))
+
+## Trying Neural Net Model 
+set.seed(100)
+netGrid <- expand.grid(.decay = c(0, 0.01, 0.1),.size = 1:10,.bag = FALSE)
+nnetTune <- train(PH ~ .,data = working_data,
+                  method = "avNNet",  
+                  tuneGrid = netGrid,
+                  trControl = cross_val,
+                  preProc = c("center", "scale"),
+                  linout = TRUE,
+                  trace = FALSE,
+                  maxit = 500)
+
+## Randomforest model
+rf_model <- train(PH ~ .,data = working_data, method = "rf",  trControl = cross_val,  importance = TRUE)
+print(rf_model)
+```
+
+
+## Conclusion
 
 ```{r}
 ```
