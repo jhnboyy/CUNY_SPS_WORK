@@ -7,6 +7,23 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+#install.packages("corrplot")
+library(readxl)
+library(httr)
+library(dplyr)
+#library(ggplot2)
+library(mice)
+library(pheatmap)
+library(GGally)
+library(ggplot2)
+library(reshape2) 
+library(corrplot)
+
+#library(moments)
+#library(tidyr)
+#library(tidyverse)
+#library(MASS)
+
 ```
 
 ##Project #2 (Team) Assignment
@@ -21,25 +38,182 @@ Please submit both Rpubs links and .rmd files or other readable formats for tech
 
 
 ```{r}
-## Reading in the data using git URLs
+## Reading in the data 
+training <- read_excel("./data/StudentData.xlsx")
+test <- read_excel("./data/StudentEvaluation.xlsx")
+
+## Confirming each was successfully read in.
+print(head(training))
+print(head(test))
+
+
 ```
 
-## Exploratory Data Analysis
+## Exploratory WOrk and Data Processing
 
+
+
+```{r , fig.width=14, fig.height=12}
+## EBginning to look at the training data
+print(summary(training))
+## All column have some null values in them, so imputation will be needed. the two columns that dont have null values are "Pressure Vacuum" and "Air PRessurer" 
+## upon first glance for the manufacutring process, there is no immediate way of identifying what will be important. Going to do GGpairs plot in order to view the variables, The instructions state that "PH" is the target variable.
+
+## The columns with the highest number of nulls are as follows: 
+## - MFR with 212 nulls.
+## - Filler Speed with 57 nulls.
+## - PC Volume 39 nulls
+## - PSC CO2 39 nulls
+## - Fill Ounces 38 nulls 
+## - Carb Pressure1 32 nulls
+## - PSC 33 nulls
+## - Hyd Pressure4 30 nulls
+## All of the rest of the columns have less than 30 rows with nulls. 
+
+print(nrow(training)) #2,571 rows of data in the training. 
+
+print(length(names(training))) ## 33 different columns with PH as target, so 32 predictor variables. 
+
+## Overall this means that most of the columns have 1% or less of null values. Next step would be to look and see if the null values are together. In other words do 20 rows of incomplete data accoutn for most of the predictor variable nulls? 
+```
 
 ```{r}
+
+## Firstly, i think we can drop those rows where the target variable PH is null, THis is what we are trying to figure out. So if that variable is null in training this is not worth keeping. 
+training_nonullPH <- training %>%  filter(!is.na(PH))
+
+print(head(training_nonullPH))
+print(nrow(training_nonullPH)) #2,567 only a difference of 4 rows.
+
+na_matrix <- is.na(training_nonullPH) * 1
+na_matrix_t <- t(na_matrix) 
+
+## Taking a look at a prelim heatmap for where nulls all exist.
+pheatmap(na_matrix_t,
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         color = c("white", "red"),
+         fontsize_row = 8, 
+         fontsize_col = 8)  
+
+### Looking at how many rows have over X number of nulls in the row. 
+missing_per_row <- rowSums(is.na(training_nonullPH))
+missing_summary <- as.data.frame(table(missing_per_row))
+colnames(missing_summary) <- c("Missing_Count", "Row_Count")
+print(missing_summary)
+
+## Looking at the break down for the multiple nulls. If there are 4 or more columns with a null value in a row, going to drop. We can imput the others, as the number of rows with <=3 null values increases fast.
+
+## Executing the drop of those rows here, using the row index?
+missing_per_row <- rowSums(is.na(training_nonullPH))
+training_cleaned <- training_nonullPH[missing_per_row < 4, ]
+
+print(nrow(training_cleaned)) #2547, dropped 20 rows from the data. Will impute the rest of the data. 
+
+# Confirming data types before moving forward, everything should be numeric (except a few excpetions)
+print(str(training_cleaned))
+
+### Question for Brand Code, do we want to imput this column or just drop because categorical. Maybe tree? 
+training_cleaned |> filter(is.na(training_cleaned$'Brand Code')) ### `115 rows, dont want to drop. so should impute. But differently from the numbers.
+
+## Need to make chartacter BrandCode column into a categorizcal var instract of stirng / character
+training_cleaned$`Brand Code` <- as.factor(training_cleaned$`Brand Code`)
+
+#checking
+str(training_cleaned$`Brand Code`)
+
+
 ```
 
-## Data Processing
 
 
-```{r}
+
+```{r, message=FALSE, warning=FALSE }
+print(summary(training_cleaned))
+## Columns with no nulls, making note because they may be empty in the method df
+## Mnf Flow, Density, Balling Lvl, RowID, PH, Air Pressurer, Balling, Pressure Vacuum
+
+# Imputing the data with MICE, using a different imputation form for the Brand Code Column 
+## Getting the method df first, to confirm methods.
+init <- mice(training_cleaned, maxit = 0)
+meth <- init$method  
+
+print(meth)
+meth$'Brand Code' <- "cart" # We want the categorical tree for this variable, not  a continuous numeric var. 
+print(meth)
+
+imputed_data <- mice(training_cleaned, method = meth, m = 10, seed = 100)
+summary(imputed_data)
+
+## Taking one fo the imputed datasets for now, if i want to use all of them alter i will. 
+working_data <- complete(imputed_data, 1)
+
+### Successfully got rid of all nulls. 
+summary(working_data)
+
+## Confirming it worked, specifically for brand code. 
+unique(working_data$'Brand Code')
+print(working_data |> filter(is.na(working_data$'Brand Code')))
+
 ```
+
+
+
+```{r,fig.width=20, fig.height=20 }
+## Taking a quick look at the relationships in the  data. 
+numeric_data <- working_data %>% select_if(is.numeric)
+cor_matrix <- cor(numeric_data, use = "pairwise.complete.obs")
+#cor_matrix
+#chart 
+corrplot(cor_matrix, method = "color")
+
+```
+
+```{r, message=FALSE, warning=FALSE, fig.width=20, fig.height=20}
+# ---------------------- THIE PART MAY BE CUT, NOT SURE IF THE NUMBER IF VISUALS HERE IS WORTH IT ----------------------------------------------------
+
+## Making pairs plot to get some prelimiinary insights into the predictor variables and their relationships
+#print(ggpairs(training_cleaned))
+
+# using column names to loopthrough and create smaller more readable pairs plots to example. However, notes that this will NOT ensure that every variable is comparied to every other. IF they are not 
+# plotted together, then they arent compared.
+column_names <- names(training_cleaned)
+chunk_size <- 7
+step_size <- chunk_size - 1  
+starts <- seq(1, length(column_names) - step_size, by = step_size)
+
+# Loop through overlapping chunks
+for (start in starts) {
+  end <- min(start + chunk_size - 1, length(column_names))
+  vars_subset <- column_names[start:end]
+  cat("\n\n### Plot for variables:", paste(vars_subset, collapse = ", "), "\n")
+  print(ggpairs(training_cleaned[, vars_subset],progress = FALSE) )
+}
+
+
+### Notes on these images: 
+# - Carb Temp and Carb Pressure; Multicolinearity flag
+# - Hyrdpressure1 and Mnf Flow, direct relationship. Maybe muilticolinearity flag? 
+# - Density and Balling, potential Multicolinearity. 
+# - 
+
+#- Distributions that dont seem normal:Carb Volume, PSC
+```
+
+
+
 
 ## Data Analysis
 
 
-```{r}
+```{r,  fig.width=20, fig.height=20}
+
+
+## Beginning to Model this data, 
+
+
+
+
 ```
 
 ## Conclusion
