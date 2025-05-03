@@ -335,7 +335,6 @@ print(postResample(pred = test_preds_pls, obs = test_data_split$PH))
 
 
 ## Trying MARS Model 
-
 set.seed(100)
 marsGrid <- expand.grid(.degree = 1:2,  .nprune = 2:50) 
 marsFit <- train(PH ~ .,data = train_data_split,
@@ -349,9 +348,9 @@ print(summary(marsFit$finalModel))
 
 test_preds_mars <- predict(marsFit, newdata = test_data_split)
 print(postResample(pred = test_preds_mars, obs = test_data_split$PH))
-# Results
-#
-#
+#      RMSE   Rsquared        MAE 
+#0.12421475 0.48246207 0.09646806
+
 
 ## Trying SVM model
 set.seed(100)
@@ -361,13 +360,19 @@ svmRTuned <- train(PH ~ .,data = train_data_split,
                    tuneLength = 30,
                    trControl = cross_val)
 
-
 print(summary(svmRTuned$finalModel))
+
+test_preds_svm <- predict(svmRTuned, newdata = test_data_split)
+print(postResample(pred = test_preds_svm, obs = test_data_split$PH))
+#      RMSE   Rsquared        MAE 
+#0.11853567 0.53438002 0.08743236
+
+
 
 ## Trying Neural Net Model 
 set.seed(100)
 netGrid <- expand.grid(.decay = c(0, 0.01, 0.1),.size = 1:10,.bag = FALSE)
-nnetTune <- train(PH ~ .,data = working_data,
+nnetTune <- train(PH ~ .,data = train_data_split,
                   method = "avNNet",  
                   tuneGrid = netGrid,
                   trControl = cross_val,
@@ -375,6 +380,11 @@ nnetTune <- train(PH ~ .,data = working_data,
                   linout = TRUE,
                   trace = FALSE,
                   maxit = 500)
+print(summary(nnetTune$finalModel))
+test_preds_nn <- predict(nnetTune, newdata = test_data_split)
+print(postResample(pred = test_preds_nn, obs = test_data_split$PH))
+#
+#
 
 ## Randomforest model
 rf_model <- train(PH ~ .,data = working_data, method = "rf",  trControl = cross_val,  importance = TRUE)
