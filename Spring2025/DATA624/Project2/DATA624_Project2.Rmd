@@ -1,17 +1,16 @@
 ---
 title: "DATA624_Project2"
-author: "John Ferrara, "
+author: "John Ferrara, Javier Pajuelo Bazan, Benson Yikseong Toi, Bikash Bhowmik, Jose Fuentes"
 date: "2025-04-28"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-install.packages("kernlab")
+#install.packages("kernlab")
 library(readxl)
 library(httr)
 library(dplyr)
-#library(ggplot2)
 library(mice)
 library(pheatmap)
 library(GGally)
@@ -22,9 +21,12 @@ library(caret)
 library(earth)
 library(kernlab)
 library(randomForest)
+library(rpart)
+library(rpart.plot)
+
 #library(moments)
 #library(tidyr)
-#library(tidyverse)
+library(tidyverse)
 #library(MASS)
 
 ```
@@ -54,7 +56,6 @@ test <- read_excel("./data/StudentEvaluation.xlsx")
 ## Confirming each was successfully read in.
 print(head(training))
 print(head(test))
-
 
 ```
 ## Data Cleaning and Preparation
@@ -92,7 +93,38 @@ print(length(names(training))) ## 33 different columns with PH as target, so 32 
 ```
 
 
-```{r}
+##### Histograms
+
+Next, we show a histogram overview of all features in the train_data and its corresponding skewness.
+```{r hist, warning=FALSE, message=FALSE, echo=FALSE, fig.height=25, fig.width=20}
+# high level view of histgrams without nans
+
+# no need to include INDEX
+hist_data <- train_data %>% select(-c(`Brand Code`))
+
+
+gather_features <- hist_data %>% 
+  gather(key = 'features', value = 'value')
+
+ggplot(gather_features) + 
+geom_histogram(aes(x=value, y =..density..), bins=30) + 
+geom_density(aes(x=value), color='green') +
+facet_wrap(.~features, scales='free', ncol=4) +
+theme(strip.text = element_text(size=13))
+```
+
+*Normal Distribution.-* Carb Pressure, Carb Temp, Fill Ounces, PC Volume, PH
+
+*Right Skewed.-* Air Pressurer, Hyd Pressure1, Hyd Pressure2, Hyd Pressure3, Mnf Flow,  Oxygen Filler, PSC, PSC CO2, PSC Fill, Temperature.
+
+*Left Skewed.-* Filler Speed, MFR, Usage cont
+
+*Bi-Modal.-* Alch Rel, Balling, Balling Lvl, Carb Flow, Carb Pressure1, Carb Rel, Carb Volume, Density, Fill Pressure, Hyd Pressure4.
+
+
+#### Cleaning Training Data
+
+```{r, }
 
 ## Firstly, i think we can drop those rows where the target variable PH is null, THis is what we are trying to figure out. So if that variable is null in training this is not worth keeping. 
 training_nonullPH <- training %>%  filter(!is.na(PH))
@@ -139,32 +171,7 @@ str(training_cleaned$`Brand Code`)
 
 ```
 
-
-```{r}
-## Doing the same type of processinfg for the Test data. Seeing if there are nulls etc. 
-print(nrow(test)) # 267 Rows 
-
-print(summary(test))
-## Columns with highest number of nulls 
-# - MFR 31 nulls 
-# - Filler Speed. 10 NUlls 
-
-## As it should be the PH variable is all null because this is what were predicting.
-## Checking if these nulls are grouped together in a small number of rows? 
-missing_per_row_test <- rowSums(is.na(test))
-missing_summary_test <- as.data.frame(table(missing_per_row_test))
-colnames(missing_summary_test) <- c("Missing_Count", "Row_Count")
-print(missing_summary_test)
-
-## Same rule of thumb for test data, if there are 4 or more nulls in a row they get dropped. Its a total of 6 rows that get dropped which is fine. 
-test_cleaned <- test[missing_per_row_test < 4, ]
-
-print(nrow(test_cleaned)) ## 261 rows left, so 6 rows dropped. 
-
-# Brand COde needs to be converted from char. 
-test_cleaned$`Brand Code` <- as.factor(test_cleaned$`Brand Code`)
-
-```
+#### Imputing Training Data
 
 ```{r, message=FALSE, warning=FALSE }
 print(summary(training_cleaned))
@@ -195,6 +202,136 @@ print(working_data |> filter(is.na(working_data$'Brand Code')))
 
 ## Lastly, dropping Row ID because irrelevant for the model.
 working_data <- working_data %>% select(-`RowID`)
+
+```
+
+
+##### Scatter Plots Train Data
+Next we show the relationship between PH and every single other feature where every feature is on the x-axis and PH on the y-axis.
+There are many outliers in many predictors.
+
+There are many linear relationships between PH and several predictors where the relationship is a straight horizontal line, meaning the slope = 0 and y=b where b is "semi-constant".
+
+Other predictors show a quadratic relationship with PH.
+
+```{r,warning=FALSE, message=FALSE, echo=FALSE,  fig.height=25, fig.width=20}
+
+# numeric only 
+out<- working_data %>%select(-c("Brand Code"))
+theme1 <- trellis.par.get()
+theme1$plot.symbol$col = rgb(.2, .2, .2, .4)
+theme1$plot.symbol$pch = 16
+theme1$plot.line$col = rgb(1, 0, 0, .7)
+theme1$plot.line$lwd <- 2
+theme1$fontsize$text <- 7
+
+trellis.par.set(theme1)
+caret::featurePlot(x=out[,2:ncol(out)], 
+                   y=out[[1]], 
+                   type = c("p", "smooth"),
+                   
+                   span = .5)
+``` 
+
+#### Correlations
+Next we show correlations greater than 0 percent among features.
+TODO  confirm data is highly uncorrelated...
+
+```{r high_correlations, fig.width=50, fig.height=50}
+#, echo=FALSE}
+
+# foundd large correlations by doing this
+# mydf <- train_no_nans
+#mydf <- train_data %>% select(-c(`Brand Code`))
+
+mydf <- working_data %>%select(-c("Brand Code"))
+
+
+d2 <- mydf %>% 
+     as.matrix %>%
+     cor %>%
+     as.data.frame %>%
+    rownames_to_column(var = 'var1') %>%
+     gather(var2, value, -var1)
+
+d3<-d2 %>%
+     mutate(var_order = paste(var1, var2) %>%
+                strsplit(split = ' ') %>%
+                map_chr( ~ sort(.x) %>% 
+                             paste(collapse = ' '))) %>%
+     mutate(cnt = 1) %>%
+     group_by(var_order) %>%
+     mutate(cumsum = cumsum(cnt)) %>%
+    filter(cumsum != 2) %>%
+  ungroup %>%
+  dplyr::select(-var_order, -cnt, -cumsum)
+
+tmp <- d3 %>%filter(value>.75 & var1!=var2)
+
+knitr::kable(tmp %>% arrange(desc(value)))
+
+```
+
+```{r, fig.width=45, fig.height=45}
+
+corrplot(cor(working_data %>%select(-c("Brand Code")))
+         , method = 'number'
+        , tl.cex=3
+        , cl.cex=3
+        , number.cex=3
+         )
+
+```
+
+PH itself is not highly correlated to any of its predictors. However, there are many predictors highly correlated among themselves.
+
+All highly predictors with over 75 percent correlation:
+Hyd Pressure1 & Hyd Pressure2 – 0.92
+Hyd Pressure1 & Hyd Pressure3 – 0.90
+Hyd Pressure2 & Hyd Pressure3 – 0.92
+Filler Speed & MFR – 0.94
+Carb Flow & Density – 0.95
+Balling & Density – 0.90
+Balling & Carb Flow – 0.95
+Balling & MFR – 0.93
+Balling & Balling Lvl – 0.98
+MFR & Balling Lvl – 0.98
+Carb Flow & Balling Lvl – 0.95
+Density & Balling Lvl – 0.95
+Carb Rel & Balling Lvl – 0.85
+Alch Rel & Balling Lvl – 0.92
+Carb Rel & MFR – 0.83
+Alch Rel & MFR – 0.90
+Alch Rel & Balling – 0.90
+Carb Rel & Balling – 0.83
+Alch Rel & Carb Rel – 0.88
+Balling & Balling Lvl – 0.98
+
+#### Imputing and Cleaning the Test File Data
+
+```{r}
+## Doing the same type of processinfg for the Test data. Seeing if there are nulls etc. 
+print(nrow(test)) # 267 Rows 
+
+print(summary(test))
+## Columns with highest number of nulls 
+# - MFR 31 nulls 
+# - Filler Speed. 10 NUlls 
+
+## As it should be the PH variable is all null because this is what were predicting.
+## Checking if these nulls are grouped together in a small number of rows? 
+missing_per_row_test <- rowSums(is.na(test))
+missing_summary_test <- as.data.frame(table(missing_per_row_test))
+colnames(missing_summary_test) <- c("Missing_Count", "Row_Count")
+print(missing_summary_test)
+
+## Same rule of thumb for test data, if there are 4 or more nulls in a row they get dropped. Its a total of 6 rows that get dropped which is fine. 
+test_cleaned <- test[missing_per_row_test < 4, ]
+
+print(nrow(test_cleaned)) ## 261 rows left, so 6 rows dropped. 
+
+# Brand COde needs to be converted from char. 
+test_cleaned$`Brand Code` <- as.factor(test_cleaned$`Brand Code`)
 
 ```
 
@@ -274,11 +411,14 @@ for (start in starts) {
 
 
 
-## Data Analysis
+## Data Analysis & Modeling 
+
+Since the requirements are mainly to understand out manufacturing process. I will start with decision trees.
+".. that new regulations are requiring us to *understand our manufacturing process, the predictive factors* and be able to report to them our predictive model of PH."
+
 
 
 ```{r,  fig.width=20, fig.height=20}
-
 
 ## Beginning to Model this data. PLS first.
 
@@ -287,7 +427,152 @@ split_index <- createDataPartition(working_data$PH, p = 0.8, list = FALSE)
 
 train_data_split <- working_data[split_index, ]
 test_data_split  <- working_data[-split_index, ]
+train_data_split
+```
 
+#### Decision Trees
+
+I will remove the highly correlated data 80%> correlation.
+
+
+var1	var2	value
+Balling.Lvl	Balling	0.9778224
+Balling	Density	0.9551700
+Balling.Lvl	Density	0.9476094
+
+Bowl.Setpoint	Filler.Level	0.9404440
+Hyd.Pressure3	Hyd.Pressure2	0.9254887
+
+Alch.Rel	Balling	0.9237141
+Balling.Lvl	Alch.Rel	0.9209349
+
+MFR	Filler.Speed	0.9105181
+Alch.Rel	Density	0.9011527
+Carb.Rel	Alch.Rel	0.8437996
+
+Balling.Lvl	Carb.Rel	0.8421633
+
+Carb.Rel	Density	0.8205884
+Carb.Rel	Balling	0.8192195
+Carb.Temp	Carb.Pressure	0.8098785
+Carb.Rel	Carb.Volume	0.7900296
+
+```{r }
+tree_train <- train_data_split %>%select(-c(Balling, "Filler Level", "Hyd Pressure2", Density,  "Filler Speed", "Carb Rel", "Carb Temp" ))
+
+tree_model <- rpart(PH ~ ., 
+                    data = tree_train, 
+                    method="anova", # for regression
+                    #method = "class",  # For classification
+                    control = rpart.control(minsplit = 10, cp = 0.01))
+```
+
+variable importance
+
+```{r}
+tree_model$variable.importance
+```
+
+visualize the tree
+
+```{r}
+rpart.plot(tree_model, box.palette = "auto", nn = TRUE)
+```
+
+
+
+
+##### Describe Decision Tree
+
+make predictions and evaluate
+```{r}
+predictions <- predict(tree_model, 
+                       test_data_split %>%select(-c(PH)), 
+                       type = "matrix")
+
+#confusionMatrix(predictions, test2$Species)
+```
+
+
+```{r}
+(tree_model_rmse <- RMSE(predictions, test_data_split$PH))
+
+```
+The RMSE is used to check how close estimates or forecasts are to actual values. Lower the MSE, the closer is
+forecast to actual. This is used as a model evaluation measure for regression models and the lower value
+indicates a better fit.
+
+The Root Mean squared error (RMSE) represents the error of the estimator or predictive model created based on
+the given set of observations in the sample. It measures the average squared difference between the predicted
+values and the actual values, quantifying the discrepancy between the model’s predictions and the true
+observations.
+
+The lower RMSE, the better.
+
+
+trying to prune the tree nd evaluate again
+
+best xerror is 0.59854?
+prune cp slightly higher than cp=0.010000
+```{r}
+printcp(tree_model)
+
+```
+```{r}
+pruned_tree  <- prune(tree_model, cp = 0.011000)
+#fancyRpartPlot(pruned_tree)
+rpart.plot(pruned_tree, box.palette = "auto", nn = TRUE)
+
+```
+The pruned tree shows better performance ...
+
+```{r}
+predictions <- predict(pruned_tree, 
+                       test_data_split %>%select(-c(PH)), 
+                       type = "matrix")
+
+(ptree_model_rmse <- RMSE(predictions, test_data_split$PH))
+
+```
+
+The root node displays the mean PH
+```{r}
+with(tree_train, round(mean(PH), 1))
+
+```
+
+The left node represents mean PH for Mnf.Flow >= -50
+
+```{r}
+with(tree_train, round(mean(PH[Mnf.Flow >=-50]), 1))
+```
+
+The right node represents mean PH for Mnf.Flow< -50
+
+```{r}
+with(tree_train, round(mean(PH[Mnf.Flow < -50]), 1))
+#with(tree_train, mean(PH[Mnf.Flow < -50]))
+
+```
+
+node 4 is PH  for Mnf.Flow >= -50 and alcohol rel<7.5
+```{r }
+with(tree_train, round(mean(PH[(Mnf.Flow >= -50) & (Alch.Rel<7.5) ]), 1))
+
+```
+
+Showing predictor importance of our pruned tree.
+
+```{r}
+pruned_tree$variable.importance
+
+```
+
+####ADDITIONAL MODELS BELOW HERE
+
+
+
+```{r}
 
 ## Crossvalidation set up first.
 cross_val <- trainControl(method = "cv", number = 10)
@@ -316,8 +601,6 @@ print(postResample(pred = test_preds_pls, obs = test_data_split$PH))
 
 ## Trying another model or two before we use these predictions 
 #working_data_test$PH_Predicted <- test_preds
-
-
 
 ```
 
@@ -393,6 +676,14 @@ print(rf_model)
 
 
 ## Conclusion
+
+#### From Deciion Tree Model 
+
+The greatest predictor importance is to Mnf.Flow.
+
+The pruned tree model produces the lowest RMSE of 0.1284586.
+
+The model is simple and created just by removing predictors with high correlation.
 
 ```{r}
 ```

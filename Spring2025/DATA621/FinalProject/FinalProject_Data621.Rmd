@@ -1,0 +1,524 @@
+---
+title: "DATA621_FinalProject"
+author: "Group2"
+date: "2025-05-08"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(httr)
+library(jsonlite)
+library(dplyr)
+library(lubridate)
+library(stringr)
+library(tidyr)
+library(GGally)
+library(sf)
+
+```
+
+## Data Acquisition
+
+#### NYC 311 Data 
+
+```{r}
+
+#Starting with 311 Data; limiting to road / bridge other automobile infrastructure complaints via dot conditions
+
+# API work for pulling in 311 data
+base_url <- "https://data.cityofnewyork.us/resource/erm2-nwe9.json"
+rows_per_request <- 1000
+offset <- 0
+all_data <- list()
+done <- FALSE
+
+# Loop for pagination from 2019 through 2024 (5 Years of data)
+start_date <- paste0(2019, "-01-01T00:00:00")
+end_date <- paste0(2024 + 1, "-01-01T00:00:00")
+
+
+### Pulling in the 311 d
+while (!done) {
+  query <- list(
+  "$where" = paste0(
+    "created_date >= '", start_date,
+    "' AND created_date < '", end_date,
+    "' AND agency_name = 'Department of Transportation'",
+    " AND complaint_type like '%Condition%'",
+    " AND incident_zip IS NOT NULL"
+  ),
+  "$limit" = rows_per_request,
+  "$offset" = offset
+  )
+  print(offset)
+  response <- GET(base_url, query = query)
+  data_chunk <- fromJSON(content(response, as = "text", encoding = "UTF-8"))
+
+  if (length(data_chunk) ==0) {
+    done <- TRUE
+  } else {
+    all_data <- append(all_data, list(data_chunk))
+    offset <- offset + rows_per_request
+    Sys.sleep(2)
+  }
+}
+
+
+#first_attempt <-df_311
+# Combine into one data frame
+df_311 <- bind_rows(all_data)
+
+## Savign to  a file to pick up later if needed.
+#saveRDS(df_311, "dot_condition_311_requests_2019_2024.rds")
+#df_311 <- readRDS("dot_condition_311_requests_2019_2024")
+
+```
+#### NYC Vehicle Accident Data 
+
+```{r}
+# Set API endpoint
+base_url <- "https://data.cityofnewyork.us/resource/h9gi-nx95.json"
+
+# Same Date limits, resetting the offsets and other vars
+offset <- 0
+all_data <- list()
+done <- FALSE
+
+# Loop for pagination from 2019 through 2024 (5 Years of data)
+start_date <- paste0(2019, "-01-01T00:00:00")
+end_date <- paste0(2024 + 1, "-01-01T00:00:00")
+
+# Pulling loop
+while (!done) {
+  query <- list(
+"$where" = paste0(
+    "crash_date >= '", start_date,
+    "' AND crash_date < '", end_date, 
+    "' AND zip_code IS NOT NULL"
+  ),    "$limit" = rows_per_request,
+    "$offset" = offset
+  )
+  print(offset)
+  response <- GET(base_url, query = query)
+  data_chunk <- fromJSON(content(response, as = "text", encoding = "UTF-8"))
+
+  if (length(data_chunk) == 0) {
+    done <- TRUE
+  } else {
+    all_data <- append(all_data, list(data_chunk))
+    offset <- offset + rows_per_request
+    Sys.sleep(2)  
+  }
+}
+
+# Combine and save
+df_crashes <- bind_rows(all_data)
+
+
+## Savign to  a file to pick up later if needed.
+#saveRDS(df_crashes, "motor_vehicle_crashes_2019_2024.rds")
+#df_crashes <- readRDS("motor_vehicle_crashes_2019_2024.rds")
+
+```
+
+#### Processing the 311 Data
+
+```{r}
+###Processing the 311 data
+
+df_311_clean <- df_311[!is.na(df_311$agency), ]
+#nrow(df_311_clean) #1028706
+
+## Parse out Dates (I think by month is ideal )
+df_311_clean$created_date <- ymd_hms(df_311_clean$created_date)
+
+#Checking the dates here, Summary vals seems to be fine,
+#summary(df_311_clean$created_date)
+
+
+df_311_clean$year_month <- floor_date(df_311_clean$created_date, unit = "month")
+
+## Getting the amount of time the complaint was open for
+
+#nrow(df_311_clean %>%
+  #filter(is.na(closed_date))) #16,291 null values for close date out of #1,028,706 total rows (~1.5%)
+
+## Can just drop these. 
+df_311_clean <- df_311_clean %>%  filter(!is.na(closed_date))
+
+## Checking the new total number of rows 
+print(nrow(df_311_clean)) #1,012,415
+
+## Converting to date for closed date and getting the number of days a ticket is open for.
+df_311_clean$closed_date <- ymd_hms(df_311_clean$closed_date)
+
+## There is a min date in year 1899. Checking to see how pronounced the issue is.
+summary(df_311_clean$closed_date)
+
+## none of the closed dates should be less than the created_dates (whos values i checked earlier)
+earlier_closed_date <- df_311_clean %>%  filter(closed_date < created_date)
+print(nrow(earlier_closed_date))  # 38,013 (3.7% of the df) 
+print(table(earlier_closed_date$status)) ## Most (37,801) of these entries have "pending" status. 
+
+## I think we drop because of these being stagnant type entries with corrupted date ranges. 
+df_311_clean <- df_311_clean %>%  filter(!closed_date < created_date)
+
+## Noew adding column for days tickets are open for. 
+df_311_clean <- df_311_clean %>%  mutate(days_open = as.numeric(difftime(closed_date, created_date, units = "days")))
+
+#Checking Results
+sum(is.na(df_311_clean$days_open)) ## no nulls
+sum(df_311_clean$days_open < 0) ## no neg values
+
+## Prelim glance of values. 
+# print(hist(df_311_clean$days_open))
+
+## Limiting to the columns we want for our analysis
+df_311_limited <- df_311_clean %>%  select(unique_key, year_month, borough, community_board, incident_zip,
+                                           address_type,days_open, status, complaint_type, descriptor, resolution_description)
+
+## numer of rows for working df 
+#print(nrow(df_311_limited)) #974,402; just under a million. This is ~94.7% of the original data.
+
+### Looking at new limited manageable df 
+print(head(df_311_limited))
+
+# Basic structure and types; All chr as they should be.
+print(str(df_311_limited))
+
+# Summary statistics
+print(summary(df_311_limited))
+
+## Getting NA values
+print(colSums(is.na(df_311_limited)))
+
+## 2 nulls in borough we should deall with
+## 2 Nulls in community board
+## Address type has a lot (140,707)
+## 192 Nulls for resolution description. 
+## The rest are ok. 
+
+#Dealing with null instances in the borough and cb columns, i dont think the other columns matter much.
+
+## Manually looking up the two zip codes and what borough they are in. ALso doing for community boards via zip
+print(df_311_limited[is.na(df_311_limited$borough), ])
+
+# 10305 == STATEN ISLAND == 01 STATEN ISLAND
+# 10301 == STATEN ISLAND == 01 STATEN ISLAND
+
+df_311_limited$borough[
+  is.na(df_311_limited$borough) & 
+  df_311_limited$incident_zip %in% c("10305", "10301")
+] <- "STATEN ISLAND"
+
+print(df_311_limited[is.na(df_311_limited$community_board), ])
+
+df_311_limited$community_board[
+  is.na(df_311_limited$community_board) & 
+  df_311_limited$incident_zip %in% c("10305", "10301")
+] <- "01 STATEN ISLAND"
+
+##Checking the CB Values,
+print(unique(df_311_limited$community_board))
+
+# No more nulls, but here are values for "unspecified".
+# Splitting the df into two, with specified cb and not specified CB. 
+
+df_unspecified_cb <- df_311_limited %>%
+  filter(grepl("Unspecified", community_board, ignore.case = TRUE))
+
+df_specified_cb <- df_311_limited %>%
+  filter(!grepl("Unspecified", community_board, ignore.case = TRUE))
+
+
+# Attempting to Enrich the unspecified values with the specific values from the df_specifcied_cb df
+
+# Checking if CB to zip is proper (checking that zip codes dont straddle more than one cb)
+zip_cb_counts <- df_specified_cb %>%
+  group_by(incident_zip) %>%
+  summarize(unique_cb_count = n_distinct(community_board)) %>%
+  arrange(desc(unique_cb_count))
+
+zip_cb_counts %>% filter(unique_cb_count > 1)
+
+## There are zip codes that seem to stradle more than one CB. So, dropping CB column, not worth keeping. Will jsut work with Borough and Zip.
+## Community Board is also not present in vehicle accident data so doesnt really matter.
+
+## Dropping Cb columns
+df_311_limited <- df_311_limited %>% select(-community_board)
+
+## Dropping the address_type, and resolution_description  (Can come back and un do if we want to later)
+df_311_limited <- df_311_limited %>% select(-address_type)
+df_311_limited <- df_311_limited %>% select(-resolution_description )
+
+## Categorizing the Days open into Groups
+df_311_limited <- df_311_limited %>%
+  mutate(days_open_group = case_when(
+    days_open < 7             ~ "open_less_than_1_week",
+    days_open >= 7 & days_open < 30  ~ "open_less_than_1_month",
+    days_open >= 30           ~ "open_a_month_or_more"
+  ))
+
+
+### Looking at the complaint types
+print(unique(df_311_limited$complaint_type))
+
+
+## only want to keep the ones that pertain to driving
+df_311_limited <- df_311_limited %>%
+  filter(complaint_type %in% c('Street Condition',"Traffic Signal Condition","Street Light Condition","Highway Condition",
+                              "Bridge Condition","Tunnel Condition","DEP Street Condition","DEP Highway Condition"))
+
+### limiting to three Categories
+df_311_limited <- df_311_limited %>%
+  mutate(complaint_group_custom = case_when(
+    complaint_type %in% c("Street Condition", "Highway Condition", "Bridge Condition", "Tunnel Condition") ~ "road_infra_based_complaint",
+    complaint_type %in% c("DEP Street Condition", "DEP Highway Condition") ~ "dep_infra_based_complaint",
+    complaint_type %in% c("Traffic Signal Condition", "Street Light Condition") ~ "light_signal_based_complaint",
+    TRUE ~ "other"
+  ))
+
+#772,470 rows now
+
+## Getting the total complaints with leaving gthe columns we care abouts
+agg_311 <- df_311_limited %>%
+  group_by(year_month, borough, incident_zip,complaint_group_custom,days_open_group) %>%
+  summarize(complaint_count = n_distinct(unique_key), .groups = "drop")
+
+print(head(agg_311))
+
+### I think we still need to make wider to flatten out wide-ways for regression and for smooth join with accdient data
+
+## making the two complaint categories into one and then making them each a column
+agg_311 <- agg_311 %>%
+  mutate(complaint_categories = paste(complaint_group_custom, days_open_group, sep = "_"))|>
+  select(year_month,borough,incident_zip,complaint_categories, complaint_count)
+
+agg_311_wide <- agg_311 %>%
+  pivot_wider(
+    names_from = complaint_categories,
+    values_from = complaint_count,
+    values_fill = 0 )
+
+## THis DF if for regression work to join in semi final with crash
+print(head(agg_311_wide))
+
+```
+
+#### 311 Mapping Visualizations
+
+```{r, fig.height=12, fig.width=15}
+
+df_311_limited
+## Making additional DFs for demonstrative maps of complaints by zip
+agg_311_comps <- df_311_limited %>%
+   group_by(year_month, borough, incident_zip) %>%
+   summarize(complaint_count = n_distinct(unique_key), .groups = "drop")
+ 
+## Annual Averages by zip fro simple maping 
+annual_tot_complaints <- agg_311_comps %>%
+  mutate(year = year(year_month)) %>%
+  group_by(incident_zip, year) %>%
+  summarise(total_complaints = sum(complaint_count), .groups = "drop")
+
+annual_avg_by_days_open <- df_311_limited %>%
+  mutate(year = year(year_month)) %>%
+  group_by(incident_zip, year) %>%
+  summarise(avg_days_open = mean(days_open), .groups = "drop")
+
+annual_tot_complaints <- annual_tot_complaints %>%  rename(zip_code = incident_zip)
+annual_avg_by_days_open <- annual_avg_by_days_open %>%  rename(zip_code = incident_zip)
+
+## Shapefile 
+zcta <- st_read("https://data.cityofnewyork.us/resource/pri4-ifjk.geojson")
+zcta <- zcta %>%  rename(zip_code = modzcta) %>%  mutate(zip_code = as.character(zip_code))
+
+
+complaints_map_df <- left_join(zcta, annual_tot_complaints, by = "zip_code")
+complaints_map_df <- complaints_map_df |> filter(!is.na(complaints_map_df$year))
+
+complaints_days_map_df <- left_join(zcta, annual_avg_by_days_open, by = "zip_code")
+complaints_days_map_df <- complaints_days_map_df |> filter(!is.na(complaints_days_map_df$year))
+
+##omplaints by zip
+ggplot(complaints_map_df) +
+  geom_sf(aes(fill = total_complaints), color = "white") +
+  scale_fill_viridis_c(option = "inferno", direction = -1, name = "Total Complaints", na.value = "grey90") +
+  labs(title = "Yearly Total 311 DOT Road-Focused Complaints by ZIP (2019–2024)") +
+  facet_wrap(~ year) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    panel.grid = element_blank(),
+    axis.text = element_blank(),
+    axis.ticks = element_blank(),
+    axis.title = element_blank(),
+    legend.key.height = unit(0.8, "cm"),  
+    legend.text = element_text(size = 10),   
+    legend.title = element_text(size = 11)  
+  )
+
+#Days open by zip
+ggplot(complaints_days_map_df) +
+  geom_sf(aes(fill = avg_days_open), color = "white") +
+  scale_fill_viridis_c(
+    option = "magma",
+    direction = -1,
+    breaks = c(0, 7, 14, 30, 60),
+    labels = c("0", "7", "14", "30", "60+"),
+    limits = c(0, 60),
+    name = "Avg Days Open",
+    na.value = "grey90"
+  ) +
+  labs(
+    title = "Average Days A Complaint Stays Open by ZIP (2019–2024)"
+  ) +
+  facet_wrap(~ year) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    panel.grid = element_blank(),
+    axis.text = element_blank(),
+    axis.ticks = element_blank(),
+    axis.title = element_blank(),
+    legend.key.height = unit(0.8, "cm"),     
+    legend.text = element_text(size = 10),   
+    legend.title = element_text(size = 11)   
+  )
+
+
+```
+
+      
+``` {r}
+
+
+## number of vehicles involved in an accident
+df_crashes_mod <- df_crashes %>%
+  mutate(
+      vehicle_1 = coalesce(vehicle_type_code1, contributing_factor_vehicle_1),
+      vehicle_2 = coalesce(vehicle_type_code2, contributing_factor_vehicle_2),
+      vehicle_3 = coalesce(vehicle_type_code_3, contributing_factor_vehicle_3),
+      vehicle_4 = coalesce(vehicle_type_code_4, contributing_factor_vehicle_4),
+      vehicle_5 = coalesce(vehicle_type_code_5, contributing_factor_vehicle_5)) %>%
+  mutate(
+      vehicles_involved= rowSums(!is.na(select(., vehicle_1, vehicle_2, vehicle_3, vehicle_4, vehicle_5))),
+    ) 
+%>%  select(crash_date,collision_id, borough, zip_code, number_of_persons_injured, number_of_persons_killed, vehicles_involved)
+
+# Seeing Results
+hist(df_crashes_mod$vehicles_involved)
+
+# There are zeros which makes no sense, so we're going to make the zeros have a 1 value. I'm assuming its a data entry error.
+df_crashes_mod <- df_crashes_mod %>%  mutate(vehicles_involved = ifelse(vehicles_involved == 0, 1, vehicles_involved))
+
+df_crashes_mod$crash_date <- ymd_hms(df_crashes_mod$crash_date)
+
+
+## Limiting to the columns we want to keep. 
+df_crashes_lim <- df_crashes_mod |> select(crash_date, collision_id, borough, zip_code, number_of_persons_injured, number_of_persons_killed, vehicles_involved) 
+# For Spacial analysis these may be needed later. 
+#,latitude,longitude)
+
+
+## Extractin month year
+df_crashes_lim$year_month <- floor_date(df_crashes_lim$crash_date, unit = "month")
+
+#Ranking Crashes
+df_crashes_lim<- df_crashes_lim %>%
+  mutate(crash_severity = case_when(
+    number_of_persons_killed > 0 ~ "Fatal",
+    number_of_persons_injured > 0 ~ "Injury",
+    vehicles_involved >= 3 ~ "Multi-Vehicle",
+    TRUE ~ "Minor"
+  ))
+
+#table(df_crashes_lim$crash_severity)
+
+
+## Group by to get counts
+agg_crash <- df_crashes_lim %>%
+  group_by(year_month,borough, zip_code) |> # crash_severity # number_of_persons_injured, number_of_persons_killed, vehicles_involved) %>%
+  summarize(accident_count = n_distinct(collision_id), .groups = "drop")
+
+print(head(agg_crash))
+
+## For now i want one consistent target variable, which would be number of accidents so getting the total column back in without categories.
+## i think accident categories were over complicating it.
+
+## Final Transpose / widening of table before join 
+#agg_crash <- agg_crash %>%
+#  mutate(crash_severity = if_else(crash_severity == "Multi-Vehicle", "Multi_Vehicle", crash_severity))
+
+
+#agg_crash_wide <- agg_crash %>%
+#  pivot_wider(
+#    names_from = crash_severity,
+#    values_from = accident_count,
+#    values_fill = 0 )
+
+
+
+```
+
+
+#### Accident Maps
+
+```{r, fig.height=12, fig.width=15}
+
+annual_tot_crash <- agg_crash %>%
+  mutate(year = year(year_month)) %>%
+  group_by(zip_code, year) %>%
+  summarise(total_accidents = sum(accident_count), .groups = "drop")
+
+accidents_map_df <- left_join(zcta, annual_tot_crash, by = "zip_code")
+accidents_map_df <- accidents_map_df |> filter(!is.na(accidents_map_df$year))
+
+ggplot(accidents_map_df) +
+  geom_sf(aes(fill = total_accidents), color = "white") +
+  scale_fill_viridis_c(option = "inferno",direction = -1, name = "Total Car Accidents", na.value = "grey90") +
+  labs(title = "Yearly Total Car Accidents  Road-Focused by ZIP (2019–2024)") +
+  facet_wrap(~ year) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    panel.grid = element_blank(),
+    axis.text = element_blank(),
+    axis.ticks = element_blank(),
+    axis.title = element_blank(),
+    legend.key.height = unit(0.8, "cm"),  
+    legend.text = element_text(size = 10),   
+    legend.title = element_text(size = 11)  
+  )
+
+```
+
+
+#### Final Processing Steps & Pulling in Shape file
+
+```{r}
+
+## Joining both processed datasets into 1, also adding Zip Neighborhood info from the ZCTA data 
+agg_311_wide <- agg_311_wide %>%  rename(zip_code = incident_zip)
+semifinal_data <- full_join(agg_crash,  agg_311_wide,  by = c("year_month", "borough", "zip_code"))
+
+
+
+### Drilling into one month , zip etc. 
+# semifinal_data |> filter(zip_code == '11229',
+                         # year_month == as.Date("2020-03-01"))
+
+```
+
+
+
+### Additional Non-Geopgraphic Exploratory Visualizations
+
+```{r message=FALSE, warning=FALSE, results='hide',fig.height=12, fig.width=15}
+
+ggpairs(semifinal_data %>% select(-zip_code))
+
+summary(semifinal_data)
+
+```
