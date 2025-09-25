@@ -19,3 +19,6 @@ __pycache__/
 # Ignore data folder for Assignment7
 Assignment7/data/
 *docx
+
+
+Fall2025/DATA698/nyc_dob_energy_2010_2024.csv
