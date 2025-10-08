@@ -48,22 +48,25 @@ Notes:
 
 ```{r}
 ## Pulling in the manually downloaded FireArm Death Data because of the WONDER API being down. (https://www.cdc.gov/nchs/state-stats/deaths/firearms.html#cdc_data_surveillance_section_1-mortality-rates)
-cdc_deaths_file <- "C:/Users/johnf/Documents/Github/CUNY_SPS_WORK/FALL2025/DATA608/Story3/cdc_gundeaths_state.csv"
+# cdc_deaths_file <- "C:/Users/johnf/Documents/Github/CUNY_SPS_WORK/FALL2025/DATA608/Story3/cdc_gundeaths_state.csv"
+cdc_deaths_file <-"https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/FALL2025/DATA608/Story3/cdc_gundeaths_state.csv"
 deaths    <- read_csv(cdc_deaths_file)
 
 # head(deaths)
 
 ## Everytown Gun Law Ranking Data (https://everytownresearch.org/rankings/) 2025
-everytown_gun_data <- "C:/Users/johnf/Documents/Github/CUNY_SPS_WORK/FALL2025/DATA608/Story3/everytown_gun_law_rankings_by_category.csv"
+# everytown_gun_data <- "C:/Users/johnf/Documents/Github/CUNY_SPS_WORK/FALL2025/DATA608/Story3/everytown_gun_law_rankings_by_category.csv"
+everytown_gun_data <-"https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/FALL2025/DATA608/Story3/everytown_gun_law_rankings_by_category.csv"
 everytown <- read_csv(everytown_gun_data)
 
 # head(everytown)
 
 ## Giffords Law Center (https://giffords.org/lawcenter/resources/scorecard/) 2025, its their latest scorecard?
-gifford_gun_data <- "C:/Users/johnf/Documents/Github/CUNY_SPS_WORK/FALL2025/DATA608/Story3/giffords_gun_laws_and_death_rates.csv"
+# gifford_gun_data <- "C:/Users/johnf/Documents/Github/CUNY_SPS_WORK/FALL2025/DATA608/Story3/giffords_gun_laws_and_death_rates.csv"
+gifford_gun_data <-"https://raw.githubusercontent.com/jhnboyy/CUNY_SPS_WORK/refs/heads/main/FALL2025/DATA608/Story3/giffords_gun_laws_and_death_rates.csv"
 giffords  <- read_csv(gifford_gun_data)
 
-# head(giffords)
+#head(giffords)
 
 ## Shapefile for Mapping 
 states_sf <- tigris::states(cb = TRUE, year = 2023, class = "sf") |> select(STUSPS, NAME, GEOID, geometry) |>
