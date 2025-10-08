@@ -1,0 +1,51 @@
+State,Gun Law Strength Rank,Grade,Gun Death Rate Rank,Gun Death Rate per 100k
+California,1,A,44,8
+New Jersey,2,A,49,4.6
+Connecticut,3,A,45,6.2
+New York,4,A,48,4.7
+Massachusetts,5,A,50,3.7
+Illinois,6,A-,32,13.5
+Hawaii,7,A-,46,4.9
+Maryland,8,A-,37,12.3
+Washington,9,A-,33,13
+Colorado,10,A-,20,16.6
+Oregon,11,A-,26,14.2
+Rhode Island,12,A-,47,4.8
+Delaware,13,A-,39,12
+Virginia,14,B+,29,13.8
+Minnesota,15,B,43,8.9
+Pennsylvania,16,B,31,13.6
+Michigan,17,B,28,13.9
+Vermont,18,B,38,12
+New Mexico,19,B-,4,25.3
+Nevada,20,B-,15,18.4
+Maine,21,C+,27,14
+Wisconsin,22,C,35,12.7
+Nebraska,23,C-,40,10.6
+Florida,24,C-,30,13.7
+North Carolina,24,C-,21,16.4
+Ohio,26,D-,23,15
+Indiana,27,D-,17,18.3
+New Hampshire,28,D-,42,9.6
+Texas,29,F,24,14.9
+Utah,29,F,25,14.8
+Georgia,31,F,13,18.6
+Tennessee,32,F,6,22
+Iowa,32,F,41,10.5
+North Dakota,34,F,34,12.8
+South Carolina,34,F,12,19.1
+West Virginia,34,F,19,16.8
+Alabama,34,F,3,25.6
+Montana,45,F,9,21.5
+Oklahoma,39,F,11,19.9
+Louisiana,38,F,2,28.3
+Alaska,40,F,5,23.5
+Arizona,41,F,14,18.5
+Kansas,42,F,22,16.3
+Mississippi,43,F,1,29.4
+South Dakota,43,F,36,12.3
+Missouri,48,F,10,21.4
+Arkansas,48,F,7,21.9
+Kentucky,47,F,16,18.4
+Wyoming,50,F,8,21.5
+Idaho,46,F,18,17.9

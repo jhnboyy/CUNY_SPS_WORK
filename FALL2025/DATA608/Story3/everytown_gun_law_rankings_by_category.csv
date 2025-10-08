@@ -1,0 +1,51 @@
+State,Gun Law Strength Rank,Category
+California,1,National Leaders
+Massachusetts,2,National Leaders
+Illinois,3,National Leaders
+New York,4,National Leaders
+Connecticut,5,National Leaders
+New Jersey,6,National Leaders
+Hawaii,7,National Leaders
+Maryland,8,National Leaders
+Washington,9,National Leaders
+Colorado,10,Making Progress
+Delaware,11,Making Progress
+Oregon,12,Making Progress
+Rhode Island,13,Making Progress
+Minnesota,14,Making Progress
+Virginia,15,Making Progress
+New Mexico,16,Making Progress
+Vermont,17,Making Progress
+Pennsylvania,18,Making Progress
+Nevada,19,Making Progress
+Michigan,20,Making Progress
+Florida,21,Missing Key Laws
+Maine,22,Missing Key Laws
+Wisconsin,23,Missing Key Laws
+North Carolina,24,Missing Key Laws
+Nebraska,25,Missing Key Laws
+West Virginia,26,Weak Systems
+Indiana,27,Weak Systems
+Iowa,28,Weak Systems
+Tennessee,29,Weak Systems
+Ohio,30,Weak Systems
+South Carolina,31,Weak Systems
+Texas,32,Weak Systems
+Louisiana,33,Weak Systems
+Alabama,34,Weak Systems
+North Dakota,35,Weak Systems
+Utah,36,Weak Systems
+Kansas,37,National Failures
+New Hampshire,38,National Failures
+Kentucky,39,National Failures
+Alaska,40,National Failures
+Missouri,41,National Failures
+Oklahoma,42,National Failures
+Arizona,43,National Failures
+Wyoming,44,National Failures
+South Dakota,45,National Failures
+Georgia,46,National Failures
+Montana,47,National Failures
+Arkansas,48,National Failures
+Mississippi,49,National Failures
+Idaho,50,National Failures

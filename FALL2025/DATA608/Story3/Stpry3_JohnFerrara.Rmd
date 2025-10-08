@@ -1,0 +1,256 @@
+---
+title: "DATA608_Story3"
+author: "John Ferrara"
+date: "`r Sys.Date()`"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+#knitr::opts_chunk$set(echo = TRUE)
+#install.packages("Metrics")
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+
+library(readr)
+library(stringr)
+library(sf)
+library(tigris)
+library(ggplot2)
+library(viridis)
+library(dplyr)
+
+
+```
+
+## Story 3 Assignment 
+
+#### Instructions
+The CDC publishes firearm mortality for each State per 100,000 persons https://www.cdc.gov/nchs/pressroom/sosmap/firearm_mortality/firearm.htm. Each State' firearm control laws can be categorized as very strict to very lax. The purpose of this Story is to answer the question, " Do stricter firearm control laws help reduce firearm mortality?"
+
+For this assignment you will need to:
+- Access the firearm mortality data from the CDC using an available API (https://open.cdc.gov/apis.html)
+- Create a 5 point Likert scale categorizing gun control laws from most lax to strictest and assign each state to the most appropriate Likert bin.
+- Determine wether stricter gun control laws result in reduced gun violence deaths
+- Present your story using  heat maps
+
+Notes:
+- You may not use the same desktop application that you have used for a previous story.
+- If you use color in your visuals you must use an accessible color palette. 
+- This assignment is due at the end of the week six of the semester
+
+
+## Beginning of Work 
+
+##### NOTE: The CDC Apis do not seem to be functional, I dont know if it is a result of the government shut down or the Trump administration's data scrubbing efforts. I will be doing my best to source and leverage data from whateversources I can find on this topic.
+
+### Reading in data
+
+```{r}
+## Pulling in the manually downloaded FireArm Death Data because of the WONDER API being down. (https://www.cdc.gov/nchs/state-stats/deaths/firearms.html#cdc_data_surveillance_section_1-mortality-rates)
+cdc_deaths_file <- "C:/Users/johnf/Documents/Github/CUNY_SPS_WORK/FALL2025/DATA608/Story3/cdc_gundeaths_state.csv"
+deaths    <- read_csv(cdc_deaths_file)
+
+# head(deaths)
+
+## Everytown Gun Law Ranking Data (https://everytownresearch.org/rankings/) 2025
+everytown_gun_data <- "C:/Users/johnf/Documents/Github/CUNY_SPS_WORK/FALL2025/DATA608/Story3/everytown_gun_law_rankings_by_category.csv"
+everytown <- read_csv(everytown_gun_data)
+
+# head(everytown)
+
+## Giffords Law Center (https://giffords.org/lawcenter/resources/scorecard/) 2025, its their latest scorecard?
+gifford_gun_data <- "C:/Users/johnf/Documents/Github/CUNY_SPS_WORK/FALL2025/DATA608/Story3/giffords_gun_laws_and_death_rates.csv"
+giffords  <- read_csv(gifford_gun_data)
+
+# head(giffords)
+
+## Shapefile for Mapping 
+states_sf <- tigris::states(cb = TRUE, year = 2023, class = "sf") |> select(STUSPS, NAME, GEOID, geometry) |>
+   filter(!NAME %in% c("Puerto Rico", "Guam", "American Samoa",
+                       "Commonwealth of the Northern Mariana Islands",
+                       "United States Virgin Islands")) |>
+  # Additional projection shifts for aesthetics
+  tigris::shift_geometry() |>  st_transform(5070)
+
+# print(unique(states_sf$NAME)) ## 51 values because of DC
+
+## Testing Map Plot 
+# ggplot(states_sf) +  geom_sf() +
+#   theme_minimal()
+
+```
+
+
+### Processing Data to Work with Visuals
+
+``` {r}
+## Limiting the CDC Death data to latest year.
+## Latest year is 2023, which is not 2025. However, with the status of the CDC website and API, I dont believe there is additional data for 2025. However, after spot checking against the giffords data, this may be the data they used as well.
+
+deaths_latest <- subset(deaths,YEAR == 2023)
+
+## Joining everytown and giffords. Giffords data has no year, however it's their latest annual ranking, so its safe to assume its 2025.
+
+## limiting and renaming 
+everytown <- everytown %>%
+  rename(EverytownLawStrengthRank = `Gun Law Strength Rank`) %>%
+  select(-Category)
+
+# head(everytown)
+
+## Only interested in the gun law strength rank
+giffords <- giffords %>%
+  select(State, `Gun Law Strength Rank`) %>% 
+  rename(GiffordsLawStrengthRank = `Gun Law Strength Rank`) 
+
+# head(giffords)
+
+## Joining them, and adding another column for both rank scores for a custom score. Points out of 100 
+gun_law_strgth <- giffords %>%  left_join(everytown, by = "State") |> mutate(AverageRank = (GiffordsLawStrengthRank + EverytownLawStrengthRank) / 2)
+
+# print(unique(gun_law_strgth$AverageRank))
+
+## making this scale simple, 50 states so brackets of 10
+gun_law_strgth <- gun_law_strgth %>%  mutate(StrengthScale =  case_when(AverageRank <= 10 ~ "Very Strong", AverageRank <= 20 ~ "Strong", 
+                                                                        AverageRank <= 30 ~ "Moderate", AverageRank <= 40 ~ "Weak", TRUE ~ "Very Weak"))
+``` 
+
+
+
+```{r}
+### Joining both of these into the shapefile map for plotting.
+
+map_sf <- states_sf |>
+  left_join(gun_law_strgth, by = c("NAME" = "State")) |>
+  left_join(deaths_latest, by =c("STUSPS" = "STATE"))
+
+## Creating another custom index for heat map 
+
+## ordering them
+levels_strength <- c("Very Strong","Strong","Moderate","Weak","Very Weak")
+levels_score <- c("Best (Top 20%)","Good (Upper-Middle 20%)","Neutral (Middle 20%)","Bad (Lower-Middle 20%)", "Worst (Bottom 20%)")
+
+map_sf <- map_sf %>%  mutate(GunScoreIndex = (AverageRank+RATE)/100) |>
+  mutate( GunScoreCategory = ntile(GunScoreIndex, 5), 
+            GunScoreCategory = case_when(
+      GunScoreCategory == 1 ~ "Best (Top 20%)",
+      GunScoreCategory == 2 ~ "Good (Upper-Middle 20%)",
+      GunScoreCategory == 3 ~ "Neutral (Middle 20%)" ,
+      GunScoreCategory == 4 ~ "Bad (Lower-Middle 20%)",
+      GunScoreCategory == 5 ~ "Worst (Bottom 20%)",
+      TRUE ~ NA_character_)) |> 
+    mutate( StrengthScale = factor(StrengthScale, levels = levels_strength, ordered = TRUE)) |>
+    mutate( GunScoreCategory = factor(GunScoreCategory, levels = levels_score, ordered = TRUE))
+
+## check Breakdown of the scoring 
+# map_sf
+
+```
+
+
+
+
+
+
+
+
+
+```{r,fig.width=10, fig.height=7}
+
+sub_txt <- str_wrap(
+  "Looking at each state's point, excluding some outliers, one can see the trend towards higher rates of firearm death as gun laws weaken.",
+  width = 80
+)
+
+ggplot(st_drop_geometry(map_sf), aes(x = AverageRank, y = RATE)) +
+  geom_point(aes(color = StrengthScale), size = 3)+
+  scale_x_continuous(name ='')+
+  scale_y_continuous(name = "Firearm Deaths per 100k") +
+  scale_color_manual(values = c("Very Weak" = "#780000",
+                                "Weak" = "#C1121F",
+                                "Moderate" = "#ACACAC",
+                                "Strong" = "#003049",
+                                "Very Strong" = "#669BBC"
+                                ),
+                         name = "Gun Law Strength",
+                         na.translate = FALSE ,
+                         guide = guide_legend(
+                         title.position = "bottom",   
+                         title.hjust = 0.5
+                         )
+                     
+  ) +
+  labs(
+    title = "Do Stronger Firearm Control Laws Reduce Firearm Mortality?",
+    subtitle = sub_txt
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    legend.position = "bottom",
+    plot.title = element_text(face = "bold", size = 15,hjust=0.5),
+    plot.subtitle = element_text(size = 11, lineheight = 1.1,hjust=0.5, margin = margin(b = 10)),
+    axis.text.x = element_blank(),                         
+    axis.ticks.x = element_blank() 
+  )
+
+
+```
+
+
+``` {r,fig.width=10, fig.height=7}
+sub_txt2 <- str_wrap(
+  "This time let's group the points by gun law strength in a box plot. Now the differences in firearm death rate ranges are even clearer for each group.",
+  width = 80
+)
+
+# Confirming no Na, DC is a problem here so just removing for box.
+map_sf_box <-  map_sf %>%   filter(!is.na(StrengthScale))
+
+## Box plot
+ggplot(map_sf_box, aes(x = StrengthScale, y = RATE, fill = StrengthScale)) +
+  geom_boxplot(width = 0.75, outlier.shape = 21, outlier.alpha = 0.75) +
+  geom_jitter(aes(fill = StrengthScale),color = "white",  width = 0.15,  alpha = 0.8,  size = 3, shape = 21) +
+  scale_fill_manual(values = c( "Very Weak"   = "#780000","Weak"        = "#C1121F","Moderate"    = "#ACACAC",
+                                "Strong"      = "#003049","Very Strong" = "#669BBC"),  guide = "none",na.translate = FALSE ,) +
+  labs(x = "Gun Law Strength",y = "Firearm Deaths per 100k", title = "Firearm Death Rates by Gun Law Strength Category", subtitle = sub_txt2) +
+  theme_minimal(base_size = 12) +
+  theme(axis.title.x = element_text(margin = margin(t = 8)),
+        plot.title = element_text(face = "bold", size = 15,hjust=0.5),
+        plot.subtitle = element_text(size = 11, lineheight = 1.1,hjust=0.5, margin = margin(b = 10)),)
+
+
+
+
+```
+
+
+```{r , fig.width=10, fig.height=7}
+sub_txt3 = str_wrap(
+  "It's clear that stronger state gun laws, yield lower firearm death rates on average. Let's put it all together. This map considers both metrics to calculate a Gun Score Index showing each state's standing.",
+  width = 85
+)
+
+ggplot(map_sf) +
+  geom_sf(aes(fill = GunScoreCategory), color = "white", linewidth = 0.75, hjust =0.5) +
+  coord_sf(expand = FALSE)+
+  scale_fill_manual(
+    values = c(  "Best (Top 20%)"    = "#669BBC",  "Good (Upper-Middle 20%)"   = "#003049",  "Neutral (Middle 20%)" = "#ACACAC" ,"Bad (Lower-Middle 20%)" = "#C1121F", "Worst (Bottom 20%)" = "#780000" ),na.translate = FALSE, name = "Gun Score Index*",
+   guide = guide_legend(title.position = "bottom",   title.hjust = 0.5, nrow = 2,)
+  ) +
+  labs(
+    title = "Gun Score Index by State",
+    subtitle = sub_txt3,
+    caption = "* GunScoreIndex = (Gun Law Strength Rank + Firearm Death Rate)/100)"
+  ) +
+  theme_void(base_size = 12) +
+  theme(
+    legend.position = "bottom",
+    axis.title.x = element_text(margin = margin(t = 8)),
+    plot.title = element_text(face = "bold", size = 15,hjust=0.5),
+    plot.subtitle = element_text(size = 11, lineheight = 1.1, hjust=0.5, margin = margin(t=10,b = 10)),
+    plot.caption = element_text(size = 9, , hjust=0.5, margin = margin(t=10, b = 10)),)
+
+
+
+```
