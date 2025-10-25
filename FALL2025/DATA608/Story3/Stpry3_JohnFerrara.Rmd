@@ -3,8 +3,8 @@ title: "DATA608_Story3"
 author: "John Ferrara"
 date: "`r Sys.Date()`"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -185,7 +185,7 @@ ggplot(st_drop_geometry(map_sf), aes(x = AverageRank, y = RATE)) +
                      
   ) +
   labs(
-    title = "Do Stronger Firearm Control Laws Reduce Firearm Mortality?",
+    title = "Stronger Firearm Control Laws Tend to Reduce Firearm Mortality",
     subtitle = sub_txt
   ) +
   theme_minimal(base_size = 12) +
@@ -196,7 +196,6 @@ ggplot(st_drop_geometry(map_sf), aes(x = AverageRank, y = RATE)) +
     axis.text.x = element_blank(),                         
     axis.ticks.x = element_blank() 
   )
-
 
 ```
 
