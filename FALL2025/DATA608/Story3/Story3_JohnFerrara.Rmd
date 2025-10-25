@@ -19,6 +19,9 @@ library(tigris)
 library(ggplot2)
 library(viridis)
 library(dplyr)
+#install.packages(c("biscale","cowplot"))
+library(biscale)
+library(cowplot)
 
 
 ```
@@ -253,6 +256,105 @@ ggplot(map_sf) +
     plot.subtitle = element_text(size = 11, lineheight = 1.1, hjust=0.5, margin = margin(t=10,b = 10)),
     plot.caption = element_text(size = 9, , hjust=0.5, margin = margin(t=10, b = 10)),)
 
+
+
+```
+
+
+```{r , fig.width=10, fig.height=10}
+sub_txt4 = str_wrap(
+  "Lastly, if the Gun Score Index wasn't clear enough. Here is another map, this time a bivariate one in order to illustrate two variables at onc without an index.",
+  width = 85
+)
+
+map_sf2 <- map_sf|>mutate(LawStrengthScore = 51 - AverageRank)
+
+# Classify both variables into terciles (3x3)
+map_sf_bi <- bi_class(
+  map_sf2,
+  x = LawStrengthScore ,
+  y = RATE,
+  style = "quantile",
+  dim = 3
+)
+### used AI to help with pallette building 
+# 2) Custom 3×3 palette
+blend <- function(col1, col2, w = 0.5) {
+  c1 <- col2rgb(col1); c2 <- col2rgb(col2)
+  grDevices::rgb((1-w)*c1[1,]+w*c2[1,], (1-w)*c1[2,]+w*c2[2,], (1-w)*c1[3,]+w*c2[3,], maxColorValue = 255)
+}
+# easing (use /2 because dim=3 → indices 0..2)
+ease <- function(t, p = 0.9) t^p
+
+blue_dark <- "#003049"  # best corner (strong + low)
+blue_light <- "#669BBC"
+red_dark  <- "#780000"  # worst corner (weak + high)
+red_light <- "#C1121F"
+neutral   <- "#ACACAC"
+
+# Build 3×3 grid (x: weak→strong = 1..3, y: low→high = 1..3)
+mat_cols <- list()
+for (y in 1:3) {
+  y_t <- ease((y-1)/2)  # 0..1, more red as deaths increase
+  anchor_red  <- blend(neutral, red_dark,  0.70 * y_t)
+  anchor_blue <- blend(neutral, blue_dark, 0.70 * (1 - y_t))
+  # soften toward lighter hues
+  anchor_red  <- blend(anchor_red,  red_light,  0.15)
+  anchor_blue <- blend(anchor_blue, blue_light, 0.15)
+
+  for (x in 1:3) {
+    x_t <- ease((x-1)/2)  # 0..1, more blue as laws strengthen
+    col_xy <- blend(anchor_red, anchor_blue, x_t)
+    nm <- paste0(x, "-", y)
+    mat_cols[[nm]] <- col_xy
+  }
+}
+# center cell = gray
+mat_cols[["2-2"]] <- neutral
+
+# Build map (colors encode the combo of X=law strength, Y=deaths)
+bi_map <- ggplot(map_sf_bi) +
+  geom_sf(aes(fill = bi_class), color = "white", linewidth = 0.3) +
+  scale_fill_manual(values = unlist(mat_cols), guide = "none") +
+  coord_sf(expand = FALSE) +
+  labs(    
+    title = "Gun Law Strength and Gun Death Rate by State",
+    subtitle = sub_txt4,
+    caption = ""
+  ) +
+  theme_void(base_size = 12) +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(face = "bold", size = 15, hjust = 0.5),
+    plot.subtitle = element_text(size = 11, hjust = 0.5, margin = margin(b = 10)),
+    plot.caption = element_text(size = 9, hjust = 0.5, margin = margin(t = 10))
+  )
+## Legend
+make_bi_key <- function(cols, dim = 3) {
+  df_key <- expand.grid(x = 1:dim, y = 1:dim)
+  df_key$lab <- paste0(df_key$x, "-", df_key$y)
+  ggplot(df_key, aes(x, y)) +
+    geom_tile(aes(fill = lab), color = "white", linewidth = 0.3) +
+    scale_fill_manual(values = cols) +
+    coord_equal() + theme_void() + theme(legend.position = "none")
+}
+key <- make_bi_key(unlist(mat_cols), dim = 3)
+
+# Labels with a bit of padding so text isn't clipped
+legend_grob <- ggdraw() +
+  # smaller tile block, centered in the legend box
+  draw_plot(key, x = 0.32, y = 0.30, width = 0.6, height = 0.6) +
+  draw_label("Gun Laws:\n Weaker->Stronger",
+             x = 0.6, y = 0.95, size = 11, hjust = 0.5, vjust = 0) +
+  # Y-axis label (vertical, centered left of tiles)
+  draw_label("Gun Deaths:\n Lower->Higher",
+             x = 0.10, y = 0.6, angle = 90, size = 11,
+             hjust = 0.5, vjust = 0.5)
+
+## Compose — same position, just the improved legend
+ggdraw() +
+  draw_plot(bi_map, 0, 0, 1, 1) +
+  draw_plot(legend_grob, 0.68, 0.03, 0.18, 0.18)
 
 
 ```
