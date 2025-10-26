@@ -1,0 +1,52 @@
+source_url,job_title,state,state_abbr,annual_salary_usd,monthly_pay_usd,weekly_pay_usd,hourly_wage_usd,rank
+https://www.ziprecruiter.com/Salaries/What-Is-the-Average-DATA-Scientist-Salary-by-State,Data Scientist,Washington,WA,139013,11584,2673,66.83,1
+https://www.ziprecruiter.com/Salaries/What-Is-the-Average-DATA-Scientist-Salary-by-State,Data Scientist,District of Columbia,DC,138698,11558,2667,66.68,2
+https://www.ziprecruiter.com/Salaries/What-Is-the-Average-DATA-Scientist-Salary-by-State,Data Scientist,New York,NY,134280,11190,2582,64.56,3
+https://www.ziprecruiter.com/Salaries/What-Is-the-Average-DATA-Scientist-Salary-by-State,Data Scientist,Massachusetts,MA,134046,11170,2577,64.45,4
+https://www.ziprecruiter.com/Salaries/What-Is-the-Average-DATA-Scientist-Salary-by-State,Data Scientist,Alaska,AK,132182,11015,2541,63.55,5
+https://www.ziprecruiter.com/Salaries/What-Is-the-Average-DATA-Scientist-Salary-by-State,Data Scientist,Vermont,VT,130502,10875,2509,62.74,6
+https://www.ziprecruiter.com/Salaries/What-Is-the-Average-DATA-Scientist-Salary-by-State,Data Scientist,North Dakota,ND,129867,10822,2497,62.44,7
+https://www.ziprecruiter.com/Salaries/What-Is-the-Average-DATA-Scientist-Salary-by-State,Data Scientist,Oregon,OR,129770,10814,2495,62.39,8
+https://www.ziprecruiter.com/Salaries/What-Is-the-Average-DATA-Scientist-Salary-by-State,Data Scientist,Colorado,CO,129062,10755,2481,62.05,9
+https://www.ziprecruiter.com/Salaries/What-Is-the-Average-DATA-Scientist-Salary-by-State,Data Scientist,Hawaii,HI,127520,10626,2452,61.31,10
+https://www.ziprecruiter.com/Salaries/What-Is-the-Average-DATA-Scientist-Salary-by-State,Data Scientist,Nevada,NV,124985,10415,2403,60.09,11
+https://www.ziprecruiter.com/Salaries/What-Is-the-Average-DATA-Scientist-Salary-by-State,Data Scientist,New Jersey,NJ,124608,10384,2396,59.91,12
+https://www.ziprecruiter.com/Salaries/What-Is-the-Average-DATA-Scientist-Salary-by-State,Data Scientist,Wisconsin,WI,123886,10323,2382,59.56,13
+https://www.ziprecruiter.com/Salaries/What-Is-the-Average-DATA-Scientist-Salary-by-State,Data Scientist,Pennsylvania,PA,123033,10252,2366,59.15,14
+https://www.ziprecruiter.com/Salaries/What-Is-the-Average-DATA-Scientist-Salary-by-State,Data Scientist,Delaware,DE,122844,10237,2362,59.06,15
+https://www.ziprecruiter.com/Salaries/What-Is-the-Average-DATA-Scientist-Salary-by-State,Data Scientist,South Dakota,SD,122738,10228,2360,59.01,16
+https://www.ziprecruiter.com/Salaries/What-Is-the-Average-DATA-Scientist-Salary-by-State,Data Scientist,Virginia,VA,121686,10140,2340,58.5,17
+https://www.ziprecruiter.com/Salaries/What-Is-the-Average-DATA-Scientist-Salary-by-State,Data Scientist,California,CA,121131,10094,2329,58.24,18
+https://www.ziprecruiter.com/Salaries/What-Is-the-Average-DATA-Scientist-Salary-by-State,Data Scientist,Minnesota,MN,120211,10017,2311,57.79,19
+https://www.ziprecruiter.com/Salaries/What-Is-the-Average-DATA-Scientist-Salary-by-State,Data Scientist,Rhode Island,RI,120199,10016,2311,57.79,20
+https://www.ziprecruiter.com/Salaries/What-Is-the-Average-DATA-Scientist-Salary-by-State,Data Scientist,New Hampshire,NH,119364,9947,2295,57.39,21
+https://www.ziprecruiter.com/Salaries/What-Is-the-Average-DATA-Scientist-Salary-by-State,Data Scientist,Maryland,MD,119123,9926,2290,57.27,22
+https://www.ziprecruiter.com/Salaries/What-Is-the-Average-DATA-Scientist-Salary-by-State,Data Scientist,New Mexico,NM,118943,9911,2287,57.18,23
+https://www.ziprecruiter.com/Salaries/What-Is-the-Average-DATA-Scientist-Salary-by-State,Data Scientist,Illinois,IL,118937,9911,2287,57.18,24
+https://www.ziprecruiter.com/Salaries/What-Is-the-Average-DATA-Scientist-Salary-by-State,Data Scientist,Maine,ME,118835,9902,2285,57.13,25
+https://www.ziprecruiter.com/Salaries/What-Is-the-Average-DATA-Scientist-Salary-by-State,Data Scientist,Wyoming,WY,117979,9831,2268,56.72,26
+https://www.ziprecruiter.com/Salaries/What-Is-the-Average-DATA-Scientist-Salary-by-State,Data Scientist,Nebraska,NE,117025,9752,2250,56.26,27
+https://www.ziprecruiter.com/Salaries/What-Is-the-Average-DATA-Scientist-Salary-by-State,Data Scientist,Indiana,IN,116793,9732,2246,56.15,28
+https://www.ziprecruiter.com/Salaries/What-Is-the-Average-DATA-Scientist-Salary-by-State,Data Scientist,Connecticut,CT,116759,9729,2245,56.13,29
+https://www.ziprecruiter.com/Salaries/What-Is-the-Average-DATA-Scientist-Salary-by-State,Data Scientist,Ohio,OH,116687,9723,2243,56.1,30
+https://www.ziprecruiter.com/Salaries/What-Is-the-Average-DATA-Scientist-Salary-by-State,Data Scientist,Mississippi,MS,116242,9686,2235,55.89,31
+https://www.ziprecruiter.com/Salaries/What-Is-the-Average-DATA-Scientist-Salary-by-State,Data Scientist,Idaho,ID,115484,9623,2220,55.52,32
+https://www.ziprecruiter.com/Salaries/What-Is-the-Average-DATA-Scientist-Salary-by-State,Data Scientist,Iowa,IA,115284,9607,2217,55.42,33
+https://www.ziprecruiter.com/Salaries/What-Is-the-Average-DATA-Scientist-Salary-by-State,Data Scientist,Missouri,MO,115129,9594,2214,55.35,34
+https://www.ziprecruiter.com/Salaries/What-Is-the-Average-DATA-Scientist-Salary-by-State,Data Scientist,Arizona,AZ,114378,9531,2199,54.99,35
+https://www.ziprecruiter.com/Salaries/What-Is-the-Average-DATA-Scientist-Salary-by-State,Data Scientist,Texas,TX,114350,9529,2199,54.98,36
+https://www.ziprecruiter.com/Salaries/What-Is-the-Average-DATA-Scientist-Salary-by-State,Data Scientist,South Carolina,SC,113896,9491,2190,54.76,37
+https://www.ziprecruiter.com/Salaries/What-Is-the-Average-DATA-Scientist-Salary-by-State,Data Scientist,Oklahoma,OK,113329,9444,2179,54.49,38
+https://www.ziprecruiter.com/Salaries/What-Is-the-Average-DATA-Scientist-Salary-by-State,Data Scientist,Montana,MT,112655,9387,2166,54.16,39
+https://www.ziprecruiter.com/Salaries/What-Is-the-Average-DATA-Scientist-Salary-by-State,Data Scientist,Utah,UT,111737,9311,2148,53.72,40
+https://www.ziprecruiter.com/Salaries/What-Is-the-Average-DATA-Scientist-Salary-by-State,Data Scientist,North Carolina,NC,111545,9295,2145,53.63,41
+https://www.ziprecruiter.com/Salaries/What-Is-the-Average-DATA-Scientist-Salary-by-State,Data Scientist,Tennessee,TN,111399,9283,2142,53.56,42
+https://www.ziprecruiter.com/Salaries/What-Is-the-Average-DATA-Scientist-Salary-by-State,Data Scientist,Alabama,AL,111249,9270,2139,53.49,43
+https://www.ziprecruiter.com/Salaries/What-Is-the-Average-DATA-Scientist-Salary-by-State,Data Scientist,Kansas,KS,109464,9122,2105,52.63,44
+https://www.ziprecruiter.com/Salaries/What-Is-the-Average-DATA-Scientist-Salary-by-State,Data Scientist,Michigan,MI,106978,8914,2057,51.43,45
+https://www.ziprecruiter.com/Salaries/What-Is-the-Average-DATA-Scientist-Salary-by-State,Data Scientist,Kentucky,KY,106602,8883,2050,51.25,46
+https://www.ziprecruiter.com/Salaries/What-Is-the-Average-DATA-Scientist-Salary-by-State,Data Scientist,Louisiana,LA,104957,8746,2018,50.46,47
+https://www.ziprecruiter.com/Salaries/What-Is-the-Average-DATA-Scientist-Salary-by-State,Data Scientist,Georgia,GA,103638,8636,1993,49.83,48
+https://www.ziprecruiter.com/Salaries/What-Is-the-Average-DATA-Scientist-Salary-by-State,Data Scientist,Arkansas,AR,101493,8457,1951,48.79,49
+https://www.ziprecruiter.com/Salaries/What-Is-the-Average-DATA-Scientist-Salary-by-State,Data Scientist,West Virginia,WV,95020,7918,1827,45.68,50
+https://www.ziprecruiter.com/Salaries/What-Is-the-Average-DATA-Scientist-Salary-by-State,Data Scientist,Florida,FL,91721,7643,1763,44.1,51
