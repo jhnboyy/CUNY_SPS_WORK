@@ -98,7 +98,7 @@ geopy==2.4.1
 gitdb==4.0.11
 GitPython==3.1.43
 googlemaps==4.10.0
--e git+https://github.com/nomic-ai/gpt4all.git@c72c73a94fcf653ecf0c8969a88068dd0e0d416f#egg=gpt4all&subdirectory=gpt4all-bindings\python
+gpt4all==2.8.2
 grpcio==1.66.2
 h11==0.14.0
 hexbytes==1.2.1
@@ -179,7 +179,7 @@ networkx==3.3
 ninja==1.11.1.1
 notebook==7.2.2
 notebook_shim==0.2.4
-numba==0.58.1
+numba>=0.60
 numpy==1.26.4
 nvidia-cublas-cu12==12.4.2.65
 nvidia-cuda-nvcc-cu12==12.4.99
@@ -203,7 +203,6 @@ outcome==1.3.0.post0
 overrides==7.7.0
 packaging==24.2
 pandas==2.3.1
-pandas_ta==0.3.14b0
 pandocfilters==1.5.1
 parsimonious==0.10.0
 parso==0.8.4
@@ -259,7 +258,7 @@ pyzmq==25.1.2
 rank-bm25==0.2.2
 RapidFuzz==3.13.0
 rasterio==1.4.3
-ray==2.20.0
+ray
 referencing==0.35.1
 regex==2024.9.11
 rembg==2.0.61
@@ -313,9 +312,6 @@ tokenizers==0.20.1
 toml==0.10.2
 tomli==2.0.1
 toolz==0.12.1
-torch==2.1.2+cu121
-torchaudio==2.1.2+cu121
-torchvision==0.16.2+cu121
 tornado==6.4
 tqdm==4.67.1
 traitlets==5.14.1
@@ -349,4 +345,4 @@ xxhash==3.5.0
 xyzservices==2025.4.0
 yahooquery==2.3.7
 yarl==1.11.1
-zipp==3.20.2
+zipp
