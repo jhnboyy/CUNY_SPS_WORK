@@ -1,0 +1,4 @@
+model,roc_auc,pr_auc,precision_pos,recall_pos,f1_pos,precision_neg,recall_neg,f1_neg,macro_precision,macro_recall,macro_f1,weighted_precision,weighted_recall,weighted_f1,tn,fp,fn,tp
+rand_forest3,0.8017,0.4422,0.4509,0.5243,0.4848,0.9347,0.9143,0.9244,0.6928,0.7193,0.7046,0.8775,0.8682,0.8724,7162,671,500,551
+rand_forest2,0.7958,0.435,0.4971,0.4139,0.4517,0.9231,0.9438,0.9333,0.7101,0.6789,0.6925,0.8727,0.8811,0.8764,7393,440,616,435
+adaboost1,0.7851,0.4289,0.6285,0.1931,0.2955,0.9009,0.9847,0.941,0.7647,0.5889,0.6182,0.8687,0.891,0.8646,7713,120,848,203
