@@ -1,6 +1,6 @@
-# Project Title
+# Urban Tree Presence and Multifamily Residential Building Energy Use in New York City
 
-_A brief description of your project and its purpose._
+_This project seeks to examine the relationship between tree presence within specific proximities of specific NYC residential buildings and their impact on energy use rates for those buildings. This project curated a unique data set from mulitple city-level public datasets._
 
 ## 📖 Table of Contents
 - [Overview](#overview)
@@ -16,104 +16,89 @@ _A brief description of your project and its purpose._
 ---
 
 ## 🌟 Overview
-Describe the **goal of your project** and what problem it solves.  
-Include context like:
-- Why you're building it
-- The intended audience
-- The core idea behind it
 
-Example:
-> This project aims to provide a comprehensive dataset for analyzing XYZ. The goal is to streamline data collection and preprocessing so researchers can focus on model building.
+Buildings are the largest source of carbon emissions in New York City, primarily due to heating and cooling demands. At the same time, NYC has invested heavily in urban forestry initiatives, with tools such as the NYC Tree Map estimating substantial energy savings from tree canopy coverage. However, those estimates are largely **model-based and generalized**, rather than empirically tied to **measured building energy use**.
+
+This project bridges that gap by:
+
+- Linking **measured, weather-normalized building energy data** (Local Law 84) with  
+- **Observed changes in tree canopy coverage** and  
+- **Tree counts within defined proximities to building footprints**
+
+The intended audience includes:
+- Urban planners and policy analysts  
+- Energy and climate researchers  
+- Data scientists working with causal inference and spatial data  
+
+The core idea is to move beyond generalized benefit estimates and toward **empirical, building-specific evidence** of how urban trees influence residential energy use in dense, mixed-use cities like NYC.
 
 ---
 
 ## ✨ Features
-List out the **key features** your project will have. You can update this as development progresses.
 
-- Data ingestion from multiple sources  
-- Automated data cleaning and transformation  
-- API integration for real-time updates  
-- Export processed data into multiple formats (CSV, JSON, etc.)
+- Integration of **multiple NYC Open Data datasets** into a unified analytical dataset  
+- Spatial joins using **building footprints** rather than address centroids  
+- Construction of a **panel dataset (2010–2017)** at the building (BBL) level  
+- Tree proximity analysis using a **50-foot buffer** around building footprints  
+- Application of **difference-in-differences (DiD)** methodology for causal inference  
+- Extensive **data cleaning, enrichment, and feature engineering**  
+- Reproducible analysis via Jupyter notebooks  
 
 ---
 
 ## 🗂 Project Structure
 Explain your directory structure so contributors understand the layout.
+## 🗂 Project Structure
 
-project-name/
+DATA698/
 │
-├── data/ # Raw and processed data files
-│ ├── raw/ # Original datasets
-│ └── processed/ # Cleaned datasets
+├── archive/                       # Archived drafts and older materials
 │
-├── notebooks/ # Jupyter or Colab notebooks
-├── scripts/ # Utility and automation scripts
-├── requirements.txt # Python dependencies
-└── README.md # Project documentation
+├── images/                        # Figures and visualizations used in analysis
+│
+├── raw_data/                      # Raw datasets pulled from NYC Open Data and APIs
+│
+├── processed_data/                # Cleaned and intermediate datasets
+│
+├── BuildingWork_Part1.ipynb       # Building energy data ingestion & enrichment
+│
+├── TreeWork_Part2.ipynb           # Tree inventory & forestry data processing
+│
+├── Analysis_Part3.ipynb           # Data aggregation, EDA, and DiD modeling
+│
+├── Urban Tree Presence and Multifamily Residential Building Energy Use in NYC.pdf
+│                                   # Final written capstone paper
+│
+├── Urban Tree Presence and Multifamily Residential Building Energy Use in NYC.docx
+│                                   # Editable paper draft
+│
+└── README.md                      # Project documentation
 
 
 ---
 
 ## 📊 Data Sources
-Add **data source links** as you confirm them. This section can grow over time.
 
-| Source Name | Type        | URL | Notes |
-|-------------|------------|-----|-------|
-| Example Data Source 1 | CSV Download | [Link](https://example.com/data.csv) | Needs cleaning |
-| Example API Source | API | [Link](https://api.example.com/docs) | Requires authentication |
+| Source Name | Type | URL | Notes |
+|------------|------|-----|------|
+| NYC Building Energy & Water Disclosure (LL84) | CSV / API | https://data.cityofnewyork.us/Environment/NYC-Building-Energy-and-Water-Data-Disclosure-for-/5zyy-y8am | Weather-normalized EUI used |
+| Tree Canopy Change (2010–2017) | GIS / LiDAR | https://data.cityofnewyork.us/Environment/Tree-Canopy-Change-2010-2017-/by9k-vhck | Gain / Loss / No Change |
+| Forestry Tree Points | GIS | https://data.cityofnewyork.us/Environment/Forestry-Tree-Points/hn5i-inap | Tree inventory |
+| Forestry Work Orders | GIS | https://data.cityofnewyork.us/Environment/Forestry-Work-Orders/bdjm-n7q4 | Used to estimate removals |
+| PLUTO / MapPLUTO | GIS / Tabular | https://www.nyc.gov/site/planning/data-maps/open-data.page | Building characteristics |
+| Building Footprints | GIS | https://github.com/CityOfNewYork/nyc-geo-metadata | Accurate spatial boundaries |
+| NYC Planning Labs Geosearch API | API | https://geosearch.planninglabs.nyc/ | BBL enrichment |
+| Google Maps API | API | https://mapsplatform.google.com/ | Address geocoding |
+| 2010 Census Tracts | GIS | https://data.cityofnewyork.us/City-Government/2010-Census-Tracts/bmjq-373p | Spatial context |
 
-> ⚠️ *Some URLs are placeholders while data sources are still being finalized.*
+## 🤝 Contributing
 
----
-
-## ⚙️ Installation
-Step-by-step instructions to set up the project locally.
-
-```bash
-# Clone the repository
-git clone https://github.com/your-username/your-repo.git
-
-# Navigate to the project folder
-cd your-repo
-
-# Install dependencies
-pip install -r requirements.txt
-
-🚀 Usage
-
-How to run the project once it's installed.
-
-Example:
-
-# Run data collection
-python scripts/collect_data.py
-
-# Run data cleaning
-python scripts/clean_data.py
-
-🗺 Roadmap
-
-Track your progress and next steps.
-You can use GitHub issues or a project board as well.
-
- Identify and confirm data sources
-
- Build initial data ingestion pipeline
-
- Add data cleaning and preprocessing scripts
-
- Create basic visualizations and reports
-
- Package and release v1.0
-
-🤝 Contributing
-
-If you'd like others to contribute, add some guidelines here.
+If you''d like others to contribute, add some guidelines here.
 Example:
 
 Contributions are welcome! Please fork the repo, make your changes, and submit a pull request.
 
-📜 License
+## 📜 License
 
 Specify a license so others know how they can use your project.
 Example:
@@ -121,5 +106,3 @@ Example:
 This project is licensed under the MIT License - see the LICENSE
  file for details.
 
-
-You can paste this directly into GitHub, and GitHub will automatically render it wit
