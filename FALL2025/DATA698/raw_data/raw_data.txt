@@ -1,0 +1,1 @@
+Holding place for the directory on Git. This directory is where the contents of the "raw_data" folder shared on OneDrive should be placed for the code to reference, assuming the git repo is cloned locally.
