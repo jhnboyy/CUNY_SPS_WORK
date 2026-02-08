@@ -26,3 +26,6 @@ FALL2025/DATA698/*.csv
 FALL2025/DATA698/raw_data/*.csv
 FALL2025/DATA698/processed_data/*.csv
 FALL2025/DATA698/processed_data/semi_final/*.csv
+Spring2026/DAT620/week3/*.gexf
+Spring2026/DAT620/week3/*.gephi
+Spring2026/DAT620/week3/*.mp4
